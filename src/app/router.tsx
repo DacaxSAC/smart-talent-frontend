@@ -1,5 +1,5 @@
 import App from "./App";
-import { createBrowserRouter, createHashRouter, Outlet } from "react-router-dom";
+import { createHashRouter, Outlet } from "react-router-dom";
 import { authRoutes } from "../features/auth/router/authRoutes";
 import { userRoutes } from "@/features/users/router/userRoutes";
 import { requestsRoutes } from "@/features/requests/router/requestsRoutes";
