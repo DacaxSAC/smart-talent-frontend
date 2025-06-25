@@ -12,7 +12,7 @@ interface ModalProps {
     className?: string;
     showOverlay?: boolean;
     closeOnClickOutside?: boolean;
-    title: string;
+    title?: string;
     footer?: ReactNode;
     animation?: {
         initial?: TargetAndTransition | VariantLabels;
@@ -109,28 +109,32 @@ export const Modal = ({
                         <motion.div
                             ref={modalRef}
                             style={{ width, height }}
-                            className={`bg-white dark:bg-white rounded-lg shadow-lg ${className}`}
+                            className={`bg-white dark:bg-black rounded-lg shadow-lg dark:border dark:border-black-1 ${className}`}
                             initial={selectedAnimation.initial}
                             animate={selectedAnimation.animate}
                             exit={selectedAnimation.exit}
                             transition={selectedAnimation.transition}
                         >
-                            <div className="flex flex-col gap-4">
-                                <div className="flex justify-between items-center border-b border-gray-300 px-[32px] py-[15px]">
-                                    <h3 className="text-black-2 text-[16px]">{title}</h3>
-                                    <button
-                                        onClick={onClose}
-                                        className="p-2 hover:text-main transition-colors"
-                                    >
-                                        <img src={CloseImg} alt="Close modal" />
-                                    </button>
-                                </div>
+                            <div className="flex flex-col gap-4 dark:text-white">
+                                {title &&
+                                    <div className="flex justify-between items-center border-b border-gray-300 px-[32px] py-[15px]">
+                                        <h3 className="text-black-2 dark:text-white text-[16px]">{title}</h3>
+                                        <button
+                                            onClick={onClose}
+                                            className="p-2 hover:text-main transition-colors"
+                                        >
+                                            <img src={CloseImg} alt="Close modal" />
+                                        </button>
+                                    </div>
+                                }
                                 <div className="max-h-[70vh] overflow-y-auto scrollbar-hide py-[16px]">
                                     {children}
                                 </div>
-                                <div className="flex justify-center p-[14px]">
-                                    {footer}
-                                </div>
+                                {footer &&
+                                    <div className="flex justify-center p-[14px]">
+                                        {footer}
+                                    </div>
+                                }
                             </div>
                         </motion.div>
                     </div>

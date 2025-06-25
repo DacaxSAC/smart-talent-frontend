@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { CreationTable } from "../components/private/creation/CreationTable";
 import { RequestsType } from "../types/RequestsListType";
 import { IDocumentType } from "../interfaces/IDocumentTypeResponse";
@@ -8,12 +8,21 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
 import { Loader } from "@/shared/components/Loader";
 import { useUser } from "@/features/auth/hooks/useUser";
+import { Modal } from "@/shared/components/Modal";
+import { Notify } from "notiflix";
 
 export function RequestsCreationPage() {
-  const [requests, setRequests] = useState<RequestsType[]>([]);
+  const [requests, setRequests] = useState<RequestsType[]>([{
+    fullname: "",
+    dni: "",
+    phone: "",
+    isConfirmed: false,
+    documents: [],
+  }]);
   const [openOptionsIndex, setOpenOptionsIndex] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const {user} = useUser();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const toggleOpenOptions = (rowIndex: number) => {
@@ -55,9 +64,7 @@ export function RequestsCreationPage() {
 
   const handleBackToList = () => {
     if (requests.length > 0) {
-      if (confirm('Hay registros pendientes ¿Está seguro que desea regresar?')) {
-        navigate("/requests");
-      }
+      setShowConfirmModal(true);
     } else {
       navigate("/requests");
     }
@@ -70,7 +77,7 @@ export function RequestsCreationPage() {
       setIsLoading(true);
 
       if (requests.length === 0) {
-        alert("Debe agregar al menos una solicitud");
+        Notify.warning("Debe agregar al menos una solicitud");
         return;
       }
 
@@ -83,7 +90,7 @@ export function RequestsCreationPage() {
       );
 
       if (hasIncompleteRequests) {
-        alert(
+        Notify.warning(
           "Todas las solicitudes deben tener datos completos y al menos un documento seleccionado"
         );
         return;
@@ -109,7 +116,7 @@ export function RequestsCreationPage() {
                           contentType: file.type
                         });
 
-                        const signedUrl = signedUrlResponse.data.signedUrl;                        
+                        const signedUrl = signedUrlResponse.data.signedUrl;
 
                         // Subir el archivo usando el hook
                         await uploadFile(file, signedUrl);
@@ -145,10 +152,10 @@ export function RequestsCreationPage() {
       );
 
       // Enviar las solicitudes procesadas al backend
-      const response = await apiClient.post('/requests', { 
-          entityId: user?.entityId, 
-          people: processedRequests 
-        });
+      const response = await apiClient.post('/requests', {
+        entityId: user?.entityId,
+        people: processedRequests
+      });
 
 
       if (response.status === 200) {
@@ -156,69 +163,70 @@ export function RequestsCreationPage() {
       }
 
       setRequests([]);
-      alert("Solicitudes guardadas exitosamente");
+      Notify.success("Solicitudes guardadas exitosamente");
       navigate("/requests");
     } catch (error) {
       console.error("Error:", error);
-      alert("Ocurrió un error al guardar las solicitudes");
+      Notify.failure("Ocurrió un error al guardar las solicitudes");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col mx-12 my-15 gap-4">
-      <div
-        className="
+    <Fragment>
+      <div className="flex flex-col mx-12 my-15 gap-4">
+        <div
+          className="
                     flex flex-row justify-between items-center
                     w-full mt-5 mb-5 md:mt-0
                     text-black dark:text-white"
-      >
-        <div>
-          <p className="font-karla text-[32px] md:text-[36px] xl:text-[36px]">
-            CREACIÓN DE SOLICITUDES
-          </p>
-          <p className="text-[12px] font-light">
-            Registra personas por DNI y nombre para solicitar informes.
-          </p>
-        </div>
-        <motion.button
-          whileHover={{
-            scale: 1.01,
-            transition: { duration: 0.2 },
-          }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleBackToList}
-          className="
+        >
+          <div>
+            <p className="font-karla text-[32px] md:text-[36px] xl:text-[36px]">
+              CREACIÓN DE SOLICITUDES
+            </p>
+            <p className="text-[12px] font-light">
+              Registra personas por DNI y nombre para solicitar informes.
+            </p>
+          </div>
+          <motion.button
+            whileHover={{
+              scale: 1.01,
+              transition: { duration: 0.2 },
+            }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleBackToList}
+            className="
             bg-white-2 dark:bg-black-2 hover:bg-white-1 dark:hover:bg-black-1 
             border border-medium rounded-sidebar 
              py-2 px-16 
             text-[14px] font-light
             cursor-pointer
           "
-        >
-          Regresar a solicitudes
-        </motion.button>
-      </div>
-      <CreationTable
-        requests={requests}
-        openIndex={openOptionsIndex}
-        handleRequests={handleRequests}
-        toggleOpenOptions={toggleOpenOptions}
-        handleOpenOptionsIndex={handleSetOpenOptions}
-        handleDocCheckbox={handleDocCheckbox}
-      />
+          >
+            Regresar a solicitudes
+          </motion.button>
+        </div>
+        <CreationTable
+          requests={requests}
+          openIndex={openOptionsIndex}
+          handleRequests={handleRequests}
+          toggleOpenOptions={toggleOpenOptions}
+          handleOpenOptionsIndex={handleSetOpenOptions}
+          handleDocCheckbox={handleDocCheckbox}
+        />
 
-      <div className="flex justify-end items-center">
-        <motion.button
-          whileHover={{
-            scale: 1.01,
-            transition: { duration: 0.2 },
-          }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleSaveRequests}
-          disabled={isLoading}
-          className={`
+        <div className="flex justify-end items-center">
+          <motion.button
+            whileHover={{
+              scale: 1.01,
+              transition: { duration: 0.2 },
+            }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleSaveRequests}
+            disabled={isLoading}
+            className={`
             bg-main-1plus dark:bg-main hover:bg-main dark:hover:bg-main-1plus 
             rounded-sidebar 
              py-2 px-16 
@@ -226,11 +234,40 @@ export function RequestsCreationPage() {
             cursor-pointer
             ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
           `}
-        >
-          Crear solicitudes
-        </motion.button>
+          >
+            Crear solicitudes
+          </motion.button>
+        </div>
+        {isLoading && <Loader />}
       </div>
-      {isLoading && <Loader />}
-    </div>
+
+      <Modal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        position="center"
+        width="400px"
+      >
+        <div className="py-2 px-8 text-lg text-center">
+          <p>Hay registros pendientes ¿Está seguro que desea regresar?</p>
+          <div className="flex justify-center gap-6 pt-4">
+            <button
+              onClick={() => setShowConfirmModal(false)}
+              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={() => {
+                setShowConfirmModal(false);
+                navigate("/requests");
+              }}
+              className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </Fragment>
   );
 }

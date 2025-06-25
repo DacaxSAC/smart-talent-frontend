@@ -164,7 +164,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
   return (
     <>
       {loading && <Loader />}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 text-black dark:text-white">
         <FormInput
           fieldName="DNI"
           value={user.documentNumber}
@@ -256,44 +256,44 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
       </div>
       {openModal && (
         <div className="fixed inset-0 bg-black-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full flex flex-col gap-5">
-            <h3 className="text-[16px] pb-1 border-b border-white-1">
+          <div className="bg-white dark:bg-black text-black dark:text-white p-6 rounded-lg shadow-lg max-w-md w-full flex flex-col gap-5 border border-medium dark:border-black-1">
+            <h3 className="text-[16px] pb-1 border-b border-white-1 dark:border-black-1">
               Detalles del nuevo cliente
             </h3>
             <div className="w-full flex flex-col gap-2">
                 <div className="flex">
                   <p className="min-w-[120px]">DNI</p>
-                  <p className="flex-1 border border-white-1 rounded-[5px] px-2 text-end">{user.documentNumber}</p>
+                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.documentNumber}</p>
                 </div>
                 <div className="flex">
                   <p className="min-w-[120px]">Nombres</p>
-                  <p className="flex-1 border border-white-1 rounded-[5px] px-2 text-end">{user.firstName}</p>
+                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.firstName}</p>
                 </div>
                 <div className="flex">
                   <p className="min-w-[120px]">Ap. Paterno</p>
-                  <p className="flex-1 border border-white-1 rounded-[5px] px-2 text-end">{user.paternalSurname}</p>
+                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.paternalSurname}</p>
                 </div>
                 <div className="flex">
                   <p className="min-w-[120px]">Ap. Materno</p>
-                  <p className="flex-1 border border-white-1 rounded-[5px] px-2 text-end">{user.maternalSurname}</p>
+                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.maternalSurname}</p>
                 </div>
                 <div className="flex">
                   <p className="min-w-[120px]">Dirección</p>
-                  <p className="flex-1 border border-white-1 rounded-[5px] px-2 text-end">{user.address}</p>
+                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.address}</p>
                 </div>
                 <div className="flex">
                   <p className="min-w-[120px]">Telefono</p>
-                  <p className="flex-1 border border-white-1 rounded-[5px] px-2 text-end">{user.phone}</p>
+                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.phone}</p>
                 </div>
                 <div className="flex">
                   <p className="min-w-[120px]">Correo</p>
-                  <p className="flex-1 border border-white-1 rounded-[5px] px-2 text-end">{user.email}</p>
+                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.email}</p>
                 </div>
             </div>
             <div className="flex justify-around">
               <button
                 onClick={() => setOpenModal(false)}
-                className="text-[14px] font-light border border-white-1 rounded-[5px] px-10 py-1"
+                className="text-[14px] font-light border border-white-1 dark:border-black-1 rounded-[5px] px-10 py-1"
               >
                 Regresar
               </button>

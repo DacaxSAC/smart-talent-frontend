@@ -53,7 +53,7 @@ export function CreateUserPage() {
         />
       </div>
 
-      <p className="text-[14px]">
+      <p className="text-[14px] text-black dark:text-white">
         Ingresa los datos en los campos correspondientes:
       </p>
 

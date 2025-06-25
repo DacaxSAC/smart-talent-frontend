@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/axios/client";
+import { Notify } from "notiflix";
 
 interface ResourceOutputProps {
     name: string;
@@ -31,14 +32,14 @@ export const ResourceOutput = ({ name, value = '' }: ResourceOutputProps) => {
             window.open(signedUrl, '_blank');
         } catch (error) {
             console.error('Error al descargar el documento:', error);
-            alert('Error al descargar el documento. Por favor, inténtelo de nuevo más tarde.');
+            Notify.failure('Error al descargar el documento. Por favor, inténtelo de nuevo más tarde.');
         }
     };
 
     return (
         <div className="flex py-[14px]">
             <div className="flex w-full justify-between align-center">
-                <div className="text-[16px] text-black-2">
+                <div className="text-[16px] text-black-2 dark:text-white">
                     {name}
                 </div>
                 

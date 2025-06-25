@@ -13,7 +13,7 @@ export const UserTypeButton = ({
         <button 
             onClick={hanldeUserType}
             className={`
-               ${userType===expectedType? 'bg-main-2plus text-black': 'bg-white text-medium'}
+               ${userType===expectedType? 'bg-main-2plus text-black dark:text-white': 'bg-white dark:bg-black text-medium'}
                 border border-medium 
                 py-1 px-4 rounded-[6px] font-karla font-light text-[14px]
                 ${isUpdate && userType!==expectedType? 'pointer-events-none cursor-not-allowed': 'cursor-pointer'}

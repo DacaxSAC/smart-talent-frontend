@@ -25,7 +25,7 @@ export function ListUsersPage() {
   return (
     <div className="flex flex-col mx-5 md:mx-8 my-15 gap-11 font-karla font-light">
       <div className="flex flex-col md:flex-row justify-center md:justify-between">
-        <div className="flex flex-col">
+        <div className="flex flex-col text-black dark:text-white">
           <p className="text-[32px] md:text-[36px] xl:text-[36px]">
             LISTA DE USUARIOS
           </p>
@@ -39,7 +39,7 @@ export function ListUsersPage() {
             transition: { duration: 0.2 },
           }}
           whileTap={{ scale: 0.98 }}
-          className="bg-main-1plus dark:bg-main hover:bg-main dark:hover:bg-main-1plus rounded-sidebar my-5 py-2 px-16 text-[14px] font-light"
+          className="bg-main-1plus dark:bg-main hover:bg-main dark:hover:bg-main-1plus rounded-sidebar my-5 py-2 px-16 text-[14px] font-light text-black dark:text-white"
           onClick={() => navigate("/users/create")}
         >
           Crear nuevo usuario

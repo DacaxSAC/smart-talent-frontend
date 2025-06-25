@@ -8,6 +8,7 @@ import { apiClient } from "@/lib/axios/client";
 import { useUpload } from '@/shared/hooks/useUpload'
 import { useUser } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
+import Notiflix, { Notify } from "notiflix";
 
 export const RequestsTable = ({
   data,
@@ -56,7 +57,7 @@ export const RequestsTable = ({
       return file.name;
     } catch (error) {
       console.error('Error al subir el archivo:', error);
-      alert('Error al subir el archivo. Por favor, inténtelo de nuevo.');
+      Notify.failure('Error al subir el archivo. Por favor, inténtelo de nuevo.');
       return null;
     }
   };
@@ -67,7 +68,7 @@ export const RequestsTable = ({
     if (user?.roles.includes(ROLES.ADMIN)) {
       try {
         const loadingMessage = 'Procesando informes...';
-        alert(loadingMessage);
+        Notify.info(loadingMessage);
 
         const documentsToUpdate = [];
 
@@ -87,10 +88,11 @@ export const RequestsTable = ({
         }
 
         await requestsService.updateDocuments(documentsToUpdate);
-        alert('Informes actualizados correctamente');
+        setRequests([...requests, { ...requests[selectedRequest], status: 'COMPLETED' }]);
+        Notify.success('Informes actualizados correctamente');
       } catch (error) {
         console.error('Error al actualizar los informes:', error);
-        alert('Error al actualizar los informes. Por favor, inténtelo de nuevo.');
+        Notify.failure('Error al actualizar los informes. Por favor, inténtelo de nuevo.');
       }
     }
     setModalOpen(false);
@@ -226,7 +228,7 @@ export const RequestsTable = ({
         }}
         position="center"
         width="800px"
-        className=""
+        className="dark:text-white"
         footer={<>{
           !user?.roles.includes('ADMIN') ? null :
             <button
@@ -249,7 +251,7 @@ export const RequestsTable = ({
                   {user?.roles.includes('ADMIN') ?
                     <div className="flex flex-col">
                       <div className="flex w-full justify-between align-center py-[14px]">
-                        <div className="text-[16px] text-black-2">
+                        <div className="text-[16px] text-black-2 dark:text-white">
                           Resultado
                         </div>
                         <input
@@ -293,7 +295,7 @@ export const RequestsTable = ({
                               file:text-[10px] file:font-medium
                               file:bg-white file:text-black-2
                               hover:file:bg-black-2 hover:file:text-white hover:file:border-transparent
-                              file:w-fullo
+                              file:w-full
                               [&:not(:placeholder-shown)::file-selector-button]:content-none
                               text-black-2 text-center
                               cursor-pointer

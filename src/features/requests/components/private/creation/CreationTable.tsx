@@ -5,6 +5,7 @@ import { AddButton } from "./AddButton";
 import { Modal } from "@/shared/components/Modal";
 import { IDocumentType } from "@/features/requests/interfaces/IDocumentTypeResponse";
 import { ResourceInput } from "../../public/ResourceInput";
+import { Notify } from 'notiflix';
 
 const headers = [
   "DNI",
@@ -33,8 +34,8 @@ export const CreationTable = ({
   handleRequests: (newRequests: RequestsType[]) => void;
   toggleOpenOptions: (rowIndex: number) => void;
   handleOpenOptionsIndex: () => void;
-  handleDocCheckbox: (      
-    rowIndex: number,     
+  handleDocCheckbox: (
+    rowIndex: number,
     doc: IDocumentType,
     checked: boolean
   ) => void;
@@ -44,6 +45,7 @@ export const CreationTable = ({
     phone: {},
     fullname: {},
   });
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const listEndRef = useRef<HTMLDivElement>(null);
@@ -79,7 +81,7 @@ export const CreationTable = ({
   const handleConfirm = (index: number) => {
     if (!requests[index].isConfirmed) {
       if (requests[index].documents.length === 0) {
-        alert("Debe agregar al menos un tipo de documento")
+        Notify.warning('Debe agregar al menos un tipo de documento');
         return
       }
       setSelectedRequest(index);
@@ -101,7 +103,7 @@ export const CreationTable = ({
       });
 
       if (!allResourcesHaveValues) {
-        alert("Debe completar todos los recursos requeridos");
+        Notify.warning("Debe completar todos los recursos requeridos");
         return;
       }
 
@@ -112,12 +114,8 @@ export const CreationTable = ({
     setSelectedRequest(null);
   };
 
-  const handleDelete = (index: number) => {
-    if (confirm('¿Está seguro que desea eliminar este registro?')) {
-      const newRequests = [...requests];
-      newRequests.splice(index, 1);
-      handleRequests(newRequests);
-    }
+  const handleDelete = () => {
+    setDeleteConfirmModal(true);
   };
 
 
@@ -140,8 +138,8 @@ export const CreationTable = ({
                   <input
                     ref={(el) => setInputRef(el, index)}
                     className={`w-full  rounded-[5px] py-0.5 px-1 focus:outline-none number-input-hide-arrows ${inputErrors.dni[index]
-                        ? "border border-error"
-                        : "border border-white-1 dark:border-black-2"
+                      ? "border border-error"
+                      : "border border-white-1 dark:border-black-2"
                       }`}
                     type="text"
                     value={request.dni}
@@ -176,8 +174,8 @@ export const CreationTable = ({
                 <div className="w-full overflow-hidden">
                   <textarea
                     className={`w-full resize-none rounded-[5px] py-0.5 px-1 focus:outline-none ${inputErrors.fullname[index]
-                        ? "border border-error"
-                        : "border border-white-1 dark:border-black-2"
+                      ? "border border-error"
+                      : "border border-white-1 dark:border-black-2"
                       }`}
                     value={request.fullname}
                     onChange={(e) => {
@@ -212,8 +210,8 @@ export const CreationTable = ({
                 <div className="w-full h-full overflow-hidden">
                   <input
                     className={`w-full rounded-[5px] py-0.5 px-1 focus:outline-none number-input-hide-arrows ${inputErrors.phone[index]
-                        ? "border border-error"
-                        : "border border-white-1 dark:border-black-2"
+                      ? "border border-error"
+                      : "border border-white-1 dark:border-black-2"
                       }`}
                     type="text"
                     value={request.phone}
@@ -275,8 +273,8 @@ export const CreationTable = ({
               <div className="col-span-6 px-1 py-2 flex justify-around items-start gap-1">
                 <button
                   className={`${requests[index].isConfirmed
-                      ? "bg-success rounded-[5px] py-1 px-1.5 text-white cursor-not-allowed"
-                      : "border border-white-1 rounded-[5px] py-1 px-1.5 hover:text-main transition-colors"
+                    ? "bg-success rounded-[5px] py-1 px-1.5 text-white cursor-not-allowed"
+                    : "border border-white-1 rounded-[5px] py-1 px-1.5 hover:text-main transition-colors"
                     } text-[12px]`}
                   onClick={() => handleConfirm(index)}
                 >
@@ -284,12 +282,42 @@ export const CreationTable = ({
                 </button>
                 <button
                   className="text-[12px] py-1 px-1.5 border border-white-1 rounded-[5px] hover:border-error hover:text-error transition-colors"
-                  onClick={() => handleDelete(index)}
+                  onClick={() => handleDelete()}
                 >
                   Eliminar
                 </button>
               </div>
             </div>
+
+            <Modal
+              isOpen={deleteConfirmModal}
+              onClose={() => setDeleteConfirmModal(false)}
+              position="center"
+              width="400px"
+            >
+              <div className="py-2 px-8 text-lg text-center">
+                <p>¿Estás seguro que deseas eliminar este registro?</p>
+                <div className="flex justify-center gap-6 pt-4">
+                  <button
+                    onClick={() => setDeleteConfirmModal(false)}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDeleteConfirmModal(false);
+                      const newRequests = [...requests];
+                      newRequests.splice(index, 1);
+                      handleRequests(newRequests);
+                    }}
+                    className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
+                  >
+                    Confirmar
+                  </button>
+                </div>
+              </div>
+            </Modal>
           </div>
         ))}
       </div>
@@ -312,7 +340,7 @@ export const CreationTable = ({
             ].documents.map((doc) => ({
               ...doc,
               resources: [],
-            })); // Limpiar los recursos de la solicitud seleccionada
+            }));
           }
           handleRequests(newRequests);
         }}
@@ -349,17 +377,14 @@ export const CreationTable = ({
                         );
 
                         if (existingResourceIndex >= 0) {
-                          // Update existing resource
                           currentDoc.resources[existingResourceIndex].value = value;
                         } else {
-                          // Add new resource
                           currentDoc.resources.push({
                             resourceTypeId: resourceType.id,
                             name: resourceType.name,
                             value: value,
                           });
                         }
-                        
                         handleRequests(newRequests);
                       }}
                     />
