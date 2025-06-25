@@ -6,16 +6,22 @@ import { Modal } from "@/shared/components/Modal"; // Asegúrate de importar el 
 import { ResourceOutput } from "../../public/ResourceOutput";
 import { apiClient } from "@/lib/axios/client";
 import { useUpload } from '@/shared/hooks/useUpload'
-import { useUser } from "@/features/auth/hooks/useUser";
+import { useUser, useHasRole } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
-import Notiflix, { Notify } from "notiflix";
+import { Notify } from "notiflix";
 
 export const RequestsTable = ({
   data,
-  isAdmin,
+  isLoading,
+  isError,
+  loadingText,
+  errorText
 }: Readonly<{
   data: Request[];
-  isAdmin: boolean;
+  isLoading: boolean;
+  isError: boolean;
+  loadingText: string;
+  errorText: string;
 }>) => {
   const [openRows, setOpenRows] = useState<number[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -23,6 +29,7 @@ export const RequestsTable = ({
   const [requests, setRequests] = useState<Request[]>([]);
   const { uploadFile } = useUpload();
   const { user } = useUser()
+  const isAdmin = useHasRole([ROLES.ADMIN]);
 
   // Inicializar requests con los datos proporcionados
   useState(() => {
@@ -102,6 +109,35 @@ export const RequestsTable = ({
     setSelectedRequest(index);
     setModalOpen(true);
   };
+
+  if (isLoading && !isError) {
+    return <div
+      className="
+                    px-4 py-2 mb-4
+                    bg-white-1 dark:bg-black-2
+                  text-black dark:text-white font-light text-[14px]
+                    rounded-sidebar 
+                    text-center
+                "
+    >
+      {loadingText}
+    </div>
+  }
+
+  if (isError) {
+    return <div
+      className="
+                  w-full
+                  px-4 py-2 mb-4
+                  bg-error hover:bg-error-1
+                text-white font-light text-[14px]
+                  rounded-sidebar 
+                  text-center
+              "
+    >
+      {errorText}
+    </div>
+  }
 
   return (
     <div className="w-full text-[14px] font-karla font-light">
@@ -324,3 +360,4 @@ export const RequestsTable = ({
     </div>
   );
 };
+
