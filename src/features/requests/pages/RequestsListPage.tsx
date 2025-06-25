@@ -44,7 +44,7 @@ export function RequestsListPage() {
       description="Visualiza tus solicitudes, su estado y los informes requeridos."
       buttonsHeader={
         <Fragment>
-          <Button show={isUser} handleClick={openRegisterRequestsDrawer} description="Agregar nueva solicitud" />
+          <Button type="primary" show={isUser} handleClick={openRegisterRequestsDrawer} description="Agregar nueva solicitud" />
         </Fragment>
       }
     >

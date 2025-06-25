@@ -2,19 +2,24 @@ import styled from 'styled-components';
 
 
 //bg-black/10 backdrop-blur-sm tecnica para difuminar el fondo
-export const Loader = () =>{
-    return(
-        <div className='fixed top-0 left-0 w-full h-[100vh] z-50 flex justify-center items-center bg-black/10 backdrop-blur-sm'>
-         <StyledWrapper>
-            <svg className="pl" width={240} height={240} viewBox="0 0 240 240">
-                <circle className="pl__ring pl__ring--a" cx={120} cy={120} r={105} fill="none" stroke="#000" strokeWidth={20} strokeDasharray="0 660" strokeDashoffset={-330} strokeLinecap="round" />
-                <circle className="pl__ring pl__ring--b" cx={120} cy={120} r={35} fill="none" stroke="#000" strokeWidth={20} strokeDasharray="0 220" strokeDashoffset={-110} strokeLinecap="round" />
-                <circle className="pl__ring pl__ring--c" cx={85} cy={120} r={70} fill="none" stroke="#000" strokeWidth={20} strokeDasharray="0 440" strokeLinecap="round" />
-                <circle className="pl__ring pl__ring--d" cx={155} cy={120} r={70} fill="none" stroke="#000" strokeWidth={20} strokeDasharray="0 440" strokeLinecap="round" />
-            </svg>
-        </StyledWrapper> 
-        </div>
-    )  
+export const Loader = ({ isLoading }: { isLoading: boolean }) => {
+
+  if (!isLoading) {
+    return null
+  }
+
+  return (
+    <div className='fixed top-0 left-0 w-full h-[100vh] z-50 flex justify-center items-center bg-black/10 backdrop-blur-sm'>
+      <StyledWrapper>
+        <svg className="pl" width={240} height={240} viewBox="0 0 240 240">
+          <circle className="pl__ring pl__ring--a" cx={120} cy={120} r={105} fill="none" stroke="#000" strokeWidth={20} strokeDasharray="0 660" strokeDashoffset={-330} strokeLinecap="round" />
+          <circle className="pl__ring pl__ring--b" cx={120} cy={120} r={35} fill="none" stroke="#000" strokeWidth={20} strokeDasharray="0 220" strokeDashoffset={-110} strokeLinecap="round" />
+          <circle className="pl__ring pl__ring--c" cx={85} cy={120} r={70} fill="none" stroke="#000" strokeWidth={20} strokeDasharray="0 440" strokeLinecap="round" />
+          <circle className="pl__ring pl__ring--d" cx={155} cy={120} r={70} fill="none" stroke="#000" strokeWidth={20} strokeDasharray="0 440" strokeLinecap="round" />
+        </svg>
+      </StyledWrapper>
+    </div>
+  )
 }
 
 const StyledWrapper = styled.div`

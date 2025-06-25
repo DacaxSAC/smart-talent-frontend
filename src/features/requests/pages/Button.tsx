@@ -1,13 +1,20 @@
 import { motion } from "framer-motion";
 
 interface LayoutPageProps {
+    type: "primary" | "secondary";
     handleClick: () => void;
-    show: boolean;
+    show?: boolean;
     description: string;
 }
 
-export function Button({ show, handleClick, description }: LayoutPageProps) {
-    if (!show) return null;
+export function Button({ type, show, handleClick, description }: LayoutPageProps) {
+    const styles = {
+        main: "py-2 px-8 text-[14px] font-light rounded-sidebar ",
+        primary: "bg-main-1plus dark:bg-main hover:bg-main dark:hover:bg-main-1plus",
+        secondary: "bg-white-2 dark:bg-black-2 hover:bg-white-1 dark:hover:bg-black-1 border border-medium"
+    }
+
+    if (show === false) return null;
 
     return (
         <motion.button
@@ -16,7 +23,7 @@ export function Button({ show, handleClick, description }: LayoutPageProps) {
                 transition: { duration: 0.2 },
             }}
             whileTap={{ scale: 0.98 }}
-            className="bg-main-1plus dark:bg-main hover:bg-main dark:hover:bg-main-1plus rounded-sidebar py-2 px-8 text-[14px] font-light"
+            className={styles["main"] + styles[type]}
             onClick={handleClick}
         >
             {description}

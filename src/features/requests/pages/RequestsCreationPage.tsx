@@ -4,26 +4,25 @@ import { RequestsType } from "../types/RequestsListType";
 import { IDocumentType } from "../interfaces/IDocumentTypeResponse";
 import { useUpload } from "@/shared/hooks/useUpload";
 import { apiClient } from "@/lib/axios/client";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
 import { Loader } from "@/shared/components/Loader";
 import { useUser } from "@/features/auth/hooks/useUser";
 import { Modal } from "@/shared/components/Modal";
 import { Notify } from "notiflix";
+import { LayoutPage } from "./LayoutPage";
+import { Button } from "./Button";
 
 export function RequestsCreationPage() {
-  const [requests, setRequests] = useState<RequestsType[]>([{
-    fullname: "",
-    dni: "",
-    phone: "",
-    isConfirmed: false,
-    documents: [],
-  }]);
-  const [openOptionsIndex, setOpenOptionsIndex] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const { user } = useUser();
+  // Hooks
   const navigate = useNavigate();
+  const { user } = useUser();
+  const { uploadFile } = useUpload();
+
+  // States
+  const [requests, setRequests] = useState<RequestsType[]>([emptyRequest]);
+  const [openOptionsIndex, setOpenOptionsIndex] = useState<number | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const toggleOpenOptions = (rowIndex: number) => {
     setOpenOptionsIndex(openOptionsIndex === rowIndex ? null : rowIndex);
@@ -37,13 +36,14 @@ export function RequestsCreationPage() {
     setRequests(newRequests);
   };
 
-  const handleDocCheckbox = (
-    rowIndex: number,
-    docType: IDocumentType,
-    checked: boolean
-  ) => {
+  const handleBackToList = () => {
+    requests.length > 0 ? setShowConfirmModal(true) : navigate("/requests")
+  };
+
+  const handleDocCheckbox = (rowIndex: number, docType: IDocumentType, checked: boolean) => {
     const newRequests = [...requests];
-    const docs = newRequests[rowIndex].documents;
+    const docs = requests[rowIndex].documents;
+
     if (checked) {
       if (!docs.some((doc) => doc.name === docType.name)) {
         docs.push({
@@ -62,19 +62,9 @@ export function RequestsCreationPage() {
     setRequests(newRequests);
   };
 
-  const handleBackToList = () => {
-    if (requests.length > 0) {
-      setShowConfirmModal(true);
-    } else {
-      navigate("/requests");
-    }
-  };
-
-  const { uploadFile } = useUpload();
-
   const handleSaveRequests = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
 
       if (requests.length === 0) {
         Notify.warning("Debe agregar al menos una solicitud");
@@ -96,7 +86,6 @@ export function RequestsCreationPage() {
         return;
       }
 
-      setIsLoading(true);
       // Procesar todos los archivos de los informes
       const processedRequests = await Promise.all(
         requests.map(async (request) => {
@@ -169,45 +158,26 @@ export function RequestsCreationPage() {
       console.error("Error:", error);
       Notify.failure("Ocurrió un error al guardar las solicitudes");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Fragment>
-      <div className="flex flex-col mx-12 my-15 gap-4">
-        <div
-          className="
-                    flex flex-row justify-between items-center
-                    w-full mt-5 mb-5 md:mt-0
-                    text-black dark:text-white"
-        >
-          <div>
-            <p className="font-karla text-[32px] md:text-[36px] xl:text-[36px]">
-              CREACIÓN DE SOLICITUDES
-            </p>
-            <p className="text-[12px] font-light">
-              Registra personas por DNI y nombre para solicitar informes.
-            </p>
-          </div>
-          <motion.button
-            whileHover={{
-              scale: 1.01,
-              transition: { duration: 0.2 },
-            }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleBackToList}
-            className="
-            bg-white-2 dark:bg-black-2 hover:bg-white-1 dark:hover:bg-black-1 
-            border border-medium rounded-sidebar 
-             py-2 px-16 
-            text-[14px] font-light
-            cursor-pointer
-          "
-          >
-            Regresar a solicitudes
-          </motion.button>
+    <LayoutPage
+      title="CREACIÓN DE SOLICITUDES"
+      description="Registrar personas por DNI y nombre para solicitar informes."
+      buttonsHeader={
+        <Fragment>
+          <Button type="secondary" handleClick={handleBackToList} description="Regresar a solicitudes" />
+        </Fragment>
+      }
+      footer={
+        <div className="flex justify-end items-center">
+          <Button type="primary" handleClick={handleSaveRequests} description="Crear solicitudes" />
         </div>
+      }
+    >
+      <Fragment>
         <CreationTable
           requests={requests}
           openIndex={openOptionsIndex}
@@ -216,58 +186,55 @@ export function RequestsCreationPage() {
           handleOpenOptionsIndex={handleSetOpenOptions}
           handleDocCheckbox={handleDocCheckbox}
         />
+        
+        <Loader isLoading={loading} />
 
-        <div className="flex justify-end items-center">
-          <motion.button
-            whileHover={{
-              scale: 1.01,
-              transition: { duration: 0.2 },
-            }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleSaveRequests}
-            disabled={isLoading}
-            className={`
-            bg-main-1plus dark:bg-main hover:bg-main dark:hover:bg-main-1plus 
-            rounded-sidebar 
-             py-2 px-16 
-            text-[14px] font-light
-            cursor-pointer
-            ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
-          `}
+        <ConfirmBackModal
+          isOpen={showConfirmModal}
+          onCancel={() => setShowConfirmModal(false)}
+          onConfirm={handleBackToList}
+        />
+      </Fragment>
+    </LayoutPage>
+  )
+}
+
+interface propsConfirmBackModal {
+  isOpen: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}
+
+const ConfirmBackModal = ({ isOpen, onCancel, onConfirm }: propsConfirmBackModal) => {
+  return (
+    <Modal isOpen={isOpen} onClose={onCancel} position="center" width="400px">
+      <div className="py-2 px-8 text-lg text-center">
+        <p>Hay registros pendientes ¿Está seguro que desea regresar?</p>
+        <div className="flex justify-center gap-6 pt-4">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
           >
-            Crear solicitudes
-          </motion.button>
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
+          >
+            Confirmar
+          </button>
         </div>
-        {isLoading && <Loader />}
       </div>
-
-      <Modal
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        position="center"
-        width="400px"
-      >
-        <div className="py-2 px-8 text-lg text-center">
-          <p>Hay registros pendientes ¿Está seguro que desea regresar?</p>
-          <div className="flex justify-center gap-6 pt-4">
-            <button
-              onClick={() => setShowConfirmModal(false)}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={() => {
-                setShowConfirmModal(false);
-                navigate("/requests");
-              }}
-              className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
-            >
-              Confirmar
-            </button>
-          </div>
-        </div>
-      </Modal>
-    </Fragment>
+    </Modal>
   );
+}
+
+// CONSTANTS
+
+const emptyRequest = {
+  fullname: "",
+  dni: "",
+  phone: "",
+  isConfirmed: false,
+  documents: [],
 }

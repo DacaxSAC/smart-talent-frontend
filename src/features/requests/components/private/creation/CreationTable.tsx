@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Fragment } from "react";
 import { DocsChecklist } from "./DocsChecklist";
 import { RequestsType } from "@/features/requests/types/RequestsListType";
 import { AddButton } from "./AddButton";
@@ -120,7 +120,7 @@ export const CreationTable = ({
 
 
   return (
-    <div className="p-3 w-full h-[500px] dark:border dark:border-black-1 shadow-doc-options text-[14px] overflow-x-auto relative text-black dark:text-white rounded-sidebar font-karla font-light">
+    <Fragment>
       <div className="px-2 grid grid-cols-40 items-center min-w-[800px] sticky top-0 z-10 bg-main-3plus dark:bg-main rounded-sidebar mb-4">
         <div className="col-span-5 p-2">{headers[0]}</div>
         <div className="col-span-8 p-2">{headers[1]}</div>
@@ -395,6 +395,6 @@ export const CreationTable = ({
           )}
         </div>
       </Modal>
-    </div>
+    </Fragment>
   );
 };
