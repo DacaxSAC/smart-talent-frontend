@@ -1,22 +1,33 @@
+// React imports
 import { Fragment, useState } from "react";
+
+// Third-party imports
+import { Notify } from "notiflix";
+import { useNavigate } from "react-router";
+
+// Component imports
+import { Button } from "../../../shared/components/Button";
+import { Loader } from "@/shared/components/Loader";
+import { Modal } from "@/shared/components/Modal";
+import { LayoutPage } from "../../../shared/components/LayoutPage";
 import { CreationTable } from "../components/private/creation/CreationTable";
+
+// Type imports
 import { RequestsType } from "../types/RequestsListType";
 import { IDocumentType } from "../interfaces/IDocumentTypeResponse";
-import { useUpload } from "@/shared/hooks/useUpload";
-import { apiClient } from "@/lib/axios/client";
-import { useNavigate } from "react-router";
-import { Loader } from "@/shared/components/Loader";
+
+// Hook imports
 import { useUser } from "@/features/auth/hooks/useUser";
-import { Modal } from "@/shared/components/Modal";
-import { Notify } from "notiflix";
-import { LayoutPage } from "./LayoutPage";
-import { Button } from "./Button";
+import { useUpload } from "@/shared/hooks/useUpload";
+
+// Utility imports
+import { apiClient } from "@/lib/axios/client";
+import { RequestsService } from "../services/requestsService";
 
 export function RequestsCreationPage() {
   // Hooks
   const navigate = useNavigate();
   const { user } = useUser();
-  const { uploadFile } = useUpload();
 
   // States
   const [requests, setRequests] = useState<RequestsType[]>([emptyRequest]);
@@ -86,53 +97,9 @@ export function RequestsCreationPage() {
         return;
       }
 
-      // Procesar todos los archivos de los informes
       const processedRequests = await Promise.all(
         requests.map(async (request) => {
-          const processedDocuments = await Promise.all(
-            request.documents.map(async (doc) => {
-              const processedResources = [];
-
-              for (const resource of doc.resources) {
-                if (Array.isArray(resource.value)) {
-                  // Procesar cada archivo en el array
-                  for (const file of resource.value) {
-                    if (file instanceof File) {
-                      try {
-                        // Obtener URL firmada del backend
-                        const signedUrlResponse = await apiClient.post('/upload/write-signed-url', {
-                          fileName: file.name,
-                          contentType: file.type
-                        });
-
-                        const signedUrl = signedUrlResponse.data.signedUrl;
-
-                        // Subir el archivo usando el hook
-                        await uploadFile(file, signedUrl);
-
-                        // Agregar nuevo recurso con la URL
-                        processedResources.push({
-                          ...resource,
-                          value: file.name
-                        });
-                      } catch (error) {
-                        console.error("Error al procesar archivo:", error);
-                        throw error;
-                      }
-                    }
-                  }
-                } else {
-                  processedResources.push(resource);
-                }
-              }
-
-              return {
-                ...doc,
-                resources: processedResources,
-              };
-            })
-          );
-
+          const processedDocuments = await processDocuments(request.documents);
           return {
             ...request,
             documents: processedDocuments,
@@ -140,25 +107,26 @@ export function RequestsCreationPage() {
         })
       );
 
-      // Enviar las solicitudes procesadas al backend
-      const response = await apiClient.post('/requests', {
-        entityId: user?.entityId,
+      const response = await RequestsService.postRequest({
+        entityId: user?.entityId as number,
         people: processedRequests
-      });
+      })
 
-
-      if (response.status === 200) {
-        throw new Error("Error al guardar las solicitudes");
-      }
-
-      setRequests([]);
-      Notify.success("Solicitudes guardadas exitosamente");
-      navigate("/requests");
+      handleRequestResponse(response)
     } catch (error) {
-      console.error("Error:", error);
       Notify.failure("Ocurrió un error al guardar las solicitudes");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRequestResponse = (response: any) => {
+    if (response.status !== 200) {
+      Notify.failure("Error al guardar las solicitudes");
+    } else {
+      setRequests([]);
+      Notify.success("Solicitudes guardadas exitosamente");
+      navigate("/requests");
     }
   };
 
@@ -186,7 +154,7 @@ export function RequestsCreationPage() {
           handleOpenOptionsIndex={handleSetOpenOptions}
           handleDocCheckbox={handleDocCheckbox}
         />
-        
+
         <Loader isLoading={loading} />
 
         <ConfirmBackModal
@@ -228,6 +196,61 @@ const ConfirmBackModal = ({ isOpen, onCancel, onConfirm }: propsConfirmBackModal
     </Modal>
   );
 }
+
+// Helper function to process document resources
+const processDocuments = async (documents: any[]) => {
+  return Promise.all(
+    documents.map(async (doc) => {
+      const processedResources = await processResources(doc.resources);
+      return {
+        ...doc,
+        resources: processedResources,
+      };
+    })
+  );
+};
+
+// Helper function to process resources and handle file uploads
+const processResources = async (resources: any[]) => {
+  const { uploadFile } = useUpload();
+
+  const processedResources = [];
+
+  for (const resource of resources) {
+    if (Array.isArray(resource.value)) {
+      await Promise.all(
+        resource.value.map(async (file: File) => {
+          if (file instanceof File) {
+            try {
+              const signedUrl = await getSignedUrl(file);
+              await uploadFile(file, signedUrl);
+              processedResources.push({
+                ...resource,
+                value: file.name
+              });
+            } catch (error) {
+              console.error("Error al procesar archivo:", error);
+              throw error;
+            }
+          }
+        })
+      );
+    } else {
+      processedResources.push(resource);
+    }
+  }
+
+  return processedResources;
+};
+
+// Helper function to get signed URL for file upload
+const getSignedUrl = async (file: File) => {
+  const response = await apiClient.post('/upload/write-signed-url', {
+    fileName: file.name,
+    contentType: file.type
+  });
+  return response.data.signedUrl;
+};
 
 // CONSTANTS
 

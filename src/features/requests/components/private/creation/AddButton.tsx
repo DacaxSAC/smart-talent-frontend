@@ -6,7 +6,7 @@ export const AddButton = ({
     onClick
 }:Readonly<{
     type: "document" | "request"
-    onClick:()=>void
+    onClick: () => void
 }>) =>{
     return(
         <motion.button

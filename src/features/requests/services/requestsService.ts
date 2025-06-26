@@ -27,8 +27,11 @@ export interface GetAllPeopleResponse {
     people: Request[];
 }
 
-// Añadir a la interfaz del servicio
-export const requestsService = {
+export interface PostRequestsResponse {
+    status: number;
+}
+
+export const RequestsService = {
     getAllPeople: async (): Promise<GetAllPeopleResponse> => {
         try {
             const response = await apiClient.get(REQUEST_ENDPOINTS.GET_REQUEST_PEOPLE);
@@ -48,13 +51,20 @@ export const requestsService = {
             throw error;
         }
     },
-  
-  updateDocuments: async (updates: { id: number; result: string; filename: string }[]): Promise<void> => {
-    try {
-      await apiClient.put(REQUEST_ENDPOINTS.UPDATE_DOCUMENTS, { updates });
-    } catch (error) {
-      console.error('Error al actualizar los informes:', error);
-      throw error;
+    postRequest: async ({ entityId, people } : { entityId: number, people: any[] }): Promise<PostRequestsResponse> => {
+        try {
+            return apiClient.post(REQUEST_ENDPOINTS.POST_REQUESTS, { entityId, people });
+        } catch (error) {
+            console.error('Error al actualizar los informes:', error);
+            throw error;
+        }
+    },
+    updateDocuments: async (updates: { id: number; result: string; filename: string }[]): Promise<void> => {
+        try {
+            await apiClient.put(REQUEST_ENDPOINTS.UPDATE_DOCUMENTS, { updates });
+        } catch (error) {
+            console.error('Error al actualizar los informes:', error);
+            throw error;
+        }
     }
-  }
 };

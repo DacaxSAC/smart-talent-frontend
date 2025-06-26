@@ -1,5 +1,5 @@
 import { STATUS } from "@/features/auth/constants/status";
-import { Request, requestsService } from "@/features/requests/services/requestsService";
+import { Request, requestsService } from "@/features/requests/services/RequestsService";
 import { useState } from "react";
 import { FaChevronCircleDown } from "react-icons/fa";
 import { Modal } from "@/shared/components/Modal"; // Asegúrate de importar el componente Modal

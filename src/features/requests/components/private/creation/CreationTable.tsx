@@ -1,19 +1,11 @@
-import { useState, useRef, useEffect, Fragment } from "react";
-import { DocsChecklist } from "./DocsChecklist";
-import { RequestsType } from "@/features/requests/types/RequestsListType";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { AddButton } from "./AddButton";
-import { Modal } from "@/shared/components/Modal";
+import { DocsChecklist } from "./DocsChecklist";
 import { IDocumentType } from "@/features/requests/interfaces/IDocumentTypeResponse";
-import { ResourceInput } from "../../public/ResourceInput";
+import { Modal } from "@/shared/components/Modal";
 import { Notify } from 'notiflix';
-
-const headers = [
-  "DNI",
-  "Nombres completos",
-  "Teléfono",
-  "Informes",
-  "Acciones",
-];
+import { RequestsType } from "@/features/requests/types/RequestsListType";
+import { ResourceInput } from "../../public/ResourceInput";
 
 interface InputErrors {
   dni: Record<number, boolean>;
@@ -40,11 +32,7 @@ export const CreationTable = ({
     checked: boolean
   ) => void;
 }>) => {
-  const [inputErrors, setInputErrors] = useState<InputErrors>({
-    dni: {},
-    phone: {},
-    fullname: {},
-  });
+  const [inputErrors, setInputErrors] = useState<InputErrors>(EmptyError);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
@@ -52,17 +40,9 @@ export const CreationTable = ({
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const addRow = () => {
-    handleRequests([
-      ...requests,
-      {
-        dni: "",
-        fullname: "",
-        phone: "",
-        isConfirmed: false,
-        documents: [],
-      },
-    ]);
+    handleRequests([...requests, emptyRequest]);
   };
+  
   const setInputRef = (el: HTMLInputElement | null, index: number) => {
     inputRefs.current[index] = el;
   };
@@ -398,3 +378,26 @@ export const CreationTable = ({
     </Fragment>
   );
 };
+
+// Constants
+const headers = [
+  "DNI",
+  "Nombres completos",
+  "Teléfono",
+  "Informes",
+  "Acciones",
+];
+
+const EmptyError = {
+  dni: {},
+  phone: {},
+  fullname: {},
+}
+
+const emptyRequest = {
+  dni: "",
+  fullname: "",
+  phone: "",
+  isConfirmed: false,
+  documents: [],
+}

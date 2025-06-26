@@ -1,12 +1,19 @@
+// React imports
 import { Fragment, useEffect, useState } from "react";
-import { useModalStore } from "@/shared/store/modalStore";
+
+// Feature imports
 import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
-import { Request, requestsService } from "../services/requestsService";
+import { Request, RequestsService } from "../services/requestsService";
+
+// Component imports
 import { OptionsModal } from "../components/private/list/OptionsModal";
 import { RequestsTable } from "../components/private/list/RequestsTable";
-import { LayoutPage } from "./LayoutPage";
-import { Button } from "./Button";
+import { LayoutPage } from "../../../shared/components/LayoutPage";
+import { Button } from "../../../shared/components/Button";
+
+// Store imports
+import { useModalStore } from "@/shared/store/modalStore";
 
 export function RequestsListPage() {
   // Hooks
@@ -25,8 +32,8 @@ export function RequestsListPage() {
       setLoading(true)
 
       const data = isAdmin
-        ? await requestsService.getAllPeople()
-        : await requestsService.getAllPeopleByEntityId(user?.entityId as number)
+        ? await RequestsService.getAllPeople()
+        : await RequestsService.getAllPeopleByEntityId(user?.entityId as number)
       setRequests(data.people);
 
       setLoading(false);
