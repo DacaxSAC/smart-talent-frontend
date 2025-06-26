@@ -3,12 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { FormLayout } from "../../shared/FormLayout";
 import { FormInput } from "../../shared/FormInput";
 import { FormButton } from "../../shared/FormButton";
-import GoogleLogo from "../../../../../shared/ui/logos/GoogleLogo";
 import { Loader } from "@/shared/components/Loader";
 import { useUser } from "@/features/auth/hooks/useUser";
 
 export const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { login } = useUser();
@@ -37,7 +36,7 @@ export const LoginForm = () => {
       return;
     }
   
-    setIsLoading(true);
+    setLoading(true);
     setError(null); // Limpiar errores anteriores
   
     try {
@@ -53,14 +52,13 @@ export const LoginForm = () => {
       // Manejar errores inesperados sin recargar
       setError(error.message || "Error en el servidor");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <>
-      {isLoading && <Loader />}
-      
+      <Loader isLoading={loading}  />
 
       <p className="w-full opacity-50 text-[20px]">
         Por favor ingresa tus datos
@@ -81,19 +79,6 @@ export const LoginForm = () => {
         </FormInput>
         <FormButton text="Ingresar" />
       </FormLayout>
-      <button
-        className="
-                    flex justify-center items-center
-                    bg-main-3plus dark:bg-black-2 hover:opacity-80
-                    border border-white dark:border-main rounded-[15px] 
-                    mt-6 px-4 py-2 
-                    w-full 
-                    cursor-pointer
-                    gap-4"
-      >
-        <GoogleLogo className="h-[30px] w-[30px]" />
-        <p className="text-[20px]">Ingresar con Google</p>
-      </button>
     </>
   );
 };

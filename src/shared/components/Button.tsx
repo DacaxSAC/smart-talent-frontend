@@ -14,6 +14,8 @@ export function Button({ type, show, handleClick, description }: LayoutPageProps
         secondary: "bg-white-2 dark:bg-black-2 hover:bg-white-1 dark:hover:bg-black-1 border border-medium"
     }
 
+    
+
     if (show === false) return null;
 
     return (

@@ -4,10 +4,10 @@ import { Fragment, useEffect, useState } from "react";
 // Feature imports
 import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
-import { Request, RequestsService } from "../services/requestsService";
+import { Request, RequestsService } from "../services/RequestsService";
 
 // Component imports
-import { OptionsModal } from "../components/private/list/OptionsModal";
+import { OptionsDrawer } from "../components/private/list/OptionsDrawer";
 import { RequestsTable } from "../components/private/list/RequestsTable";
 import { LayoutPage } from "../../../shared/components/LayoutPage";
 import { Button } from "../../../shared/components/Button";
@@ -63,7 +63,7 @@ export function RequestsListPage() {
           loadingText="Cargando solicitudes..."
           errorText="Error al cargar las solicitudes, por favor recargue la página."
         />
-        <OptionsModal
+        <OptionsDrawer
           isActive={isActiveDrawerRegisterRequests}
           handleActive={toggleRegisterRequestsDrawer}
         />
