@@ -1,108 +1,81 @@
-import { STATUS } from "@/features/auth/constants/status";
-import { Request, requestsService } from "@/features/requests/services/RequestsService";
+// External libraries
+import { Notify } from "notiflix";
 import { useState } from "react";
 import { FaChevronCircleDown } from "react-icons/fa";
-import { Modal } from "@/shared/components/Modal"; // Asegúrate de importar el componente Modal
-import { ResourceOutput } from "../../public/ResourceOutput";
-import { apiClient } from "@/lib/axios/client";
-import { useUpload } from '@/shared/hooks/useUpload'
-import { useUser, useHasRole } from "@/features/auth/hooks/useUser";
-import { ROLES } from "@/features/auth/constants/roles";
-import { Notify } from "notiflix";
 
-export const RequestsTable = ({
-  data,
-  isLoading,
-  isError,
-  loadingText,
-  errorText
-}: Readonly<{
+// Internal services and utilities
+import { apiClient } from "@/lib/axios/client";
+import { STATUS } from "@/features/auth/constants/status";
+import { ROLES } from "@/features/auth/constants/roles";
+import { Request, RequestsService } from "@/features/requests/services/requestsService";
+
+// Components
+import { Modal } from "@/shared/components/Modal";
+import { ResourceOutput } from "../../public/ResourceOutput";
+
+// Hooks
+import { useUpload } from '@/shared/hooks/useUpload';
+import { useUser, useHasRole } from "@/features/auth/hooks/useUser";
+
+interface requestsTableProps {
   data: Request[];
   isLoading: boolean;
   isError: boolean;
   loadingText: string;
   errorText: string;
-}>) => {
-  const [openRows, setOpenRows] = useState<number[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
-  const [requests, setRequests] = useState<Request[]>([]);
-  const { uploadFile } = useUpload();
+}
+
+export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText }: requestsTableProps) => {
+  // Hooks
   const { user } = useUser()
   const isAdmin = useHasRole([ROLES.ADMIN]);
 
-  // Inicializar requests con los datos proporcionados
-  useState(() => {
-    setRequests(data);
-  });
+  // States
+  const [modalOpen, setModalOpen] = useState(false);
+  const [openRows, setOpenRows] = useState<number[]>([]);
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
 
-  const handleToggleRow = (index: number) => {
-    setOpenRows((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
-  };
-
+  useState(() => { setRequests(data) });
   const handleRequests = (newRequests: Request[]) => {
     setRequests(newRequests);
-  };
-
-  const handleFileUpload = async (file: File) => {
-    try {
-      const response = await apiClient.post('upload/write-signed-url', {
-        fileName: file.name,
-        contentType: file.type
-      });
-
-      if (response.status !== 200) {
-        throw new Error('No se pudo obtener la URL firmada para subir el archivo');
-      }
-
-      const { signedUrl } = response.data;
-
-      await uploadFile(file, signedUrl);
-
-      return file.name;
-    } catch (error) {
-      console.error('Error al subir el archivo:', error);
-      Notify.failure('Error al subir el archivo. Por favor, inténtelo de nuevo.');
-      return null;
-    }
   };
 
   const handleConfirmRequest = async () => {
     if (selectedRequest === null) return;
 
-    if (user?.roles.includes(ROLES.ADMIN)) {
-      try {
-        const loadingMessage = 'Procesando informes...';
-        Notify.info(loadingMessage);
-
-        const documentsToUpdate = [];
-
-        for (let i = 0; i < requests[selectedRequest].documents.length; i++) {
-          const doc = requests[selectedRequest].documents[i];
-
-          if (doc.filename instanceof File) {
-            const fileKey = await handleFileUpload(doc.filename);
-            if (fileKey) {
-              documentsToUpdate.push({
-                id: doc.id,
-                result: doc.result || '',
-                filename: fileKey
-              });
-            }
-          }
-        }
-
-        await requestsService.updateDocuments(documentsToUpdate);
-        setRequests([...requests, { ...requests[selectedRequest], status: 'COMPLETED' }]);
-        Notify.success('Informes actualizados correctamente');
-      } catch (error) {
-        console.error('Error al actualizar los informes:', error);
-        Notify.failure('Error al actualizar los informes. Por favor, inténtelo de nuevo.');
-      }
+    if (!isAdmin) {
+      setModalOpen(false);
+      return;
     }
+
+    try {
+      Notify.info('Procesando informes...');
+
+      const selectedRequestData = requests[selectedRequest];
+      const documentsToUpdate = await processDocuments(selectedRequestData.documents);
+
+      await RequestsService.updateDocuments(documentsToUpdate);
+
+      const updatedRequests = [...requests];
+      updatedRequests[selectedRequest] = {
+        ...selectedRequestData,
+        status: 'COMPLETED'
+      };
+      setRequests(updatedRequests);
+
+      Notify.success('Informes actualizados correctamente');
+
+    } catch (error) {
+      console.error('Error al actualizar los informes:', error);
+      Notify.failure('Error al actualizar los informes. Por favor, inténtelo de nuevo.');
+    }
+
     setModalOpen(false);
+  };
+
+  const handleToggleRow = (index: number) => {
+    setOpenRows((prev) => prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]);
   };
 
   const openResourceModal = (index: number) => {
@@ -111,32 +84,11 @@ export const RequestsTable = ({
   };
 
   if (isLoading && !isError) {
-    return <div
-      className="
-                    px-4 py-2 mb-4
-                    bg-white-1 dark:bg-black-2
-                  text-black dark:text-white font-light text-[14px]
-                    rounded-sidebar 
-                    text-center
-                "
-    >
-      {loadingText}
-    </div>
+    return <Header type={HeaderType.LOADING} description={loadingText} />
   }
 
   if (isError) {
-    return <div
-      className="
-                  w-full
-                  px-4 py-2 mb-4
-                  bg-error hover:bg-error-1
-                text-white font-light text-[14px]
-                  rounded-sidebar 
-                  text-center
-              "
-    >
-      {errorText}
-    </div>
+    return <Header type={HeaderType.ERROR} description={errorText} />
   }
 
   return (
@@ -361,3 +313,69 @@ export const RequestsTable = ({
   );
 };
 
+const processDocuments = async (documents: any[]) => {
+  const documentsToUpdate = [];
+
+  for (const doc of documents) {
+    if (doc.filename instanceof File) {
+      const fileKey = await handleFileUpload(doc.filename);
+      if (fileKey) {
+        documentsToUpdate.push({
+          id: doc.id,
+          result: doc.result || '',
+          filename: fileKey
+        });
+      }
+    }
+  }
+
+  return documentsToUpdate;
+};
+
+const handleFileUpload = async (file: File) => {
+  try {
+    const { uploadFile } = useUpload();
+
+    const response = await apiClient.post('upload/write-signed-url', {
+      fileName: file.name,
+      contentType: file.type
+    });
+
+    if (response.status !== 200) {
+      throw new Error('No se pudo obtener la URL firmada para subir el archivo');
+    }
+
+    const { signedUrl } = response.data;
+
+    await uploadFile(file, signedUrl);
+
+    return file.name;
+  } catch (error) {
+    console.error('Error al subir el archivo:', error);
+    Notify.failure('Error al subir el archivo. Por favor, inténtelo de nuevo.');
+    return null;
+  }
+};
+
+enum HeaderType {
+  LOADING = 'LOADING',
+  ERROR = 'ERROR',
+}
+
+interface HeaderProps {
+  type: HeaderType;
+  description: string;
+}
+
+const Header = ({ type, description }: HeaderProps) => {
+  const styles = {
+    'main': 'px-4 py-2 mb-4 font-light text-[14px] rounded-sidebar text-center',
+    [HeaderType.LOADING]: 'bg-white-1 dark:bg-black-2 text-black dark:text-white',
+    [HeaderType.ERROR]: 'bg-error hover:bg-error-1 text-white',
+  }
+  return (
+    <div className={`${styles['main']} ${styles[type]}`}>
+      {description}
+    </div>
+  )
+}
