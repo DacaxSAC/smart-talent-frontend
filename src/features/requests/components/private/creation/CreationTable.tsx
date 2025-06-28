@@ -241,8 +241,8 @@ export const CreationTable = ({
                   />
                 </div>
                 <DocsChecklist
-                  openIndex={openIndex}
                   index={index}
+                  open={openIndex === index}
                   request={request}
                   handleOpen={handleOpenOptionsIndex}
                   handleDocCheckbox={handleDocCheckbox}

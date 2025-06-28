@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
 import { GoPlus } from "react-icons/go";
 
-export const AddButton = ({
-    type,
-    onClick
-}:Readonly<{
-    type: "document" | "request"
-    onClick: () => void
-}>) =>{
+interface AddButtonProps {
+  type: "document" | "request"
+  onClick: () => void
+}
+
+export const AddButton = ({ type, onClick }: AddButtonProps) =>{
     return(
         <motion.button
           whileHover={{ scale: 1.04 }}

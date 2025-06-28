@@ -19,9 +19,9 @@ export const OptionsDrawer = ({ isActive, handleActive }: OptionsModalProps) => 
     // TODO: Importar archivo
   }
 
-  const handleLoadTemplate = () => {
-    // TODO: Descargar plantilla
-  }
+  // const handleLoadTemplate = () => {
+  //   // TODO: Descargar plantilla
+  // }
 
   return (
     <Drawer isActive={isActive} handleActive={handleActive}>

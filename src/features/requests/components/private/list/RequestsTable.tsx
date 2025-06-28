@@ -7,7 +7,7 @@ import { FaChevronCircleDown } from "react-icons/fa";
 import { apiClient } from "@/lib/axios/client";
 import { STATUS } from "@/features/auth/constants/status";
 import { ROLES } from "@/features/auth/constants/roles";
-import { Request, RequestsService } from "@/features/requests/services/requestsService";
+import { Request, RequestsService } from "@/features/requests/services/RequestsService";
 
 // Components
 import { Modal } from "@/shared/components/Modal";
