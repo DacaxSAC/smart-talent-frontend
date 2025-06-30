@@ -13,39 +13,25 @@ interface InputErrors {
   fullname: Record<number, boolean>;
 }
 
-export const CreationTable = ({
-  requests,
-  openIndex,
-  handleRequests,
-  toggleOpenOptions,
-  handleOpenOptionsIndex,
-  handleDocCheckbox,
-}: Readonly<{
+interface CreationTableProps {
   requests: RequestsType[];
   openIndex: number | null;
   handleRequests: (newRequests: RequestsType[]) => void;
   toggleOpenOptions: (rowIndex: number) => void;
   handleOpenOptionsIndex: () => void;
-  handleDocCheckbox: (
-    rowIndex: number,
-    doc: IDocumentType,
-    checked: boolean
-  ) => void;
-}>) => {
-  const [inputErrors, setInputErrors] = useState<InputErrors>(EmptyError);
+  handleDocCheckbox: (rowIndex: number, doc: IDocumentType, checked: boolean) => void;
+}
+
+// Main Component
+export const CreationTable = ({
+  requests, openIndex, handleRequests, toggleOpenOptions, handleOpenOptionsIndex, handleDocCheckbox,
+}: CreationTableProps) => {
+  const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
+  const [inputErrors, setInputErrors] = useState<InputErrors>(EMPTY_ERROR);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
-  const listEndRef = useRef<HTMLDivElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  const addRow = () => {
-    handleRequests([...requests, emptyRequest]);
-  };
-  
-  const setInputRef = (el: HTMLInputElement | null, index: number) => {
-    inputRefs.current[index] = el;
-  };
+  const listEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (requests.length > 0) {
@@ -62,7 +48,7 @@ export const CreationTable = ({
     if (!requests[index].isConfirmed) {
       if (requests[index].documents.length === 0) {
         Notify.warning('Debe agregar al menos un tipo de documento');
-        return
+        return;
       }
       setSelectedRequest(index);
       setModalOpen(true);
@@ -70,61 +56,45 @@ export const CreationTable = ({
   };
 
   const handleConfirmRequest = () => {
-    const newRequests = [...requests];
-    if (selectedRequest !== null) {
+    if (selectedRequest === null) return;
 
-      const allResourcesHaveValues = requests[selectedRequest].documents.every(doc => {
-        const totalRequiredResources = doc.resourceTypes.length;
+    const allResourcesHaveValues = requests[selectedRequest].documents.every(doc => {
+      const totalRequiredResources = doc.resourceTypes.length;
+      const resourcesWithValues = doc.resources.filter(resource =>
+        resource.value && resource.value !== ''
+      ).length;
+      return resourcesWithValues >= totalRequiredResources;
+    });
 
-        const resourcesWithValues = doc.resources.filter(resource =>
-          resource.value && resource.value !== ''
-        ).length;
-        return resourcesWithValues >= totalRequiredResources;
-      });
-
-      if (!allResourcesHaveValues) {
-        Notify.warning("Debe completar todos los recursos requeridos");
-        return;
-      }
-
-      newRequests[selectedRequest].isConfirmed = true;
-      handleRequests(newRequests);
-      setModalOpen(false);
+    if (!allResourcesHaveValues) {
+      Notify.warning("Debe completar todos los recursos requeridos");
+      return;
     }
+
+    const newRequests = [...requests];
+    newRequests[selectedRequest].isConfirmed = true;
+    handleRequests(newRequests);
+    setModalOpen(false);
     setSelectedRequest(null);
   };
 
-  const handleDelete = () => {
-    setDeleteConfirmModal(true);
-  };
-
+  const addRow = () => handleRequests([...requests, EMPTY_REQUEST]);
 
   return (
     <Fragment>
-      <div className="px-2 grid grid-cols-40 items-center min-w-[800px] sticky top-0 z-10 bg-main-3plus dark:bg-main rounded-sidebar mb-4">
-        <div className="col-span-5 p-2">{headers[0]}</div>
-        <div className="col-span-8 p-2">{headers[1]}</div>
-        <div className="col-span-5 p-2">{headers[2]}</div>
-        <div className="col-span-16 p-2">{headers[3]}</div>
-        <div className="col-span-6 p-2">{headers[4]}</div>
-      </div>
+      <TableHeader />
 
       <div className="text-black dark:text-white flex flex-col gap-2">
         {requests.map((request, index) => (
           <div key={index}>
-            <div className=" grid grid-cols-40 h-full border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 ">
-              <div className="col-span-5 p-2 ">
+            <div className="grid grid-cols-40 h-full border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05">
+              {/* DNI Field */}
+              <div className="col-span-5 p-2">
                 <div className="w-full overflow-hidden">
-                  <input
-                    ref={(el) => setInputRef(el, index)}
-                    className={`w-full  rounded-[5px] py-0.5 px-1 focus:outline-none number-input-hide-arrows ${inputErrors.dni[index]
-                      ? "border border-error"
-                      : "border border-white-1 dark:border-black-2"
-                      }`}
-                    type="text"
+                  <InputField
                     value={request.dni}
-                    onChange={(e) => {
-                      const value = e.target.value;
+                    error={inputErrors.dni[index]}
+                    onChange={(value) => {
                       const hasInvalidChars = /[^0-9]/.test(value);
                       const length = value.length;
 
@@ -132,8 +102,7 @@ export const CreationTable = ({
                         ...prev,
                         dni: {
                           ...prev.dni,
-                          [index]:
-                            hasInvalidChars || length >= 9 || length <= 7,
+                          [index]: hasInvalidChars || length >= 9 || length <= 7,
                         },
                       }));
 
@@ -150,16 +119,14 @@ export const CreationTable = ({
                 </div>
               </div>
 
-              <div className="col-span-8 p-2 ">
+              {/* Fullname Field */}
+              <div className="col-span-8 p-2">
                 <div className="w-full overflow-hidden">
-                  <textarea
-                    className={`w-full resize-none rounded-[5px] py-0.5 px-1 focus:outline-none ${inputErrors.fullname[index]
-                      ? "border border-error"
-                      : "border border-white-1 dark:border-black-2"
-                      }`}
+                  <InputField
+                    type="textarea"
                     value={request.fullname}
-                    onChange={(e) => {
-                      const value = e.target.value;
+                    error={inputErrors.fullname[index]}
+                    onChange={(value) => {
                       const hasNumbers = /[0-9]/.test(value);
 
                       setInputErrors((prev) => ({
@@ -171,12 +138,6 @@ export const CreationTable = ({
                       newRequests[index].fullname = value;
                       handleRequests(newRequests);
                     }}
-                    rows={1}
-                    onInput={(e) => {
-                      e.currentTarget.style.height = "auto";
-                      e.currentTarget.style.height =
-                        e.currentTarget.scrollHeight + "px";
-                    }}
                   />
                   {inputErrors.fullname[index] && (
                     <p className="text-error text-[8px] font-bold mt-1">
@@ -186,17 +147,13 @@ export const CreationTable = ({
                 </div>
               </div>
 
-              <div className="col-span-5 p-2 ">
+              {/* Phone Field */}
+              <div className="col-span-5 p-2">
                 <div className="w-full h-full overflow-hidden">
-                  <input
-                    className={`w-full rounded-[5px] py-0.5 px-1 focus:outline-none number-input-hide-arrows ${inputErrors.phone[index]
-                      ? "border border-error"
-                      : "border border-white-1 dark:border-black-2"
-                      }`}
-                    type="text"
+                  <InputField
                     value={request.phone}
-                    onChange={(e) => {
-                      const value = e.target.value;
+                    error={inputErrors.phone[index]}
+                    onChange={(value) => {
                       const hasInvalidChars = /[^0-9]/.test(value);
                       const length = value.length;
 
@@ -204,8 +161,7 @@ export const CreationTable = ({
                         ...prev,
                         phone: {
                           ...prev.phone,
-                          [index]:
-                            hasInvalidChars || length >= 10 || length <= 8,
+                          [index]: hasInvalidChars || length >= 10 || length <= 8,
                         },
                       }));
                       const newRequests = [...requests];
@@ -221,8 +177,8 @@ export const CreationTable = ({
                 </div>
               </div>
 
-              {/* Informes - 2 columnas */}
-              <div className="col-span-16 p-2  relative">
+              {/* Documents Section */}
+              <div className="col-span-16 p-2 relative">
                 <div className="flex justify-between items-start w-full">
                   <div className="flex flex-wrap gap-1 flex-1">
                     {request.documents.map((doc, docIndex) => (
@@ -234,7 +190,6 @@ export const CreationTable = ({
                       </span>
                     ))}
                   </div>
-
                   <AddButton
                     type="document"
                     onClick={() => toggleOpenOptions(index)}
@@ -249,26 +204,28 @@ export const CreationTable = ({
                 />
               </div>
 
-              {/* Modificar la sección de acciones */}
+              {/* Actions Section */}
               <div className="col-span-6 px-1 py-2 flex justify-around items-start gap-1">
                 <button
-                  className={`${requests[index].isConfirmed
-                    ? "bg-success rounded-[5px] py-1 px-1.5 text-white cursor-not-allowed"
-                    : "border border-white-1 rounded-[5px] py-1 px-1.5 hover:text-main transition-colors"
-                    } text-[12px]`}
+                  className={`${
+                    requests[index].isConfirmed
+                      ? "bg-success rounded-[5px] py-1 px-1.5 text-white cursor-not-allowed"
+                      : "border border-white-1 rounded-[5px] py-1 px-1.5 hover:text-main transition-colors"
+                  } text-[12px]`}
                   onClick={() => handleConfirm(index)}
                 >
                   {requests[index].isConfirmed ? 'Confirmado' : 'Confirmar'}
                 </button>
                 <button
                   className="text-[12px] py-1 px-1.5 border border-white-1 rounded-[5px] hover:border-error hover:text-error transition-colors"
-                  onClick={() => handleDelete()}
+                  onClick={() => setDeleteConfirmModal(true)}
                 >
                   Eliminar
                 </button>
               </div>
             </div>
 
+            {/* Delete Confirmation Modal */}
             <Modal
               isOpen={deleteConfirmModal}
               onClose={() => setDeleteConfirmModal(false)}
@@ -302,12 +259,12 @@ export const CreationTable = ({
         ))}
       </div>
 
-
-      {/* Botón para agregar fila */}
+      {/* Add Row Button */}
       <div ref={listEndRef} className="flex justify-start p-4">
         <AddButton type="request" onClick={addRow} />
       </div>
 
+      {/* Resources Modal */}
       <Modal
         isOpen={modalOpen}
         title="Recursos Necesarios"
@@ -328,76 +285,142 @@ export const CreationTable = ({
         width="800px"
         className=""
         footer={
-          <>
-            <button
-              className="bg-main text-black rounded-[12px] text-[16px] color-black font-[300] px-[54px] py-[15px] hover:bg-main-2 transition-colors"
-              onClick={handleConfirmRequest}
-            >
-              Subir recursos necesarios
-            </button>
-          </>
+          <button
+            className="bg-main text-black rounded-[12px] text-[16px] color-black font-[300] px-[54px] py-[15px] hover:bg-main-2 transition-colors"
+            onClick={handleConfirmRequest}
+          >
+            Subir recursos necesarios
+          </button>
         }
       >
-        <div className="flex flex-col">
-          {selectedRequest !== null && (
-            <div className="text-sm">
-              {requests[selectedRequest]?.documents.map((doc, i) => (
-                <div key={i} className="gap-2 border-b border-gray-300 px-[32px] py-[15px] px-[32px]">
-                  <h2 className="text-[24px]">{doc.name}</h2>
-
-                  {doc.resourceTypes.map((resourceType, j) => (
-                    <ResourceInput
-                      key={j}
-                      {...resourceType}
-                      onChange={(value) => {
-                        const newRequests = [...requests];
-                        const currentDoc = newRequests[selectedRequest].documents[i];
-                        const existingResourceIndex = currentDoc.resources.findIndex(
-                          r => r.resourceTypeId === resourceType.id
-                        );
-
-                        if (existingResourceIndex >= 0) {
-                          currentDoc.resources[existingResourceIndex].value = value;
-                        } else {
-                          currentDoc.resources.push({
-                            resourceTypeId: resourceType.id,
-                            name: resourceType.name,
-                            value: value,
-                          });
-                        }
-                        handleRequests(newRequests);
-                      }}
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {selectedRequest !== null && (
+          <ResourceModalContent
+            selectedRequest={selectedRequest}
+            requests={requests}
+            handleRequests={handleRequests}
+          />
+        )}
       </Modal>
     </Fragment>
   );
 };
 
-// Constants
-const headers = [
-  "DNI",
-  "Nombres completos",
-  "Teléfono",
-  "Informes",
-  "Acciones",
-];
+// Input Validation Component
+interface InputFieldProps {
+  value: string;
+  onChange: (value: string) => void;
+  error: boolean;
+  type?: string;
+  className?: string;
+  rows?: number;
+}
 
-const EmptyError = {
+const InputField = ({ value, onChange, error, type = 'text', className = '', rows = 1 }: InputFieldProps) => {
+  const baseClassName = `w-full rounded-[5px] py-0.5 px-1 focus:outline-none ${
+    error ? "border border-error" : "border border-white-1 dark:border-black-2"
+  }`;
+
+  if (type === 'textarea') {
+    return (
+      <textarea
+        className={`${baseClassName} resize-none ${className}`}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={rows}
+        onInput={(e) => {
+          e.currentTarget.style.height = "auto";
+          e.currentTarget.style.height = e.currentTarget.scrollHeight + "px";
+        }}
+      />
+    );
+  }
+
+  return (
+    <input
+      className={`${baseClassName} number-input-hide-arrows ${className}`}
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  );
+};
+
+// Table Header Component
+const TableHeader = () => (
+  <div className="px-2 grid grid-cols-40 items-center min-w-[800px] sticky top-0 z-10 bg-main-3plus dark:bg-main rounded-sidebar mb-4">
+    {HEADERS.map((header, index) => (
+      <div
+        key={index}
+        className={`p-2 ${
+          index === 0 ? 'col-span-5' :
+          index === 1 ? 'col-span-8' :
+          index === 2 ? 'col-span-5' :
+          index === 3 ? 'col-span-16' :
+          'col-span-6'
+        }`}
+      >
+        {header}
+      </div>
+    ))}
+  </div>
+);
+
+// Resource Modal Content Component
+interface ResourceModalProps {
+  selectedRequest: number;
+  requests: RequestsType[];
+  handleRequests: (newRequests: RequestsType[]) => void;
+}
+
+const ResourceModalContent = ({ selectedRequest, requests, handleRequests }: ResourceModalProps) => (
+  <div className="flex flex-col">
+    <div className="text-sm">
+      {requests[selectedRequest]?.documents.map((doc, i) => (
+        <div key={i} className="gap-2 border-b border-gray-300 px-[32px] py-[15px]">
+          <h2 className="text-[24px]">{doc.name}</h2>
+          {doc.resourceTypes.map((resourceType, j) => (
+            <ResourceInput
+              key={j}
+              {...resourceType}
+              onChange={(value) => {
+                const newRequests = [...requests];
+                const currentDoc = newRequests[selectedRequest].documents[i];
+                const existingResourceIndex = currentDoc.resources.findIndex(
+                  r => r.resourceTypeId === resourceType.id
+                );
+
+                if (existingResourceIndex >= 0) {
+                  currentDoc.resources[existingResourceIndex].value = value;
+                } else {
+                  currentDoc.resources.push({
+                    resourceTypeId: resourceType.id,
+                    name: resourceType.name,
+                    value: value,
+                  });
+                }
+                handleRequests(newRequests);
+              }}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// Constants
+const HEADERS = ["DNI", "Nombres completos", "Teléfono", "Informes", "Acciones"];
+
+const EMPTY_ERROR = {
   dni: {},
   phone: {},
   fullname: {},
-}
+};
 
-const emptyRequest = {
+const EMPTY_REQUEST = {
   dni: "",
   fullname: "",
   phone: "",
   isConfirmed: false,
   documents: [],
-}
+};

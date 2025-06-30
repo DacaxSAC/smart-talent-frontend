@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
-import { DocumentTypeService } from "../services/documentTypeService";
+import { DocumentTypeService } from "../services/DocumentTypeService";
 import { IDocumentType } from "../interfaces/IDocumentTypeResponse";
 
 interface DocumentTypeContextType {
