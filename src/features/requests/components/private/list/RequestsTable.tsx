@@ -211,7 +211,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
           setModalOpen(false);
           if (selectedRequest !== null && requests[selectedRequest]?.documents) {
             const newRequests = [...requests];
-            newRequests[selectedRequest].documents = newRequests[selectedRequest].documents.filter(doc => doc.resources && doc.resources.length > 0);
+            newRequests[selectedRequest].documents = newRequests[selectedRequest].documents.filter((doc: any) => doc.resources && doc.resources.length > 0);
             handleRequests(newRequests);
           }
         }}
@@ -220,7 +220,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         className="dark:text-white"
         footer={<>{          
           isUser ? null :
-            selectedRequest !== null && requests[selectedRequest]?.documents.some(doc => doc.status === 'Pendiente') ? (
+            selectedRequest !== null && requests[selectedRequest]?.documents.some((doc: any) => doc.status === 'Pendiente') ? (
               <button
                 className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
                 onClick={handleConfirmRequest}
