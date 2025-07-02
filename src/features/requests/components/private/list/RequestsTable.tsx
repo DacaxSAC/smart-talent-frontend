@@ -240,7 +240,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         <div className="flex flex-col">
           {selectedRequest !== null && requests[selectedRequest] && (
             <div className="text-sm">
-              {requests[selectedRequest]?.documents.map((doc, i) => (
+              {requests[selectedRequest]?.documents.map((doc: any, i: any) => (
                 <div key={i} className="gap-2 border-b border-gray-300 px-[32px] py-[15px] px-[32px]">
                   <div className="flex w-full justify-between">
                     <h2 className="text-[24px]">{doc.name}</h2>
@@ -304,7 +304,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                         </div>
                       </div>
 
-                      {doc.resources.map((resource, j) => (
+                      {doc.resources.map((resource: any, j: any) => (
                         <ResourceOutput key={j} {...resource} />
                       ))}
                     </div> :

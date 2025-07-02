@@ -163,7 +163,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
 
   return (
     <>
-      {loading && <Loader />}
+      <Loader isLoading={loading} />
       <div className="flex flex-col gap-4 text-black dark:text-white">
         <FormInput
           fieldName="DNI"
