@@ -28,6 +28,7 @@ export function RequestsCreationPage() {
   // Hooks
   const navigate = useNavigate();
   const { user } = useUser();
+  const { uploadFile } = useUpload();
 
   // States
   const [requests, setRequests] = useState<RequestsType[]>([emptyRequest]);
@@ -76,30 +77,31 @@ export function RequestsCreationPage() {
   const handleSaveRequests = async () => {
     try {
       setLoading(true);
-
+      
       if (requests.length === 0) {
         Notify.warning("Debe agregar al menos una solicitud");
         return;
       }
-
+      
       const hasIncompleteRequests = requests.some(
         (request) =>
           !request.dni ||
           !request.fullname ||
           !request.phone ||
-          request.documents.length === 0
+          request.documents.length === 0 ||
+          !request.isConfirmed
       );
 
       if (hasIncompleteRequests) {
         Notify.warning(
-          "Todas las solicitudes deben tener datos completos y al menos un documento seleccionado"
+          "Todas las solicitudes deben tener datos completos y estar confirmada"
         );
         return;
       }
 
       const processedRequests = await Promise.all(
         requests.map(async (request) => {
-          const processedDocuments = await processDocuments(request.documents);
+          const processedDocuments = await processDocuments(request.documents, uploadFile);
           return {
             ...request,
             documents: processedDocuments,
@@ -121,7 +123,7 @@ export function RequestsCreationPage() {
   };
 
   const handleRequestResponse = (response: any) => {
-    if (response.status !== 200) {
+    if (response.status !== 201) {
       Notify.failure("Error al guardar las solicitudes");
     } else {
       setRequests([]);
@@ -198,10 +200,10 @@ const ConfirmBackModal = ({ isOpen, onCancel, onConfirm }: propsConfirmBackModal
 }
 
 // Helper function to process document resources
-const processDocuments = async (documents: any[]) => {
+const processDocuments = async (documents: any[], uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
   return Promise.all(
     documents.map(async (doc) => {
-      const processedResources = await processResources(doc.resources);
+      const processedResources = await processResources(doc.resources, uploadFile);
       return {
         ...doc,
         resources: processedResources,
@@ -211,8 +213,7 @@ const processDocuments = async (documents: any[]) => {
 };
 
 // Helper function to process resources and handle file uploads
-const processResources = async (resources: any[]) => {
-  const { uploadFile } = useUpload();
+const processResources = async (resources: any[], uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
 
   const processedResources = [];
 

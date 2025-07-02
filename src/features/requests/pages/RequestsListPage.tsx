@@ -62,6 +62,7 @@ export function RequestsListPage() {
           isError={error} 
           loadingText="Cargando solicitudes..."
           errorText="Error al cargar las solicitudes, por favor recargue la página."
+          onRefresh={handleGetRequests}
         />
         <OptionsDrawer
           isActive={isActiveDrawerRegisterRequests}

@@ -1,6 +1,6 @@
 // External libraries
 import { Notify } from "notiflix";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaChevronCircleDown } from "react-icons/fa";
 
 // Internal services and utilities
@@ -15,7 +15,7 @@ import { ResourceOutput } from "../../public/ResourceOutput";
 
 // Hooks
 import { useUpload } from '@/shared/hooks/useUpload';
-import { useUser, useHasRole } from "@/features/auth/hooks/useUser";
+import { useHasRole } from "@/features/auth/hooks/useUser";
 
 interface requestsTableProps {
   data: Request[];
@@ -23,12 +23,14 @@ interface requestsTableProps {
   isError: boolean;
   loadingText: string;
   errorText: string;
+  onRefresh: () => Promise<void>;
 }
 
-export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText }: requestsTableProps) => {
+export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText, onRefresh }: requestsTableProps) => {
   // Hooks
-  const { user } = useUser()
   const isAdmin = useHasRole([ROLES.ADMIN]);
+  const isUser = useHasRole([ROLES.USER]);
+    const { uploadFile } = useUpload();
 
   // States
   const [modalOpen, setModalOpen] = useState(false);
@@ -36,7 +38,10 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
 
-  useState(() => { setRequests(data) });
+  useEffect(() => { 
+    setRequests(data);
+  }, [data]);
+
   const handleRequests = (newRequests: Request[]) => {
     setRequests(newRequests);
   };
@@ -44,26 +49,22 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const handleConfirmRequest = async () => {
     if (selectedRequest === null) return;
 
-    if (!isAdmin) {
+    if (isUser) {
       setModalOpen(false);
       return;
     }
 
     try {
       Notify.info('Procesando informes...');
-
+      
       const selectedRequestData = requests[selectedRequest];
-      const documentsToUpdate = await processDocuments(selectedRequestData.documents);
+      const documentsToUpdate = await processDocuments(selectedRequestData.documents, uploadFile);
 
       await RequestsService.updateDocuments(documentsToUpdate);
-
-      const updatedRequests = [...requests];
-      updatedRequests[selectedRequest] = {
-        ...selectedRequestData,
-        status: 'COMPLETED'
-      };
-      setRequests(updatedRequests);
-
+      
+      // En lugar de actualizar el estado local, recargamos los datos
+      await onRefresh();
+      setModalOpen(false);
       Notify.success('Informes actualizados correctamente');
 
     } catch (error) {
@@ -108,7 +109,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
 
       {/* Rows */}
       <div className="text-black dark:text-white flex flex-col gap-2">
-        {data.map((request, index) => (
+        {requests.map((request, index) => (
           <div key={index}>
             {/* Main Row */}
             <div className="px-2 grid grid-cols-12 border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10">
@@ -205,26 +206,35 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
 
       <Modal
         isOpen={modalOpen}
-        title={!user?.roles.includes('ADMIN') ? "Visualización y descarga de archivos" : "Carga de informes solicitados"}
+        title={isUser ? "Visualización y descarga de archivos" : "Carga de informes solicitados"}
         onClose={() => {
           setModalOpen(false);
           if (selectedRequest !== null && requests[selectedRequest]?.documents) {
-            //const newRequests = [...requests];
-            // newRequests[selectedRequest].documents = newRequests[selectedRequest].documents.filter(doc => doc.resources && doc.resources.length > 0);
-            // handleRequests(newRequests);
+            const newRequests = [...requests];
+            newRequests[selectedRequest].documents = newRequests[selectedRequest].documents.filter(doc => doc.resources && doc.resources.length > 0);
+            handleRequests(newRequests);
           }
         }}
         position="center"
         width="800px"
         className="dark:text-white"
-        footer={<>{
-          !user?.roles.includes('ADMIN') ? null :
-            <button
-              className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
-              onClick={handleConfirmRequest}
-            >
-              Confirmar
-            </button>
+        footer={<>{          
+          isUser ? null :
+            selectedRequest !== null && requests[selectedRequest]?.documents.some(doc => doc.status === 'Pendiente') ? (
+              <button
+                className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
+                onClick={handleConfirmRequest}
+              >
+                Confirmar
+              </button>
+            ) : (
+              <button
+                className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
+                onClick={() => setModalOpen(false)}
+              >
+                OK
+              </button>
+            )
         }</>}
       >
         <div className="flex flex-col">
@@ -236,7 +246,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                     <h2 className="text-[24px]">{doc.name}</h2>
                     <span className={doc.status == 'Pendiente' ? "text-yellow-500 text-[16px]" : "text-green-500 text-[16px]"}>{doc.status}</span>
                   </div>
-                  {user?.roles.includes('ADMIN') ?
+                  {isAdmin ?
                     <div className="flex flex-col">
                       <div className="flex w-full justify-between align-center py-[14px]">
                         <div className="text-[16px] text-black-2 dark:text-white">
@@ -253,11 +263,12 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                               handleRequests(newRequests);
                             }
                           }}
-                          className="w-full max-w-[400px] px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
+                          disabled={doc.status !== 'Pendiente'}
+                          className={`w-full max-w-[400px] px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
                         rounded-md focus:outline-none focus:ring-2 focus:ring-main focus:border-transparent 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
                         placeholder-gray-400 dark:placeholder-gray-300
-                        transition-all duration-200"
+                        transition-all duration-200 ${doc.status !== 'Pendiente' ? 'opacity-50 cursor-not-allowed' : ''}`}
                         />
                       </div>
                       <div className="flex w-full justify-between align-center py-[14px]">
@@ -277,7 +288,8 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                                 handleRequests(newRequests);
                               }
                             }}
-                            className="w-full max-w-[200px] text-sm
+                            disabled={doc.status !== 'Pendiente'}
+                            className={`w-full max-w-[200px] text-sm
                               file:mr-0 file:py-[6px] file:px-[68px]
                               file:rounded-[6px] file:border-[1px] file:border-black-2
                               file:text-[10px] file:font-medium
@@ -287,7 +299,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                               [&:not(:placeholder-shown)::file-selector-button]:content-none
                               text-black-2 text-center
                               cursor-pointer
-                              transition-all duration-200"
+                              transition-all duration-200 ${doc.status !== 'Pendiente' ? 'opacity-50 cursor-not-allowed' : ''}`}
                           />
                         </div>
                       </div>
@@ -313,12 +325,12 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   );
 };
 
-const processDocuments = async (documents: any[]) => {
+const processDocuments = async (documents: any[], uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
   const documentsToUpdate = [];
 
   for (const doc of documents) {
     if (doc.filename instanceof File) {
-      const fileKey = await handleFileUpload(doc.filename);
+      const fileKey = await handleFileUpload(doc.filename, uploadFile);
       if (fileKey) {
         documentsToUpdate.push({
           id: doc.id,
@@ -332,9 +344,8 @@ const processDocuments = async (documents: any[]) => {
   return documentsToUpdate;
 };
 
-const handleFileUpload = async (file: File) => {
+const handleFileUpload = async (file: File, uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
   try {
-    const { uploadFile } = useUpload();
 
     const response = await apiClient.post('upload/write-signed-url', {
       fileName: file.name,
