@@ -5,16 +5,10 @@ import { RecoveryForm } from "../components/private/recovery-password/RecoveryFo
 export function RecoveryPasswordPage(){
     return(
         <>
+            <GreetingSection />
             <FormSection>
                 <RecoveryForm/>
             </FormSection>
-            
-            <GreetingSection 
-                href="/login" 
-                direction="l" 
-                greeting="¡NO TE PREOCUPES!" 
-                message="¿Recordaste tu cuenta? Ingresa aquí"
-            />
         </>
     )
 }
