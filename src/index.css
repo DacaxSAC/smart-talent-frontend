@@ -1,5 +1,5 @@
 /* Fuentes externas */
-@import url("https://fonts.google.com/share?selection.family=Faustina:ital,wght@0,300..800;1,300..800|Karla:ital,wght@0,200..800;1,200..800");
+@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap');
 
 /* Fuentes locales */
 @font-face {
@@ -47,6 +47,9 @@
 --shadow-sidebar-dark: 4px 0px 4px 0px rgba(250, 141, 40, 0.5);
 --shadow-doc-options: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
 
+--shadow-greeting: 1px 0px 4px 0px #FA8D28;
+
+
 /* Bordes */
 --radius-5xl: 6rem;
 --radius-sidebar:12px;
@@ -54,7 +57,6 @@
 /* Tipografías */
 --font-vendura: "Vendura", sans-serif;
 --font-karla: "Karla", sans-serif;
---font-faustina: "Faustina", sans-serif;
 }
 
 /* Variantes personalizadas */

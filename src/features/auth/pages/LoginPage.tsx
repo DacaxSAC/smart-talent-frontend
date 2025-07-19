@@ -5,11 +5,7 @@ import { GreetingSection } from "../components/shared/GreetingSection";
 export function LoginPage() {
     return (
       <>
-        <GreetingSection 
-            href="/register"
-            direction="r" 
-            greeting="¡BIENVENIDO!" 
-        />
+        <GreetingSection />
 
          <FormSection>
             <LoginForm/>
