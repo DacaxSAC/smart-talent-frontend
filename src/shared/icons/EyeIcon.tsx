@@ -3,7 +3,7 @@ import { IconProps } from "./types";
 export const EyeIcon: React.FC<IconProps> = ({
   width = 24,
   height = 24,
-  className = "text-neutral-2 dark:text-neutral-4"
+  className = "text-medium dark:text-neutral-4"
 }) => {
   return (
     <svg 
