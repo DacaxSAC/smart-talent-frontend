@@ -1,7 +1,7 @@
-import { FormButton } from "../../shared/FormButton";
-import { FormInput } from "../../shared/FormInput";
-import { FormLayout } from "../../shared/FormLayout";
-import { FormTitle } from "../../shared/FormTitle";
+import { FormButton } from "@/features/auth/components/shared/FormButton";
+import { FormInput } from "@/features/auth/components/shared/FormInput";
+import { FormLayout } from "@/features/auth/components/shared/FormLayout";
+import { FormTitle } from "@/features/auth/components/shared/FormTitle";
 
 export const ResetForm = () => {
     const handleSubmit = () =>{

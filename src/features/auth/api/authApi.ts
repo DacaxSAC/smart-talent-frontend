@@ -1,24 +1,8 @@
-import { apiClient } from '../../../lib/axios/client';
-import { AUTH_ENDPOINTS } from './endpoints';
-
-type LoginPayload = {
-    email : string,
-    password: string
-}
-
-interface LoginResponse {
-    message: string;
-    token: string;
-    user: {
-      id: number;
-      entityId: number;
-      username: string;
-      email: string;
-      roles: string[];
-    };
-  }
+import { apiClient } from '@/lib/axios/client';
+import { AUTH_ENDPOINTS } from '@/features/auth/api/endpoints';
+import { LoginResponse } from '@/features/auth/types';
 
 export const AuthApi = {
-  login: (payload: LoginPayload) => 
+  login: (payload: {email: string, password: string}) => 
     apiClient.post<LoginResponse>(AUTH_ENDPOINTS.LOGIN, payload),
 };

@@ -1,4 +1,3 @@
-
 export const FormButton = ({
     text,
     disabled,

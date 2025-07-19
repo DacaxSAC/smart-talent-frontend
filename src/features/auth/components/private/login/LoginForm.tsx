@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FormTitle } from "../../shared/FormTitle";
-import { FormLayout } from "../../shared/FormLayout";
-import { FormInput } from "../../shared/FormInput";
-import { FormButton } from "../../shared/FormButton";
+import { FormTitle } from "@/features/auth/components/shared/FormTitle";
+import { FormLayout } from "@/features/auth/components/shared/FormLayout";
+import { FormInput } from "@/features/auth/components/shared/FormInput";
+import { FormButton } from "@/features/auth/components/shared/FormButton";
 import { Loader } from "@/shared/components/Loader";
 import { useUser } from "@/features/auth/hooks/useUser";
 

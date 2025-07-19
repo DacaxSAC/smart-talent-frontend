@@ -1,25 +1,12 @@
-import { createContext, useState, useEffect, ReactNode } from "react";
+import { 
+  createContext, 
+  useState, 
+  useEffect, 
+  ReactNode 
+} from "react";
 import { storage } from "@/shared/utils/storage";
-import { AuthService } from "../services/authService";
-
-interface User {
-  id: number;
-  entityId: number;
-  username: string;
-  email: string;
-  roles: string[];
-}
-
-interface LoginProps {
-  email: string;
-  password: string;
-}
-
-interface UserContextType {
-  user: User | null;
-  login: (credentials: LoginProps) => Promise<boolean>;
-  logout: () => void;
-}
+import { AuthService } from "@/features/auth/services/authService";
+import { UserContextType, User } from "@/features/auth/types";
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -35,7 +22,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const login = async ({ email, password }: LoginProps): Promise<boolean> => {
+  const login = async ({ email, password }: {email: string, password: string}): Promise<boolean> => {
     try {
       const response = await AuthService.login(email, password);
       if (!response) return false;

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { EyeIcon } from '../../../../shared/icons/EyeIcon';
-import { EyeOffIcon } from '../../../../shared/icons/EyeOffIcon';
+import { EyeIcon, EyeOffIcon } from '@/shared/icons';
 
 /**
  * FormInput component with password visibility toggle functionality

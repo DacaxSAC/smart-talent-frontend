@@ -1,6 +1,6 @@
-import { FormSection } from "../components/shared/FormSection"
-import { GreetingSection } from "../components/shared/GreetingSection"
-import { RecoveryForm } from "../components/private/recovery-password/RecoveryForm"
+import { FormSection } from "@/features/auth/components/shared/FormSection"
+import { GreetingSection } from "@/features/auth/components/shared/GreetingSection"
+import { RecoveryForm } from "@/features/auth/components/private/recovery-password/RecoveryForm"
 
 export function RecoveryPasswordPage(){
     return(

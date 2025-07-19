@@ -1,16 +1,5 @@
-import { AuthApi } from '../api/authApi';
-
-interface LoginResponse {
-  message: string;
-  token: string;
-  user: {
-    id: number;
-    entityId: number;
-    username: string;
-    email: string;
-    roles: string[];
-  };
-}
+import { AuthApi } from '@/features/auth/api/authApi';
+import { LoginResponse } from '@/features/auth/types';
 
 export const AuthService = {
   async login(email: string, password: string): Promise<LoginResponse | null> {

@@ -1,7 +1,7 @@
-import { FormLayout } from "../../shared/FormLayout";
-import { FormInput } from "../../shared/FormInput";
-import { FormButton } from "../../shared/FormButton";
-import { FormTitle } from "../../shared/FormTitle";
+import { FormLayout } from "@/features/auth/components/shared/FormLayout";
+import { FormInput } from "@/features/auth/components/shared/FormInput";
+import { FormButton } from "@/features/auth/components/shared/FormButton";
+import { FormTitle } from "@/features/auth/components/shared/FormTitle";
 
 export const RecoveryForm = () =>{
     const handleSubmit = () =>{
