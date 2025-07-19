@@ -38,13 +38,13 @@ export const FormInput = ({
     
     return (
         <div className="flex flex-col w-full gap-4">
-            <label className="text-[20px]">{text}</label>
+            <label>{text}</label>
             <div className="relative">
                 <input 
                     type={inputType} 
                     name={type} 
                     onChange={handleError} 
-                    className={`bg-white-1 dark:bg-black-2 rounded-[15px] h-10 px-4 py-2 w-full ${
+                    className={`bg-input dark:bg-black-2 border border-medium rounded-[12px] h-10 px-4 py-2 w-full ${
                         isPasswordField ? 'pr-12' : ''
                     } ${
                         error ? 'border-2 border-error' : 'outline-main'
