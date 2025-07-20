@@ -1,13 +1,16 @@
 export const FormButton = ({
     text,
     disabled,
+    onClick
 }:Readonly<{
     text:string,
-    disabled:boolean
+    disabled:boolean,
+    onClick:()=>void
 }>) =>{
     return(
         <button 
-            type="submit"
+            type="button"
+            onClick={onClick}
             className="
                 text-[20px] text-center
                 bg-main 

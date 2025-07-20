@@ -20,6 +20,6 @@ export interface User {
 
 export interface UserContextType {
   user: User | null;
-  login: (credentials: {email: string, password: string}) => Promise<boolean>;
+  login: (credentials: {email: string, password: string}) => Promise<{success: boolean, message: string}>;
   logout: () => void;
 }

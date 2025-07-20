@@ -5,6 +5,7 @@ export const AuthService = {
   async login(email: string, password: string): Promise<LoginResponse | null> {
     try {
       const { data } = await AuthApi.login({ email, password });
+      console.log(data);
       return data;
     } catch (error: any) {
       if (error.response?.status === 401) {

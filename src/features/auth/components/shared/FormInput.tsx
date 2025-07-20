@@ -11,16 +11,16 @@ import { EyeIcon, EyeOffIcon } from '@/shared/icons';
  */
 export const FormInput = ({
     children,
-    text,
+    value,
     type,
-    error,
-    handleError
+    labelValue,
+    handleChange
 }: Readonly<{
     children?: React.ReactNode,
-    text: string,
-    type: string,
-    error: string | null,
-    handleError: () => void
+    value: string,
+    type: 'email'|'password'
+    labelValue: string,
+    handleChange:(e:React.ChangeEvent<HTMLInputElement>) => void
 }>) => {
     const [showPassword, setShowPassword] = useState(false);
     const isPasswordField = type === 'password';
@@ -37,17 +37,15 @@ export const FormInput = ({
     
     return (
         <div className="flex flex-col w-full gap-4">
-            <label>{text}</label>
+            <label>{labelValue}</label>
             <div className="relative">
                 <input 
                     type={inputType} 
-                    name={type} 
-                    onChange={handleError} 
+                    value={value} 
+                    onChange={handleChange} 
                     className={`bg-input dark:bg-black-2 border border-medium rounded-[12px] h-10 px-4 py-2 w-full ${
                         isPasswordField ? 'pr-12' : ''
-                    } ${
-                        error ? 'border-2 border-error' : 'outline-main'
-                    }`} 
+                    } `} 
                 />
                 {isPasswordField && (
                     <button
