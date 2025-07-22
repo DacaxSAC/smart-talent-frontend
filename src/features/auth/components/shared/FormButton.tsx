@@ -8,8 +8,7 @@ export const FormButton = ({
     onClick:()=>void
 }>) =>{
     return(
-        <button 
-            type="button"
+        <button
             onClick={onClick}
             className="
                 text-[20px] text-center
