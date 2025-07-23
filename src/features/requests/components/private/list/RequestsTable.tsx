@@ -178,17 +178,17 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                   ))}
                 </div>
               </div>
-              <div className="col-span-1 p-2  hidden md:block text-center">
+              <div className="col-span-2 p-2  hidden md:block text-center">
                 <button
                   title="Ver detalles de solicitud"
-                  className="cursor-pointer text-center hover:text-main-2plus"
+                  className="cursor-pointer text-center hover:text-main-2plus border border-white-1 px-1 rounded-[5px]"
                   onClick={() => openResourceModal(index)}
                 >
                   <p>Ver</p>
                 </button>
                 {isRecruiter && (
                   <button 
-                    className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
+                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px] ml-2"
                     onClick={() => handleOpenAcceptModal(index)}
                   >
                     Aceptar solicitud
