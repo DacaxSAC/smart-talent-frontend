@@ -44,6 +44,10 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const [requestToAccept, setRequestToAccept] = useState<number | null>(null);
   const [isAcceptingRequest, setIsAcceptingRequest] = useState(false);
+  const [observationModalOpen, setObservationModalOpen] = useState(false);
+  const [requestToObserve, setRequestToObserve] = useState<number | null>(null);
+  const [observation, setObservation] = useState('');
+  const [isAddingObservation, setIsAddingObservation] = useState(false);
 
   useEffect(() => { 
     setRequests(data);
@@ -138,6 +142,52 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
     }
   };
 
+  /**
+   * Abre el modal para agregar observación
+   */
+  const handleOpenObservationModal = (index: number) => {
+    setRequestToObserve(index);
+    setObservation('');
+    setObservationModalOpen(true);
+  };
+
+  /**
+   * Cierra el modal de observación
+   */
+  const handleCancelObservation = () => {
+    setRequestToObserve(null);
+    setObservation('');
+    setObservationModalOpen(false);
+  };
+
+  /**
+   * Maneja la confirmación de agregar observación
+   */
+  const handleConfirmObservation = async () => {
+    if (requestToObserve !== null && observation.trim()) {
+      try {
+        setIsAddingObservation(true);
+        const personId = parseInt(requests[requestToObserve].id); // Convertir string a number
+        
+        // TODO: Implementar el servicio real
+        console.log('personId:', personId);
+        console.log('observation:', observation);
+        
+        // Cerrar el modal
+        setRequestToObserve(null);
+        setObservation('');
+        setObservationModalOpen(false);
+        
+        Notify.success('Observación agregada exitosamente');
+      } catch (error) {
+        console.error('Error al agregar observación:', error);
+        Notify.failure('Error al agregar observación. Por favor, inténtelo de nuevo.');
+      } finally {
+        setIsAddingObservation(false);
+      }
+    }
+  };
+
   if (isLoading && !isError) {
     return <Header type={HeaderType.LOADING} description={loadingText} />
   }
@@ -216,9 +266,17 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                 {isRecruiter && request.status === 'IN_PROGRESS' && (
                   <button 
                     className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px] ml-2"
-                    onClick={() => {}}
+                    onClick={() => handleOpenObservationModal(index)}
                   >
                     Agregar observacion
+                  </button>
+                )}
+                {isUser && request.status === 'IN_PROGRESS' && request.observations && (
+                  <button 
+                    className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
+                    onClick={() => {}}
+                  >
+                    Ver observaciones
                   </button>
                 )}
               </div>
@@ -272,6 +330,22 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                           Aceptar solicitud
                         </button>
                       )}
+                      {isRecruiter && request.status === 'IN_PROGRESS' && (
+                        <button 
+                          className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
+                          onClick={() => handleOpenObservationModal(index)}
+                        >
+                          Agregar observación
+                        </button>
+                      )}
+                      {isUser && request.status === 'IN_PROGRESS' && (
+                        <button 
+                          className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
+                          onClick={() => {}}
+                        >
+                          Ver observaciones
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -310,6 +384,54 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                   className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
                 >
                   Confirmar
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
+
+      {/* Modal de observación */}
+      <Modal 
+        isOpen={observationModalOpen} 
+        onClose={isAddingObservation ? () => {} : handleCancelObservation} 
+        position="center" 
+        width="500px"
+      >
+        <div className="py-4 px-8">
+          {isAddingObservation ? (
+            <div className="flex flex-col items-center gap-4">
+              <Loader isLoading={true} />
+              <p>Agregando observación...</p>
+            </div>
+          ) : (
+            <>
+              <h3 className="text-lg font-medium mb-4 text-center">Agregar Observación</h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  Observación:
+                </label>
+                <textarea
+                  value={observation}
+                  onChange={(e) => setObservation(e.target.value)}
+                  placeholder="Escriba su observación aquí..."
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-main focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 resize-none"
+                />
+              </div>
+              <div className="flex justify-center gap-6">
+                <button
+                  onClick={handleCancelObservation}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmObservation}
+                  disabled={!observation.trim()}
+                  className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Agregar
                 </button>
               </div>
             </>

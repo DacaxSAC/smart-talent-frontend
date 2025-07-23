@@ -8,6 +8,7 @@ export interface Request {
     fullname: string;
     status: string;
     phone: string;
+    observations:string;
     documents: {
         id: number;
         name: string;
