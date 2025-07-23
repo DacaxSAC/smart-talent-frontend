@@ -4,7 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 // Feature imports
 import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
-import { Request, RequestsService } from "@/features/requests/services/requestsService";
+import { Request, RequestsService } from "@/features/requests/services/RequestsService";
 
 // Component imports
 import { OptionsDrawer } from "../components/private/list/OptionsDrawer";
