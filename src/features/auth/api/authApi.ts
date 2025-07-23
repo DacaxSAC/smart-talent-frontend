@@ -51,7 +51,7 @@ export const AuthApi = {
    * @param payload - Datos de reset de password
    * @returns Promise con la respuesta del servidor
    */
-  resetPassword: (payload: {token: string, password: string}): Promise<AxiosResponse<void>> => 
-    apiClient.post<void>(AUTH_ENDPOINTS.RESET_PASSWORD, payload),
+  resetPassword: (payload: {token: string, newPassword: string}): Promise<AxiosResponse<{success: boolean,message: string}>> => 
+    apiClient.post<{success: boolean,message: string}>(AUTH_ENDPOINTS.RESET_PASSWORD, payload),
 
 };

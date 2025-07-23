@@ -6,3 +6,4 @@ export { FormSection } from './FormSection';
 export { FormTitle } from './FormTitle';
 export { GreetingSection } from './GreetingSection';
 export { LayoutAuth } from './LayoutAuth';
+export { ButtonToLogin } from './ButtonToLogin';

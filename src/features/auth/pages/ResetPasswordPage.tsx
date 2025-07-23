@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { FormSection, GreetingSection, FormTitle } from "@/features/auth/components/shared";
+import { FormSection, GreetingSection, FormTitle, ButtonToLogin } from "@/features/auth/components/shared";
 import { ResetForm } from "@/features/auth/components/private/reset-password/ResetForm";
 import { AuthService } from "../services/authService";
 import { Loader } from "@/shared/components/Loader";
@@ -56,9 +56,12 @@ export function ResetPasswordPage(){
                 {isLoading ? (
                         <Loader isLoading={true} />
                 ) : isValidToken ? (
-                    <ResetForm />
+                    <ResetForm token={token!} />
                 ) : (
-                    <FormTitle title="Token Inválido" description={errorMessage} />
+                    <>
+                        <FormTitle title="Token Inválido" description={errorMessage} />
+                        <ButtonToLogin />
+                    </>
                 )}
             </FormSection>
         </>

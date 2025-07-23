@@ -95,4 +95,21 @@ export const AuthService = {
     }
   },
 
+  async resetPassword(payload: {token: string, newPassword: string}): Promise<{success: boolean,message: string}> {
+    try {
+      const response = await AuthApi.resetPassword(payload);
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      // Manejo específico de errores de Axios
+      if (error instanceof AxiosError) {
+        // Error de servidor (500+)
+        throw new Error('Error interno del servidor');
+      }
+      // Error genérico
+      throw new Error('Error inesperado. Intenta nuevamente.');
+    }
+  },
+
+
 };
