@@ -9,7 +9,7 @@ export function OnProcessRequestsListPage() {
     <RequestsListBase
       title="SOLICITUDES EN PROCESO"
       description="Visualiza las solicitudes que están siendo procesadas actualmente."
-      statusFilter="IN_PROGRESS"
+      statusFilter="IN_PROGRESS,OBSERVED"
       showAddButton={false}
     />
   );

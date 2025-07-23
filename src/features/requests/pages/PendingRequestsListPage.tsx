@@ -9,7 +9,7 @@ export function PendingRequestsListPage() {
     <RequestsListBase
       title="SOLICITUDES PENDIENTES"
       description="Visualiza tus solicitudes, su estado y los informes requeridos."
-      statusFilter="OBSERVED,PENDING"
+      statusFilter="PENDING"
       showAddButton={true}
     />
   );

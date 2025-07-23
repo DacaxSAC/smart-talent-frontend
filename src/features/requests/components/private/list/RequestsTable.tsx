@@ -17,6 +17,8 @@ import { ResourceOutput } from "../../public/ResourceOutput";
 import { useUpload } from '@/shared/hooks/useUpload';
 import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 
+import { Loader } from "@/shared/components/Loader";
+
 interface requestsTableProps {
   data: Request[];
   isLoading: boolean;
@@ -41,6 +43,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const [requestToAccept, setRequestToAccept] = useState<number | null>(null);
+  const [isAcceptingRequest, setIsAcceptingRequest] = useState(false);
 
   useEffect(() => { 
     setRequests(data);
@@ -108,17 +111,30 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
 
   /**
    * Maneja la confirmación de aceptar una solicitud
-   * TODO: Implementar la lógica para aceptar la solicitud
    */
   const handleConfirmAccept = async () => {
     if (requestToAccept !== null && user) {
-      const personId = parseInt(requests[requestToAccept].id); // Convertir string a number
-      const userId = user.id; // Convertir number a string
-      
-      await RequestsService.assignRecruiter(personId, userId);
-      // Cerrar el modal
-      setRequestToAccept(null);
-      setConfirmModalOpen(false);
+      try {
+        setIsAcceptingRequest(true);
+        const personId = parseInt(requests[requestToAccept].id); // Convertir string a number
+        const userId = user.id; // Convertir number a string
+        
+        await RequestsService.assignRecruiter(personId, userId);
+        
+        // Refetch de las solicitudes para actualizar el estado
+        await onRefresh();
+        
+        // Cerrar el modal
+        setRequestToAccept(null);
+        setConfirmModalOpen(false);
+        
+        Notify.success('Solicitud aceptada exitosamente');
+      } catch (error) {
+        console.error('Error al aceptar la solicitud:', error);
+        Notify.failure('Error al aceptar la solicitud. Por favor, inténtelo de nuevo.');
+      } finally {
+        setIsAcceptingRequest(false);
+      }
     }
   };
 
@@ -189,12 +205,20 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                 >
                   <p>Ver</p>
                 </button>
-                {isRecruiter && (
+                {isRecruiter && request.status === 'PENDING' && (
                   <button 
                     className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px] ml-2"
                     onClick={() => handleOpenAcceptModal(index)}
                   >
                     Aceptar solicitud
+                  </button>
+                )}
+                {isRecruiter && request.status === 'IN_PROGRESS' && (
+                  <button 
+                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px] ml-2"
+                    onClick={() => {}}
+                  >
+                    Agregar observacion
                   </button>
                 )}
               </div>
@@ -240,7 +264,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                       >
                         Ver Informes
                       </button>
-                      {isRecruiter && (
+                      {isRecruiter && request.status === 'PENDING' && (
                         <button 
                           className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
                           onClick={() => handleOpenAcceptModal(index)}
@@ -261,26 +285,35 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
       {/* Modal de confirmación para aceptar solicitud */}
       <Modal 
         isOpen={confirmModalOpen} 
-        onClose={handleCancelAccept} 
+        onClose={isAcceptingRequest ? () => {} : handleCancelAccept} 
         position="center" 
         width="400px"
       >
         <div className="py-2 px-8 text-lg text-center">
-          <p>¿Está seguro que desea aceptar esta solicitud?</p>
-          <div className="flex justify-center gap-6 pt-4">
-            <button
-              onClick={handleCancelAccept}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleConfirmAccept}
-              className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
-            >
-              Confirmar
-            </button>
-          </div>
+          {isAcceptingRequest ? (
+             <div className="flex flex-col items-center gap-4">
+               <Loader isLoading={true}  />
+               <p>Procesando solicitud...</p>
+             </div>
+           ) : (
+            <>
+              <p>¿Está seguro que desea aceptar esta solicitud?</p>
+              <div className="flex justify-center gap-6 pt-4">
+                <button
+                  onClick={handleCancelAccept}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmAccept}
+                  className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
+                >
+                  Confirmar
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </Modal>
 
