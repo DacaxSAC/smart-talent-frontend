@@ -59,4 +59,24 @@ export const AuthService = {
       };
     }
   },
+
+  async requestPasswordReset(email: string): Promise<{ message: string}> {
+    try {
+      const response =  await AuthApi.requestPasswordReset(email);
+      return response.data;
+    } catch (error) {
+      // Manejo específico de errores de Axios
+      if (error instanceof AxiosError) {
+        // Error de servidor (500+)
+        return {
+          message: 'Error interno del servidor',
+        };
+      }
+      // Error genérico
+      return {
+        message: 'Error inesperado. Intenta nuevamente.',
+      };
+    }
+  },
+
 };
