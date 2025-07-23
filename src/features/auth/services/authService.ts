@@ -79,4 +79,20 @@ export const AuthService = {
     }
   },
 
+  async validateResetToken(token: string): Promise<{ valid: boolean, message: string }> {
+    try {
+      const response = await AuthApi.validateResetToken(token);
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      // Manejo específico de errores de Axios
+      if (error instanceof AxiosError) {
+        // Error de servidor (500+)
+        throw new Error('Error interno del servidor');
+      }
+      // Error genérico
+      throw new Error('Error inesperado. Intenta nuevamente.');
+    }
+  },
+
 };

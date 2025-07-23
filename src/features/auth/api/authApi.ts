@@ -43,8 +43,8 @@ export const AuthApi = {
    * @param token - Token de reset de password
    * @returns Promise con la respuesta del servidor
    */
-  validateResetToken: (token: string): Promise<AxiosResponse<void>> => 
-    apiClient.post<void>(AUTH_ENDPOINTS.VALIDATE_RESET_TOKEN.replace(':token', token)),
+  validateResetToken: (token: string): Promise<AxiosResponse<{ valid: boolean, message: string }>> => 
+    apiClient.get<{ valid: boolean, message: string }>(AUTH_ENDPOINTS.VALIDATE_RESET_TOKEN.replace(':token', token)),
 
   /**
    * Resetea el password
