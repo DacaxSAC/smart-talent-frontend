@@ -1,11 +1,18 @@
+/**
+ * FormLayout component that provides a consistent layout for forms
+ * @param children - Form elements to be rendered inside the layout
+ * @param onSubmit - Form submission handler
+ */
 export const FormLayout = ({
-    children
+    children,
+    onSubmit
 }: Readonly<{
-    children: React.ReactNode
-    }>)=>{
+    children: React.ReactNode;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}>) => {
     return (
-    <div className="w-full flex flex-col items-start gap-6" onSubmit={(e)=>e.preventDefault()}>
-        {children}
-    </div>
+        <form className="w-full flex flex-col items-start gap-6" onSubmit={onSubmit}>
+            {children}
+        </form>
     );
-}
+};

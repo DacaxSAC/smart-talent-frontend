@@ -19,18 +19,17 @@ export const LoginForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-
   const navigate = useNavigate();
   const { login } = useUser();
-
 
   /**
    * Handle form submission and user authentication
    * @param e - Form submission event
    */
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (!formData.email || !formData.password) {
-      setError("Todos los campos son requeridos son requeridos");
+      setError("Todos los campos son requeridos");
       return;
     }
     setLoading(true);
@@ -40,7 +39,7 @@ export const LoginForm = () => {
       email: formData.email,
       password: formData.password,
     });
-//  
+
     if(response.success){
       navigate('/');
     }else{
@@ -68,7 +67,7 @@ export const LoginForm = () => {
         </div>
       )}
 
-      <FormLayout>
+      <FormLayout onSubmit={handleLogin}>
         <FormInput
           value={formData.email}
           labelValue="Email"
@@ -97,7 +96,6 @@ export const LoginForm = () => {
         </FormInput>
 
         <FormButton
-          onClick={handleLogin}
           text={loading ? "Ingresando..." : "Ingresar"}
           disabled={loading}
         />
