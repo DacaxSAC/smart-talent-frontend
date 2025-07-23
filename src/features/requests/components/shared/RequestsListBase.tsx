@@ -4,7 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 // Feature imports
 import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
-import { Request, RequestsService } from "@/features/requests/services/requestsService";
+import { Request, RequestsService } from "@/features/requests/services/requestsService"
 
 // Component imports
 import { OptionsDrawer } from "../private/list/OptionsDrawer";
@@ -39,6 +39,7 @@ export function RequestsListBase({
   // Hooks
   const { user } = useUser();
   const isAdmin = useHasRole(ROLES.ADMIN);
+  const isRecruiter = useHasRole(ROLES.RECRUITER);
   const isUser = useHasRole(ROLES.USER);
   const { openRegisterRequestsDrawer, toggleRegisterRequestsDrawer, isActiveDrawerRegisterRequests } = useModalStore();
 
@@ -54,7 +55,7 @@ export function RequestsListBase({
     try {
       setLoading(true);
 
-      const data = isAdmin
+      const data = isAdmin || isRecruiter
         ? await RequestsService.getAllPeople(statusFilter)
         : await RequestsService.getAllPeopleByEntityId(user?.entityId as number);
       setRequests(data.people);
