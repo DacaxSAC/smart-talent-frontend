@@ -4,6 +4,7 @@ import { FormTitle } from "@/features/auth/components/shared/FormTitle";
 import { FormLayout } from "@/features/auth/components/shared/FormLayout";
 import { FormInput } from "@/features/auth/components/shared/FormInput";
 import { FormButton } from "@/features/auth/components/shared/FormButton";
+import { AuthRequestMessage } from "@/features/auth/components/shared/AuthRequestMessage";
 import { Loader } from "@/shared/components/Loader";
 import { useUser } from "@/features/auth/hooks/useUser";
 
@@ -62,9 +63,7 @@ export const LoginForm = () => {
 
       {/* Global error message */}
       {error && (
-        <div className="w-full mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-error text-sm">{error}</p>
-        </div>
+        <AuthRequestMessage text={error}/>
       )}
 
       <FormLayout onSubmit={handleLogin}>
