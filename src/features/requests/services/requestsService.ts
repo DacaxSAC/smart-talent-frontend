@@ -73,5 +73,14 @@ export const RequestsService = {
             console.error('Error al actualizar los informes:', error);
             throw error;
         }
-    }
+    },
+    assignRecruiter: async (personId: number, recruiterId: number): Promise<void> => {
+        try {
+            await apiClient.patch(REQUEST_ENDPOINTS.POST_ASSIGN_RECRUITER, { personId, recruiterId });
+        } catch (error) {
+            console.error('Error al asignar el reclutador:', error);
+            throw error;
+        }
+    },
+
 };

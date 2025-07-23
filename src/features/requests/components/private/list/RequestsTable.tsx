@@ -15,7 +15,7 @@ import { ResourceOutput } from "../../public/ResourceOutput";
 
 // Hooks
 import { useUpload } from '@/shared/hooks/useUpload';
-import { useHasRole } from "@/features/auth/hooks/useUser";
+import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 
 interface requestsTableProps {
   data: Request[];
@@ -32,6 +32,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const isUser = useHasRole([ROLES.USER]);
   const isRecruiter = useHasRole([ROLES.RECRUITER]);
   const { uploadFile } = useUpload();
+  const { user } = useUser();
 
   // States
   const [modalOpen, setModalOpen] = useState(false);
@@ -43,6 +44,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
 
   useEffect(() => { 
     setRequests(data);
+    console.log('data', data);
   }, [data]);
 
   const handleRequests = (newRequests: Request[]) => {
@@ -108,11 +110,12 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
    * Maneja la confirmación de aceptar una solicitud
    * TODO: Implementar la lógica para aceptar la solicitud
    */
-  const handleConfirmAccept = () => {
-    if (requestToAccept !== null) {
-      // TODO: Aquí se implementará la lógica para aceptar la solicitud
-      console.log('Aceptando solicitud:', requests[requestToAccept]);
+  const handleConfirmAccept = async () => {
+    if (requestToAccept !== null && user) {
+      const personId = parseInt(requests[requestToAccept].id); // Convertir string a number
+      const userId = user.id; // Convertir number a string
       
+      await RequestsService.assignRecruiter(personId, userId);
       // Cerrar el modal
       setRequestToAccept(null);
       setConfirmModalOpen(false);
