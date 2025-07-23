@@ -6,7 +6,22 @@ export const requestsRoutes = [
   {
     path: '/requests',
     element: <RequestsListPage />,
-    roles: [ROLES.ADMIN, ROLES.USER]
+    roles: [ROLES.USER]
+  },
+  {
+    path: '/requests-pending',
+    element: <RequestsListPage />,
+    roles: [ROLES.ADMIN, ROLES.RECRUITER]
+  },
+  {
+    path: '/requests-on-process',
+    element: <RequestsListPage />,
+    roles: [ROLES.ADMIN, ROLES.RECRUITER]
+  },
+  {
+    path: '/requests-terminated',
+    element: <RequestsListPage />,
+    roles: [ROLES.ADMIN, ROLES.RECRUITER]
   },
   {
     path: '/requests/create',

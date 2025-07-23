@@ -1,41 +1,25 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { TbUserPlus, TbUserFilled } from "react-icons/tb";
-import { AddIcon, ExitIcon, PaperIcon, PayIcon, RecruitmentIcon, ListIcon } from '@/shared/icons';
-import { SidebarToggle } from './SidebarToggle';
-import { Logotipo } from './Logotipo';
-import { useUser } from '@/features/auth/hooks/useUser'
-import { MdExpandMore } from "react-icons/md";
-import { ThemeSwitch } from './ThemeSwitch';
-import { FaClipboardUser } from "react-icons/fa6";
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { TbUserFilled } from 'react-icons/tb';
+import { useUser } from '@/features/auth/hooks/useUser';
 import { useModalStore } from '@/shared/store/modalStore';
+import { Logotipo } from './Logotipo';
+import { ThemeSwitch } from './ThemeSwitch';
+import { SidebarToggle } from './SidebarToggle';
+import { PaperIcon, RecruitmentIcon, PayIcon, AddIcon, ListIcon, ExitIcon, DocPendingIcon, DocOnProcessIcon, DocTerminatedIcon } from '@/shared/icons';
 import { ROLES } from '@/features/auth/constants/roles';
+import { MdExpandMore } from 'react-icons/md';
 
 
 export const Sidebar = () => {
   const { user, logout } = useUser();
   const navigate = useNavigate();
-  const [isRequestsOpen, setIsRequestsOpen] = useState(false);
-  const [isRecruitmentsOpen, setIsRecruitmentsOpen] = useState(false);
-  const [isUsersOpen, setIsUsersOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { setIsActiveDrawerRegisterRequests } = useModalStore();
 
   const isAdmin = user?.roles.includes(ROLES.ADMIN);
   const isUser = user?.roles.includes(ROLES.USER);
-
-  const toggleRequestsMenu = () => {
-    setIsRequestsOpen(!isRequestsOpen);
-  };
-
-  const toggleRecruitmentsMenu = () => {
-    setIsRecruitmentsOpen(!isRecruitmentsOpen);
-  };
-
-  const toggleUsersMenu = () => {
-    setIsUsersOpen(!isUsersOpen);
-  };
+  const isRecruiter = user?.roles.includes(ROLES.RECRUITER);
 
   const handleIsOpen = () => {
     setIsOpen(!isOpen);
@@ -45,6 +29,114 @@ export const Sidebar = () => {
     logout();
     navigate('/login');
   };
+
+  const sidebarItems = [
+    {
+      icon: <TbUserFilled className='w-[25px] h-[25px] text-black-2 dark:text-white-1' />,
+      label: 'Gestión de usuarios',
+      onClick: () => navigate('/users'),
+      hasSubItems: false,
+      showCondition: isAdmin,
+    },
+    {
+      icon: <PaperIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
+      label: 'Solicitudes',
+      hasSubItems: true,
+      subItems: [
+        {
+          icon: <AddIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
+          label: 'Agregar nueva solicitud',
+          onClick: () => {
+            navigate('/requests');
+            setIsActiveDrawerRegisterRequests(true);
+          },
+          showCondition: isUser
+        },
+        {
+          icon: <ListIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
+          label: 'Lista de solicitudes',
+          onClick: () => navigate('/requests'),
+          showCondition: isUser
+        },
+        {
+          icon: <DocPendingIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
+          label: 'Solicitudes pendientes',
+          onClick: () => {
+            navigate('/requests-pending');
+            setIsActiveDrawerRegisterRequests(true);
+          },
+          showCondition: isAdmin || isRecruiter
+        },
+        {
+          icon: <DocOnProcessIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
+          label: 'Solicitudes en proceso',
+          onClick: () => {
+            navigate('/requests-on-process');
+            setIsActiveDrawerRegisterRequests(true);
+          },
+          showCondition: isAdmin || isRecruiter
+        },
+        {
+          icon: <DocTerminatedIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
+          label: 'Solicitudes terminadas',
+          onClick: () => {
+            navigate('/requests-terminated');
+            setIsActiveDrawerRegisterRequests(true);
+          },
+          showCondition: isAdmin || isRecruiter
+        },
+      ]
+    },
+    {
+      icon: <RecruitmentIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
+      label: 'Reclutamientos',
+      hasSubItems: true,
+      subItems: [
+        {
+          icon: <AddIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
+          label: 'Agregar nuevo reclutamiento',
+          onClick: () => navigate('/recruitments'),
+          showCondition: isUser
+        },
+        {
+          icon: <ListIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
+          label: 'Lista de reclutamientos',
+          onClick: () => navigate('/recruitments'),
+          showCondition: isUser
+        },
+        {
+          icon: <DocPendingIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
+          label: 'Reclutamientos pendientes',
+          onClick: () => navigate('/recruitments-pending'),
+          showCondition: isAdmin || isRecruiter
+        },
+        {
+          icon: <DocOnProcessIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
+          label: 'Reclutamientos en proceso',
+          onClick: () => navigate('/recruitments-on-process'),
+          showCondition: isAdmin || isRecruiter
+        },
+        {
+          icon: <DocTerminatedIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
+          label: 'Reclutamientos terminados',
+          onClick: () => navigate('/recruitments-terminated'),
+          showCondition: isAdmin || isRecruiter
+        },
+      ]
+    },
+    {
+      icon: <PayIcon className='w-[30px] h-[30px] text-black-2 dark:text-white-1' />,
+      label: 'Historial de facturación',
+      hasSubItems: false,
+      onClick: () => navigate('/billing-history')
+    },
+    {
+      icon: <ExitIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
+      label: 'Cerrar Sesión',
+      hasSubItems: false,
+      onClick: handleLogout
+    }
+  ];
 
   return (
     <>
@@ -77,136 +169,131 @@ export const Sidebar = () => {
         </div>
 
         <div className="flex flex-col w-full border-t border-medium text-[14px] font-light overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [-webkit-scrollbar]:hidden">
-
-          {/* Solicitudes Menu Item */}
-          <div>
-            <div
-              className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer`}
-              onClick={toggleRequestsMenu}
-            >
-              <PaperIcon width={30} height={30} className='text-black-2 dark:text-white-1' />
-              Solicitudes
-              <span className="ml-auto">
-                <div className={`transition-all duration-300 transform ${isRequestsOpen ? 'rotate-180' : 'rotate-0'}`}>
-                  <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
-                </div>
-              </span>
-            </div>
-
-            {isRequestsOpen && (
-              <div className="transition-all duration-300 ease-in-out">
-                {isUser &&
-                  <div
-                    onClick={() => {
-                      navigate('/requests');
-                      setIsActiveDrawerRegisterRequests(true);
-                    }}
-                    className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
-                    <AddIcon width={30} height={30} className='text-black-2 dark:text-white-1' />
-                    Agregar nueva solicitud
-                  </div>
-                }
-
-                <div
-                  onClick={() => navigate('/requests')}
-                  className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
-                  <ListIcon width={30} height={30} className='text-black-2 dark:text-white-1' />
-                  Lista de solicitudes
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Reclutamientos Menu Item */}
-          <div>
-            <div
-              className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer`}
-              onClick={toggleRecruitmentsMenu}
-            >
-              <RecruitmentIcon width={30} height={30} className='text-black-2 dark:text-white-1' />
-              Reclutamientos
-              <span className="ml-auto">
-                <div className={`transition-all duration-300 transform ${isRecruitmentsOpen ? 'rotate-180' : 'rotate-0'}`}>
-                  <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
-                </div>
-              </span>
-            </div>
-
-            {isRecruitmentsOpen && (
-              <div className="transition-all duration-300 ease-in-out">
-                {isUser &&
-                  <div
-                    onClick={() => {
-                      navigate('/recruitments');
-                      setIsActiveDrawerRegisterRequests(true);
-                    }}
-                    className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
-                    <AddIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
-                    Agregar nuevo reclutamiento
-                  </div>
-                }
-
-                <div
-                  onClick={() => navigate('/recruitments')}
-                  className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
-                  <ListIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
-                  Lista de reclutamientos
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Facturación Menu Item */}
-          <div
-            className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer`}
-          >
-            <PayIcon className='w-[30px] h-[30px] text-black-2 dark:text-white-1' />
-            Historial de facturación
-          </div>
-
-          {isAdmin &&
-            (<div>
-              <div
-                className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer`}
-                onClick={toggleUsersMenu}
-              >
-                <TbUserFilled className='w-[25px] h-[25px] text-black-2 dark:text-white-1' />
-                Usuarios
-                <span className="ml-auto">
-                  <div className={`transition-all duration-300 transform ${isUsersOpen ? 'rotate-180' : 'rotate-0'}`}>
-                    <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
-                  </div>
-                </span>
-              </div>
-
-              {isUsersOpen && (
-                <div className="transition-all duration-300 ease-in-out">
-                  <button onClick={() => navigate('/users')} className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 bg-white dark:bg-black dark:hover:bg-black-2 border-b border-medium dark:border-black-1 px-10 cursor-pointer'>
-                    <FaClipboardUser className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
-                    Lista de Usuarios
-                  </button>
-                  <Link
-                    to={'/users/create'}
-                    className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
-                    <TbUserPlus className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
-                    Crear Usuario
-                  </Link>
-                </div>
-              )}
-            </div>)}
-
-          {/* Cerrar Sesión Button */}
-          <button
-            onClick={handleLogout}
-            className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer mb-14`}
-          >
-            <ExitIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
-            Cerrar Sesión
-          </button>
+          {sidebarItems.map((item, index) => {
+             if (item.showCondition === false) return null;
+             
+             return (
+               <SidebarItem
+                 key={index}
+                 icon={item.icon}
+                 label={item.label}
+                 hasSubItems={item.hasSubItems}
+                 subItems={item.subItems}
+                 onClick={item.onClick}
+                 showCondition={item.showCondition}
+                 isLastItem={index === sidebarItems.length - 1}
+               />
+             );
+           })}
         </div>
       </aside>
 
       <SidebarToggle handleIsOpen={handleIsOpen} />
     </>
+  );
+};
+
+
+interface SidebarItemProps {
+  icon: React.ReactNode;
+  label: string;
+  hasSubItems?: boolean;
+  subItems?: Array<{
+    icon: React.ReactNode;
+    label: string;
+    onClick: () => void;
+    showCondition?: boolean;
+  }>;
+  onClick?: () => void;
+  showCondition?: boolean;
+  isLastItem?: boolean;
+}
+
+export const SidebarItem: React.FC<SidebarItemProps> = ({
+  icon,
+  label,
+  hasSubItems = false,
+  subItems = [],
+  onClick,
+  showCondition = true,
+  isLastItem = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleClick = () => {
+    if (hasSubItems) {
+      toggleMenu();
+    } else if (onClick) {
+      onClick();
+    }
+  };
+
+  if (!showCondition) {
+    return null;
+  }
+
+  return (
+    <div>
+      <div
+        className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer ${isLastItem ? 'mb-14' : ''}`}
+        onClick={handleClick}
+      >
+        {icon}
+        {label}
+        {hasSubItems && (
+          <span className="ml-auto">
+            <div className={`transition-all duration-300 transform ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
+              <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
+            </div>
+          </span>
+        )}
+      </div>
+
+      {hasSubItems && isOpen && (
+        <div className="transition-all duration-300 ease-in-out">
+          {subItems.map((subItem, index) => (
+            <SidebarSubItem
+              key={index}
+              icon={subItem.icon}
+              label={subItem.label}
+              onClick={subItem.onClick}
+              showCondition={subItem.showCondition}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface SidebarSubItemProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  showCondition?: boolean;
+}
+
+export const SidebarSubItem: React.FC<SidebarSubItemProps> = ({
+  icon,
+  label,
+  onClick,
+  showCondition = true
+}) => {
+  if (!showCondition) {
+    return null;
+  }
+
+  return (
+    <div
+      onClick={onClick}
+      className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'
+    >
+      {icon}
+      {label}
+    </div>
   );
 };

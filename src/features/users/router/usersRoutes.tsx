@@ -3,7 +3,7 @@ import { CreateUserPage } from "../pages/CreateUserPage";
 import { ListUsersPage } from "../pages/ListUsersPage";
 import { UpdateUserPage } from "../pages/UpdateUserPage";
 
-export const userRoutes = [
+export const usersRoutes = [
   {
     path: '/users',
     element: <ListUsersPage />,

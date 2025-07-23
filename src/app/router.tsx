@@ -1,13 +1,15 @@
 import App from "./App";
 import { createHashRouter, Outlet } from "react-router-dom";
 import { authRoutes } from "../features/auth/router/authRoutes";
-import { userRoutes } from "@/features/users/router/userRoutes";
+import { usersRoutes } from "@/features/users/router/usersRoutes";
 import { requestsRoutes } from "@/features/requests/router/requestsRoutes";
 import { LayoutAuth } from "../features/auth/components/shared/LayoutAuth";
 import { ProtectedAuthRoutes } from "../features/auth/router/protetedRoutes";
 import { ProtectedRoute } from "../shared/routes/ProtectedRoutes";
 import { NotFoundPage } from "../errors/pages/NotFoundPage";
 import { ROLES } from "@/features/auth/constants/roles";
+import { recruitmentsRoutes } from "@/features/recruitments/router/recruitmentsRoutes";
+import { billingRoutes } from "@/features/billing/router/billingRoutes";
 
 // Define proper types for route and roles
 type Role = string;
@@ -29,8 +31,10 @@ const applyRouteProtection = (routes: RouteConfig[]) =>
       : route.element,
   }));
 
-const protectedUserRoutes = applyRouteProtection(userRoutes);
+const protectedUsersRoutes = applyRouteProtection(usersRoutes);
 const protectedRequestsRoutes = applyRouteProtection(requestsRoutes);
+const protectedRecruitmentsRoutes = applyRouteProtection(recruitmentsRoutes);
+const protectedBillingRoutes = applyRouteProtection(billingRoutes);
 
 export const router = createHashRouter([
   {
@@ -50,12 +54,14 @@ export const router = createHashRouter([
       </ProtectedRoute>
     ),
     children: [
-      ...protectedUserRoutes,
+      ...protectedUsersRoutes,
       ...protectedRequestsRoutes,
+      ...protectedRecruitmentsRoutes,
+      ...protectedBillingRoutes,
       {
         path: "/",
         element: (
-          <ProtectedRoute roles={[ROLES.ADMIN, ROLES.USER]}>
+          <ProtectedRoute roles={[ROLES.ADMIN, ROLES.USER, ROLES.RECRUITER]}>
             <></>
           </ProtectedRoute>
         ),
