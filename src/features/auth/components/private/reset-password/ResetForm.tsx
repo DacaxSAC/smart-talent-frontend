@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { AuthService } from "@/features/auth/services/authService";
 import { FormButton, FormInput, FormLayout, FormTitle, AuthRequestMessage, ButtonToLogin } from "@/features/auth/components/shared";
 import { Loader } from "@/shared/components/Loader";
@@ -11,8 +10,6 @@ export const ResetForm = ({token}: {token: string}) => {
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [disabled, setDisabled] = useState(false);
-
-    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault();
