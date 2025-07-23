@@ -1,4 +1,7 @@
+/**
+ * Endpoints de autenticación
+ */
 export const AUTH_ENDPOINTS = {
     LOGIN: '/auth/login',
-    LOGOUT:'/auth/logout'
+    LOGOUT: '/auth/logout'
 } as const;
