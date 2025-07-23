@@ -1,9 +1,9 @@
 export type LoginResponse = {
+  success: boolean;
   message: string;
-  token: string;
-  user: {
+  token?: string;
+  user?: {
     id: number;
-    entityId: number;
     username: string;
     email: string;
     roles: string[];
@@ -12,7 +12,6 @@ export type LoginResponse = {
 
 export interface User {
   id: number;
-  entityId: number;
   username: string;
   email: string;
   roles: string[];

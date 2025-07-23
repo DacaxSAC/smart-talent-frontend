@@ -1,5 +1,5 @@
 import App from "./App";
-import { createHashRouter, Outlet } from "react-router-dom";
+import { createBrowserRouter, Outlet } from "react-router-dom";
 import { authRoutes } from "../features/auth/router/authRoutes";
 import { userRoutes } from "@/features/users/router/userRoutes";
 import { requestsRoutes } from "@/features/requests/router/requestsRoutes";
@@ -8,6 +8,17 @@ import { ProtectedAuthRoutes } from "../features/auth/router/protetedRoutes";
 import { ProtectedRoute } from "../shared/routes/ProtectedRoutes";
 import { NotFoundPage } from "../errors/pages/NotFoundPage";
 import { ROLES } from "@/features/auth/constants/roles";
+
+/**
+ * Configuración del router principal de la aplicación
+ * 
+ * Estructura:
+ * 1. Rutas de autenticación (públicas) - /login, /recovery-password, /reset-password
+ * 2. Rutas protegidas (requieren autenticación) - todas las demás rutas
+ * 3. Ruta 404 para páginas no encontradas
+ * 
+ * Nota: Se usa createBrowserRouter para URLs limpias sin hash (#)
+ */
 
 // Define proper types for route and roles
 type Role = string;
@@ -32,7 +43,7 @@ const applyRouteProtection = (routes: RouteConfig[]) =>
 const protectedUserRoutes = applyRouteProtection(userRoutes);
 const protectedRequestsRoutes = applyRouteProtection(requestsRoutes);
 
-export const router = createHashRouter([
+export const router = createBrowserRouter([
   {
     element: (
       <ProtectedAuthRoutes>

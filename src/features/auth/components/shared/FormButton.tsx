@@ -8,7 +8,7 @@ export const FormButton = ({
     return(
         <button
             type="submit"
-            className="
+            className={`
                 text-[20px] text-center
                 bg-main 
                 hover:opacity-80 
@@ -17,7 +17,9 @@ export const FormButton = ({
                 px-4 py-2 
                 mt-6 
                 w-full 
-                cursor-pointer"
+                cursor-pointer
+                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
             disabled={disabled}
         >
             {text}
