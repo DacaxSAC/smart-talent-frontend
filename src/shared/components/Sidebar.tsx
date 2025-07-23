@@ -61,28 +61,19 @@ export const Sidebar = () => {
         {
           icon: <DocPendingIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
           label: 'Solicitudes pendientes',
-          onClick: () => {
-            navigate('/requests-pending');
-            setIsActiveDrawerRegisterRequests(true);
-          },
+          onClick: () => navigate('/requests-pending'),
           showCondition: isAdmin || isRecruiter
         },
         {
           icon: <DocOnProcessIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
           label: 'Solicitudes en proceso',
-          onClick: () => {
-            navigate('/requests-on-process');
-            setIsActiveDrawerRegisterRequests(true);
-          },
+          onClick: () => navigate('/requests-on-process'),
           showCondition: isAdmin || isRecruiter
         },
         {
           icon: <DocTerminatedIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
           label: 'Solicitudes terminadas',
-          onClick: () => {
-            navigate('/requests-terminated');
-            setIsActiveDrawerRegisterRequests(true);
-          },
+          onClick: () => navigate('/requests-terminated'),
           showCondition: isAdmin || isRecruiter
         },
       ]
