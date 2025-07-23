@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { TbFileDollar, TbFileDescription, TbLogout, TbList, TbPlaylistAdd, TbUserPlus, TbUserFilled } from "react-icons/tb";
+import { TbUserPlus, TbUserFilled } from "react-icons/tb";
+import { AddIcon, ExitIcon, PaperIcon, PayIcon, RecruitmentIcon, ListIcon } from '@/shared/icons';
 import { SidebarToggle } from './SidebarToggle';
 import { Logotipo } from './Logotipo';
 import { useUser } from '@/features/auth/hooks/useUser'
@@ -16,12 +17,20 @@ export const Sidebar = () => {
   const { user, logout } = useUser();
   const navigate = useNavigate();
   const [isRequestsOpen, setIsRequestsOpen] = useState(false);
+  const [isRecruitmentsOpen, setIsRecruitmentsOpen] = useState(false);
   const [isUsersOpen, setIsUsersOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { setIsActiveDrawerRegisterRequests } = useModalStore();
 
+  const isAdmin = user?.roles.includes(ROLES.ADMIN);
+  const isUser = user?.roles.includes(ROLES.USER);
+
   const toggleRequestsMenu = () => {
     setIsRequestsOpen(!isRequestsOpen);
+  };
+
+  const toggleRecruitmentsMenu = () => {
+    setIsRecruitmentsOpen(!isRecruitmentsOpen);
   };
 
   const toggleUsersMenu = () => {
@@ -50,7 +59,7 @@ export const Sidebar = () => {
           pt-14
           text-black dark:text-white 
           font-karla  
-          border-r border-medium  dark:border-black-1 rounded-r-sidebar shadow-sidebar`}
+          border-r border-medium dark:border-black-1 rounded-r-sidebar shadow-greeting`}
       >
         <div className='w-full flex flex-col items-center mb-5'>
           <Logotipo where='sidebar' />
@@ -69,12 +78,13 @@ export const Sidebar = () => {
 
         <div className="flex flex-col w-full border-t border-medium text-[14px] font-light overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [-webkit-scrollbar]:hidden">
 
+          {/* Solicitudes Menu Item */}
           <div>
             <div
               className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer`}
               onClick={toggleRequestsMenu}
             >
-              <TbFileDescription className='w-[30px] h-[30px] text-black-2 dark:text-white-1' />
+              <PaperIcon width={30} height={30} className='text-black-2 dark:text-white-1' />
               Solicitudes
               <span className="ml-auto">
                 <div className={`transition-all duration-300 transform ${isRequestsOpen ? 'rotate-180' : 'rotate-0'}`}>
@@ -85,24 +95,63 @@ export const Sidebar = () => {
 
             {isRequestsOpen && (
               <div className="transition-all duration-300 ease-in-out">
-                <div
-                  onClick={() => navigate('/requests')}
-                  className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
-                  <TbList className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
-                  Lista de Solicitudes
-                </div>
-
-                {user?.roles.includes(ROLES.USER) &&
+                {isUser &&
                   <div
                     onClick={() => {
                       navigate('/requests');
                       setIsActiveDrawerRegisterRequests(true);
                     }}
                     className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
-                    <TbPlaylistAdd className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
-                    Agregar Solicitud
+                    <AddIcon width={30} height={30} className='text-black-2 dark:text-white-1' />
+                    Agregar nueva solicitud
                   </div>
                 }
+
+                <div
+                  onClick={() => navigate('/requests')}
+                  className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
+                  <ListIcon width={30} height={30} className='text-black-2 dark:text-white-1' />
+                  Lista de solicitudes
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Reclutamientos Menu Item */}
+          <div>
+            <div
+              className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer`}
+              onClick={toggleRecruitmentsMenu}
+            >
+              <RecruitmentIcon width={30} height={30} className='text-black-2 dark:text-white-1' />
+              Reclutamientos
+              <span className="ml-auto">
+                <div className={`transition-all duration-300 transform ${isRecruitmentsOpen ? 'rotate-180' : 'rotate-0'}`}>
+                  <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
+                </div>
+              </span>
+            </div>
+
+            {isRecruitmentsOpen && (
+              <div className="transition-all duration-300 ease-in-out">
+                {isUser &&
+                  <div
+                    onClick={() => {
+                      navigate('/recruitments');
+                      setIsActiveDrawerRegisterRequests(true);
+                    }}
+                    className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
+                    <AddIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
+                    Agregar nuevo reclutamiento
+                  </div>
+                }
+
+                <div
+                  onClick={() => navigate('/recruitments')}
+                  className='w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium dark:border-black-1 bg-white dark:bg-black px-10 cursor-pointer'>
+                  <ListIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
+                  Lista de reclutamientos
+                </div>
               </div>
             )}
           </div>
@@ -111,11 +160,11 @@ export const Sidebar = () => {
           <div
             className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer`}
           >
-            <TbFileDollar className='w-[30px] h-[30px] text-black-2 dark:text-white-1' />
-            Facturación
+            <PayIcon className='w-[30px] h-[30px] text-black-2 dark:text-white-1' />
+            Historial de facturación
           </div>
 
-          {user?.roles.includes(ROLES.ADMIN) &&
+          {isAdmin &&
             (<div>
               <div
                 className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer`}
@@ -151,7 +200,7 @@ export const Sidebar = () => {
             onClick={handleLogout}
             className={`w-full flex flex-row justify-start items-center gap-2 py-3.5 hover:bg-white-2 dark:hover:bg-black-2 border-b border-medium px-6 cursor-pointer mb-14`}
           >
-            <TbLogout className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
+            <ExitIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />
             Cerrar Sesión
           </button>
         </div>
