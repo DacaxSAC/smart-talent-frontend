@@ -1,16 +1,14 @@
 export const FormButton = ({
     text,
-    disabled,
-    onClick
+    disabled
 }:Readonly<{
     text:string,
-    disabled:boolean,
-    onClick:()=>void
+    disabled:boolean
 }>) =>{
     return(
         <button
-            onClick={onClick}
-            className="
+            type="submit"
+            className={`
                 text-[20px] text-center
                 bg-main 
                 hover:opacity-80 
@@ -19,7 +17,9 @@ export const FormButton = ({
                 px-4 py-2 
                 mt-6 
                 w-full 
-                cursor-pointer"
+                cursor-pointer
+                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
             disabled={disabled}
         >
             {text}
