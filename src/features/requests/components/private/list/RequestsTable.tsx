@@ -48,6 +48,9 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const [requestToObserve, setRequestToObserve] = useState<number | null>(null);
   const [observation, setObservation] = useState('');
   const [isAddingObservation, setIsAddingObservation] = useState(false);
+  const [viewObservationsModalOpen, setViewObservationsModalOpen] = useState(false);
+  const [requestToViewObservations, setRequestToViewObservations] = useState<number | null>(null);
+  const [isProcessingObservation, setIsProcessingObservation] = useState(false);
 
   useEffect(() => { 
     setRequests(data);
@@ -172,6 +175,10 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         // TODO: Implementar el servicio real
         console.log('personId:', personId);
         console.log('observation:', observation);
+        await RequestsService.postObservations(personId, observation);
+        
+        // Refetch de las solicitudes para actualizar el estado
+        await onRefresh();
         
         // Cerrar el modal
         setRequestToObserve(null);
@@ -184,6 +191,80 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         Notify.failure('Error al agregar observación. Por favor, inténtelo de nuevo.');
       } finally {
         setIsAddingObservation(false);
+      }
+    }
+  };
+
+  /**
+   * Abre el modal para ver observaciones
+   */
+  const handleOpenViewObservationsModal = (index: number) => {
+    setRequestToViewObservations(index);
+    setViewObservationsModalOpen(true);
+  };
+
+  /**
+   * Cierra el modal de ver observaciones
+   */
+  const handleCancelViewObservations = () => {
+    setRequestToViewObservations(null);
+    setViewObservationsModalOpen(false);
+  };
+
+  /**
+   * Maneja la acción de rechazar desde el modal de observaciones
+   */
+  const handleRejectFromObservations = async () => {
+    if (requestToViewObservations !== null) {
+      try {
+        setIsProcessingObservation(true);
+        const personId = parseInt(requests[requestToViewObservations].id);
+        
+        // TODO: Implementar el servicio real para rechazar
+        console.log('Rechazando solicitud con personId:', personId);
+        
+        // Refetch de las solicitudes para actualizar el estado
+        await onRefresh();
+        
+        // Cerrar el modal
+        setRequestToViewObservations(null);
+        setViewObservationsModalOpen(false);
+        
+        Notify.success('Solicitud rechazada exitosamente');
+      } catch (error) {
+        console.error('Error al rechazar la solicitud:', error);
+        Notify.failure('Error al rechazar la solicitud. Por favor, inténtelo de nuevo.');
+      } finally {
+        setIsProcessingObservation(false);
+      }
+    }
+  };
+
+  /**
+   * Maneja la acción de aceptar desde el modal de observaciones
+   */
+  const handleAcceptFromObservations = async () => {
+    if (requestToViewObservations !== null) {
+      try {
+        setIsProcessingObservation(true);
+        const personId = parseInt(requests[requestToViewObservations].id);
+        
+        // TODO: Implementar el servicio real para aceptar
+        console.log('Aceptando solicitud con personId:', personId);
+        
+        // Refetch de las solicitudes para actualizar el estado
+        await onRefresh();
+        
+        // Cerrar el modal
+        setRequestToViewObservations(null);
+        setViewObservationsModalOpen(false);
+        
+        Notify.success('Solicitud aceptada exitosamente');
+      } catch (error) {
+        console.error('Error al aceptar la solicitud:', error);
+        Notify.failure('Error al aceptar la solicitud. Por favor, inténtelo de nuevo.');
+      } finally {
+        setIsProcessingObservation(false);
       }
     }
   };
@@ -271,10 +352,10 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                     Agregar observacion
                   </button>
                 )}
-                {isUser && request.status === 'IN_PROGRESS' && request.observations && (
+                {isUser && request.status === 'OBSERVED' && request.observations && (
                   <button 
                     className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
-                    onClick={() => {}}
+                    onClick={() => handleOpenViewObservationsModal(index)}
                   >
                     Ver observaciones
                   </button>
@@ -354,7 +435,6 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
           </div>
         ))}
       </div>
-
 
       {/* Modal de confirmación para aceptar solicitud */}
       <Modal 
@@ -553,6 +633,84 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
               )
               )}
             </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* Modal para ver observaciones */}
+      <Modal
+        isOpen={viewObservationsModalOpen}
+        onClose={isProcessingObservation ? () => {} : handleCancelViewObservations}
+        title="Observaciones de la solicitud"
+        position="center"
+        width="600px"
+        className="dark:text-white"
+        footer={
+          <div className="flex gap-3 justify-end">
+            {isProcessingObservation ? (
+              <div className="flex items-center gap-2">
+                <Loader isLoading={true} />
+                <span className="text-sm text-gray-600">Procesando...</span>
+              </div>
+            ) : (
+              <>
+                <button
+                  className="px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                  onClick={handleCancelViewObservations}
+                >
+                  Cerrar
+                </button>
+                <button
+                  className="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                  onClick={handleRejectFromObservations}
+                >
+                  Rechazar
+                </button>
+                <button
+                  className="px-4 py-2 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                  onClick={handleAcceptFromObservations}
+                >
+                  Aceptar
+                </button>
+              </>
+            )}
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          {requestToViewObservations !== null && requests[requestToViewObservations] && (
+            <>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                  Información de la solicitud
+                </h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-600 dark:text-gray-300">Nombre:</span>
+                    <span className="ml-2 text-gray-800 dark:text-white">
+                      {requests[requestToViewObservations].fullname}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600 dark:text-gray-300">Estado:</span>
+                    <span className="ml-2 text-gray-800 dark:text-white">
+                      {requests[requestToViewObservations].status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-200">
+                  Observaciones
+                </h3>
+                <div className="bg-white dark:bg-gray-700 p-3 rounded border border-blue-200 dark:border-blue-700">
+                  <p className="text-gray-800 dark:text-white whitespace-pre-wrap">
+                    {requests[requestToViewObservations].observations || 'No hay observaciones disponibles.'}
+                  </p>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </Modal>

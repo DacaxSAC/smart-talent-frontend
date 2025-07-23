@@ -8,4 +8,5 @@ export const REQUEST_ENDPOINTS = {
     UPDATE_DOCUMENTS: '/documents/bulk-update',
     POST_REQUESTS: '/requests',
     POST_ASSIGN_RECRUITER: '/requests/assign-recruiter',
+    POST_OBSERVATIONS: '/requests/give-observations',
 } as const;

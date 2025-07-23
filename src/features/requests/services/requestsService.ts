@@ -83,5 +83,13 @@ export const RequestsService = {
             throw error;
         }
     },
+    postObservations: async (personId: number, observations: string): Promise<void> => {
+        try {
+            await apiClient.patch(REQUEST_ENDPOINTS.POST_OBSERVATIONS, { personId, observations });
+        } catch (error) {
+            console.error('Error al agregar las observaciones:', error);
+            throw error;
+        }
+    },
 
 };
