@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FormTitle } from "@/features/auth/components/shared/FormTitle";
-import { FormLayout } from "@/features/auth/components/shared/FormLayout";
-import { FormInput } from "@/features/auth/components/shared/FormInput";
-import { FormButton } from "@/features/auth/components/shared/FormButton";
-import { AuthRequestMessage } from "@/features/auth/components/shared/AuthRequestMessage";
+import { FormTitle, FormButton, FormInput, FormLayout, AuthRequestMessage } from "@/features/auth/components/shared";
 import { Loader } from "@/shared/components/Loader";
 import { useUser } from "@/features/auth/hooks/useUser";
 
@@ -63,7 +59,7 @@ export const LoginForm = () => {
 
       {/* Global error message */}
       {error && (
-        <AuthRequestMessage text={error}/>
+        <AuthRequestMessage isError={true} text={error}/>
       )}
 
       <FormLayout onSubmit={handleLogin}>

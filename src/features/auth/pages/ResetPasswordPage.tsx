@@ -1,5 +1,4 @@
-import { FormSection } from "@/features/auth/components/shared/FormSection";
-import { GreetingSection } from "@/features/auth/components/shared/GreetingSection";
+import { FormSection, GreetingSection } from "@/features/auth/components/shared";
 import { ResetForm } from "@/features/auth/components/private/reset-password/ResetForm";
 
 export function ResetPasswordPage(){

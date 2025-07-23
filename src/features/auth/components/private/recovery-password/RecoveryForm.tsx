@@ -1,10 +1,6 @@
 import { useState } from "react";
-import { FormLayout } from "@/features/auth/components/shared/FormLayout";
-import { FormInput } from "@/features/auth/components/shared/FormInput";
-import { FormButton } from "@/features/auth/components/shared/FormButton";
-import { FormTitle } from "@/features/auth/components/shared/FormTitle";
 import { AuthService } from "@/features/auth/services/authService";
-import { AuthRequestMessage } from "@/features/auth/components/shared/AuthRequestMessage";
+import { FormLayout, FormButton, FormInput, FormTitle, AuthRequestMessage } from "@/features/auth/components/shared";
 import { Loader } from "@/shared/components/Loader";
 
 export const RecoveryForm = () => {
