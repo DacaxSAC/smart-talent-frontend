@@ -22,7 +22,7 @@ import { useUpload } from "@/shared/hooks/useUpload";
 
 // Utility imports
 import { apiClient } from "@/lib/axios/client";
-import { RequestsService } from "../services/RequestsService";
+import { RequestsService } from "@/features/requests/services/requestsService";
 
 export function RequestsCreationPage() {
   // Hooks

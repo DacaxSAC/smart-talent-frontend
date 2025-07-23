@@ -30,13 +30,16 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   // Hooks
   const isAdmin = useHasRole([ROLES.ADMIN]);
   const isUser = useHasRole([ROLES.USER]);
-    const { uploadFile } = useUpload();
+  const isRecruiter = useHasRole([ROLES.RECRUITER]);
+  const { uploadFile } = useUpload();
 
   // States
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [openRows, setOpenRows] = useState<number[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
+  const [requestToAccept, setRequestToAccept] = useState<number | null>(null);
 
   useEffect(() => { 
     setRequests(data);
@@ -82,6 +85,38 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const openResourceModal = (index: number) => {
     setSelectedRequest(index);
     setModalOpen(true);
+  };
+
+  /**
+   * Abre el modal de confirmación para aceptar una solicitud
+   * @param index - Índice de la solicitud a aceptar
+   */
+  const handleOpenAcceptModal = (index: number) => {
+    setRequestToAccept(index);
+    setConfirmModalOpen(true);
+  };
+
+  /**
+   * Cierra el modal de confirmación
+   */
+  const handleCancelAccept = () => {
+    setRequestToAccept(null);
+    setConfirmModalOpen(false);
+  };
+
+  /**
+   * Maneja la confirmación de aceptar una solicitud
+   * TODO: Implementar la lógica para aceptar la solicitud
+   */
+  const handleConfirmAccept = () => {
+    if (requestToAccept !== null) {
+      // TODO: Aquí se implementará la lógica para aceptar la solicitud
+      console.log('Aceptando solicitud:', requests[requestToAccept]);
+      
+      // Cerrar el modal
+      setRequestToAccept(null);
+      setConfirmModalOpen(false);
+    }
   };
 
   if (isLoading && !isError) {
@@ -151,6 +186,14 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                 >
                   <p>Ver</p>
                 </button>
+                {isRecruiter && (
+                  <button 
+                    className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
+                    onClick={() => handleOpenAcceptModal(index)}
+                  >
+                    Aceptar solicitud
+                  </button>
+                )}
               </div>
               <div className="col-span-1 p-2  md:hidden text-center">
                 <button
@@ -194,6 +237,14 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                       >
                         Ver Informes
                       </button>
+                      {isRecruiter && (
+                        <button 
+                          className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
+                          onClick={() => handleOpenAcceptModal(index)}
+                        >
+                          Aceptar solicitud
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -203,6 +254,32 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         ))}
       </div>
 
+
+      {/* Modal de confirmación para aceptar solicitud */}
+      <Modal 
+        isOpen={confirmModalOpen} 
+        onClose={handleCancelAccept} 
+        position="center" 
+        width="400px"
+      >
+        <div className="py-2 px-8 text-lg text-center">
+          <p>¿Está seguro que desea aceptar esta solicitud?</p>
+          <div className="flex justify-center gap-6 pt-4">
+            <button
+              onClick={handleCancelAccept}
+              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirmAccept}
+              className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal
         isOpen={modalOpen}
@@ -235,7 +312,8 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                 OK
               </button>
             )
-        }</>}
+        }</>
+        }
       >
         <div className="flex flex-col">
           {selectedRequest !== null && requests[selectedRequest] && (
