@@ -50,7 +50,7 @@ export const Sidebar = () => {
           pt-14
           text-black dark:text-white 
           font-karla  
-          border-r border-medium  dark:border-black-1 rounded-r-sidebar shadow-sidebar`}
+          rounded-r-sidebar shadow-greeting`}
       >
         <div className='w-full flex flex-col items-center mb-5'>
           <Logotipo where='sidebar' />
