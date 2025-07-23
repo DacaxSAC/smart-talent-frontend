@@ -8,6 +8,7 @@ export interface Request {
     fullname: string;
     status: string;
     phone: string;
+    observations:string;
     documents: {
         id: number;
         name: string;
@@ -79,6 +80,14 @@ export const RequestsService = {
             await apiClient.patch(REQUEST_ENDPOINTS.POST_ASSIGN_RECRUITER, { personId, recruiterId });
         } catch (error) {
             console.error('Error al asignar el reclutador:', error);
+            throw error;
+        }
+    },
+    postObservations: async (personId: number, observations: string): Promise<void> => {
+        try {
+            await apiClient.patch(REQUEST_ENDPOINTS.POST_OBSERVATIONS, { personId, observations });
+        } catch (error) {
+            console.error('Error al agregar las observaciones:', error);
             throw error;
         }
     },
