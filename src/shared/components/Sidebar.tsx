@@ -128,7 +128,8 @@ export const Sidebar = () => {
       icon: <PayIcon className='w-[30px] h-[30px] text-black-2 dark:text-white-1' />,
       label: 'Historial de facturación',
       hasSubItems: false,
-      onClick: () => navigate('/billing-history')
+      onClick: () => navigate('/billing-history'),
+      showCondition: isAdmin
     },
     {
       icon: <ExitIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
