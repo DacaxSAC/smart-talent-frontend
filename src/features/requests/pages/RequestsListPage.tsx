@@ -4,13 +4,14 @@ import { Fragment, useEffect, useState } from "react";
 // Feature imports
 import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
-import { Request, RequestsService } from "../services/RequestsService";
+import { Request, RequestsService } from "@/features/requests/services/requestsService";
 
 // Component imports
 import { OptionsDrawer } from "../components/private/list/OptionsDrawer";
 import { RequestsTable } from "../components/private/list/RequestsTable";
 import { LayoutPage } from "../../../shared/components/LayoutPage";
 import { Button } from "../../../shared/components/Button";
+import { NoData } from "@/shared/components/NoData";
 
 // Store imports
 import { useModalStore } from "@/shared/store/modalStore";
@@ -56,14 +57,17 @@ export function RequestsListPage() {
       }
     >
       <Fragment>
-        <RequestsTable 
+        {requests.length === 0 ?
+          <NoData />
+          : 
+          <RequestsTable 
           data={requests} 
           isLoading={loading} 
           isError={error} 
           loadingText="Cargando solicitudes..."
           errorText="Error al cargar las solicitudes, por favor recargue la página."
           onRefresh={handleGetRequests}
-        />
+        />}
         <OptionsDrawer
           isActive={isActiveDrawerRegisterRequests}
           handleActive={toggleRegisterRequestsDrawer}
