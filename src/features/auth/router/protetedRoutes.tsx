@@ -5,7 +5,7 @@ export const ProtectedAuthRoutes = ({ children }: { children: React.ReactNode })
   const token = storage.getToken();
   
   if (token) {
-    return <Navigate to="/requests" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
