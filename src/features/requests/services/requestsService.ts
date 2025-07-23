@@ -32,9 +32,16 @@ export interface PostRequestsResponse {
 }
 
 export const RequestsService = {
-    getAllPeople: async (): Promise<GetAllPeopleResponse> => {
+    /**
+     * Obtiene todas las personas/solicitudes con filtros de estado opcionales
+     * @param status - Estados a filtrar separados por coma (ej: 'PENDING,IN_PROGRESS')
+     */
+    getAllPeople: async (status?: string): Promise<GetAllPeopleResponse> => {
         try {
-            const response = await apiClient.get(REQUEST_ENDPOINTS.GET_REQUEST_PEOPLE);
+            const url = status 
+                ? `${REQUEST_ENDPOINTS.GET_REQUEST_PEOPLE}?status=${status}`
+                : REQUEST_ENDPOINTS.GET_REQUEST_PEOPLE;
+            const response = await apiClient.get(url);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las solicitudes:', error);
