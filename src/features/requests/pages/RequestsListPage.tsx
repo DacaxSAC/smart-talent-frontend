@@ -3,7 +3,7 @@ import { RequestsListBase } from "../components/shared/RequestsListBase";
 /**
  * Página de solicitudes 
  */
-export function TerminatedRequestsListPage() {
+export function RequestsListPage() {
   return (
     <RequestsListBase
       title="LISTA DE SOLICITUDES"

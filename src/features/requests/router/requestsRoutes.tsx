@@ -1,10 +1,10 @@
-import { PendingRequestsListPage, OnProcessRequestsListPage, TerminatedRequestsListPage,RequestsCreationPage } from "../pages";
+import { RequestsListPage, PendingRequestsListPage, OnProcessRequestsListPage, TerminatedRequestsListPage,RequestsCreationPage } from "../pages";
 import { ROLES } from "@/features/auth/constants/roles";
 
 export const requestsRoutes = [
   {
     path: '/requests',
-    element: <PendingRequestsListPage />,
+    element: <RequestsListPage />,
     roles: [ROLES.USER]
   },
   {
