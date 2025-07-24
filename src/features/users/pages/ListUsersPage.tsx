@@ -23,7 +23,7 @@ export function ListUsersPage() {
   }, []);
 
   return (
-    <div className="flex flex-col mx-5 md:mx-8 my-15 gap-11 font-karla font-light">
+    <div className="h-full flex flex-col px-5 md:px-8 py-15 gap-11 font-karla font-light">
       <div className="flex flex-col md:flex-row justify-center md:justify-between">
         <div className="flex flex-col text-black dark:text-white">
           <p className="text-[32px] md:text-[36px] xl:text-[36px]">
@@ -45,7 +45,8 @@ export function ListUsersPage() {
           Crear nuevo usuario
         </motion.button>
       </div>
-      <div className="w-full h-[500px] p-3 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">
+      {/** USERS TABLE */}
+      <div className="w-full flex-1 p-3 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">
         {loading ? (
           <div className="w-full text-[14px] font-karla font-light">
             <div
