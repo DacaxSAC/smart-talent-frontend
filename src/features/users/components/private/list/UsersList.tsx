@@ -38,8 +38,8 @@ export const UsersList = ({
                 {request.active ? 'Activo' : 'Inactivo'}
               </div>
               <div className="col-span-2 p-2 flex gap-4 justify-start">
-                <button onClick={()=>handleEdit(request)} className="cursor-pointer">Ver detalles</button>
-                <button onClick={()=>handleEdit(request)} className="cursor-pointer">Desactivar</button>
+                <button onClick={()=>handleEdit(request)} className="cursor-pointer hover:text-table-head">Ver detalles</button>
+                <button onClick={()=>handleEdit(request)} className="cursor-pointer hover:text-table-head">Desactivar</button>
               </div>
             </div>
           </div>

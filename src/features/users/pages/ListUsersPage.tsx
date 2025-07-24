@@ -27,7 +27,6 @@ export function ListUsersPage() {
   return (
     <PageLayout>
       <div className="flex flex-col md:flex-row justify-center md:justify-between">
-
         <PageTitle 
           title="Gestión de clientes"
           description="Gestiona y visualiza los clientes registrados."
@@ -41,6 +40,7 @@ export function ListUsersPage() {
           />
         </div>
       </div>
+
       {/** USERS TABLE */}
       <div className="w-full flex-1 p-3 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">
         {loading ? (
