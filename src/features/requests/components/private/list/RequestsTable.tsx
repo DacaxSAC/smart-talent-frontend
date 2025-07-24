@@ -92,10 +92,12 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const [viewObservationsModalOpen, setViewObservationsModalOpen] = useState(false);
   const [requestToViewObservations, setRequestToViewObservations] = useState<number | null>(null);
   const [isProcessingObservation, setIsProcessingObservation] = useState(false);
+
   const [correctionsModalOpen, setCorrectionsModalOpen] = useState(false);
   const [requestToCorrect, setRequestToCorrect] = useState<number | null>(null);
   const [resourceCorrections, setResourceCorrections] = useState<{[key: number]: File[] | string | null}>({});
   const [isSendingCorrections, setIsSendingCorrections] = useState(false);
+  const [isConfirmingRequest, setIsConfirmingRequest] = useState(false);
 
   useEffect(() => { 
     setRequests(data);
@@ -115,14 +117,15 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
     }
 
     try {
+      setIsConfirmingRequest(true);
       Notify.info('Procesando informes...');
-      
+
       const selectedRequestData = requests[selectedRequest];
       const documentsToUpdate = await processDocuments(selectedRequestData.documents, uploadFile);
 
       await RequestsService.updateDocuments(documentsToUpdate);
-      
-      // En lugar de actualizar el estado local, recargamos los datos
+      await RequestsService.putStatusPerson(selectedRequest, 'COMPLETED');
+
       await onRefresh();
       setModalOpen(false);
       Notify.success('Informes actualizados correctamente');
@@ -130,6 +133,8 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
     } catch (error) {
       console.error('Error al actualizar los informes:', error);
       Notify.failure('Error al actualizar los informes. Por favor, inténtelo de nuevo.');
+    } finally {
+      setIsConfirmingRequest(false);
     }
 
     setModalOpen(false);
@@ -265,8 +270,8 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         setIsProcessingObservation(true);
         const personId = parseInt(requests[requestToViewObservations].id);
         
-        // TODO: Implementar el servicio real para rechazar
-        console.log('Rechazando solicitud con personId:', personId);
+        // Usar el servicio putStatusPerson para rechazar la solicitud
+        await RequestsService.putStatusPerson(personId, 'REJECTED');
         
         // Refetch de las solicitudes para actualizar el estado
         await onRefresh();
@@ -643,7 +648,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
       <Modal
         isOpen={modalOpen}
         title={isUser ? "Visualización y descarga de archivos" : "Carga de informes solicitados"}
-        onClose={() => {
+        onClose={isConfirmingRequest ? () => {} : () => {
           setModalOpen(false);
           if (selectedRequest !== null && requests[selectedRequest]?.documents) {
             const newRequests = [...requests];
@@ -657,12 +662,19 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         footer={<>{          
           isUser ? null :
             selectedRequest !== null && requests[selectedRequest]?.documents.some((doc: any) => doc.status === 'Pendiente') ? (
-              <button
-                className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
-                onClick={handleConfirmRequest}
-              >
-                Confirmar
-              </button>
+              isConfirmingRequest ? (
+                <div className="flex items-center gap-2">
+                  <Loader isLoading={true} />
+                  <span className="text-sm text-gray-600">Procesando informes...</span>
+                </div>
+              ) : (
+                <button
+                  className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
+                  onClick={handleConfirmRequest}
+                >
+                  Confirmar
+                </button>
+              )
             ) : (
               <button
                 className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
@@ -683,7 +695,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                     <h2 className="text-[24px]">{doc.name}</h2>
                     <span className={doc.status == 'Pendiente' ? "text-yellow-500 text-[16px]" : "text-green-500 text-[16px]"}>{doc.status}</span>
                   </div>
-                  {isAdmin ?
+                  {isAdmin || isRecruiter ?
                     <div className="flex flex-col">
                       <div className="flex w-full justify-between align-center py-[14px]">
                         <div className="text-[16px] text-black-2 dark:text-white">

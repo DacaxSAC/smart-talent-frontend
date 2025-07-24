@@ -92,11 +92,7 @@ export const RequestsService = {
             throw error;
         }
     },
-    /**
-     * Envía correcciones de recursos para una solicitud específica
-     * @param requestId - ID de la solicitud
-     * @param resources - Array de recursos con sus nuevos valores
-     */
+
     sendCorrections: async (resources: Array<{resourceId: number, value: string}>): Promise<void> => {
         try {
             await apiClient.patch(REQUEST_ENDPOINTS.PATCH_RESOURCES_UPDATE_MULTIPLE, { 
@@ -107,5 +103,14 @@ export const RequestsService = {
             throw error;
         }
     },
+
+    putStatusPerson: async (personId: number, status: string): Promise<void> => {
+        try {
+            await apiClient.patch(REQUEST_ENDPOINTS.PUT_STATUS_PERSON, { personId, status });
+        } catch (error) {
+            console.error('Error al actualizar el estado de la persona:', error);
+            throw error;
+        }
+    }
 
 };
