@@ -9,6 +9,6 @@ export const REQUEST_ENDPOINTS = {
     POST_REQUESTS: '/requests',
     POST_ASSIGN_RECRUITER: '/requests/assign-recruiter',
     POST_OBSERVATIONS: '/requests/give-observations',
-    PATCH_RESOURCES_UPDATE_MULTIPLE:'/resources/update-multiple'
+    PATCH_RESOURCES_UPDATE_MULTIPLE:'/resources/update-multiple',
     PUT_STATUS_PERSON: '/requests/person/update-status',
 } as const;
