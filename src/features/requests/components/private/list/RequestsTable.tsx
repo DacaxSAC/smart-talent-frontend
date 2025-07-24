@@ -12,12 +12,53 @@ import { Request, RequestsService } from "@/features/requests/services/requestsS
 // Components
 import { Modal } from "@/shared/components/Modal";
 import { ResourceOutput } from "@/features/requests/components/public/ResourceOutput";
+import { ResourceInput } from "@/features/requests/components/public/ResourceInput";
 
 // Hooks
 import { useUpload } from '@/shared/hooks/useUpload';
 import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 
 import { Loader } from "@/shared/components/Loader";
+
+const processDocuments = async (documents: any[], uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
+  const documentsToUpdate = [];
+
+  for (const doc of documents) {
+    if (doc.filename instanceof File) {
+      const fileKey = await handleFileUpload(doc.filename, uploadFile);
+      if (fileKey) {
+        documentsToUpdate.push({
+          id: doc.id,
+          result: doc.result || '',
+          filename: fileKey
+        });
+      }
+    }
+  }
+
+  return documentsToUpdate;
+};
+
+const handleFileUpload = async (file: File, uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
+  try {
+
+    const response = await apiClient.post('upload/write-signed-url', {
+      fileName: file.name,
+      contentType: file.type
+    });
+
+    if (response.status !== 200) {
+      throw new Error('Failed to get signed URL');
+    }
+
+    const { signedUrl, key } = response.data;
+    await uploadFile(file, signedUrl);
+    return key;
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    return null;
+  }
+};
 
 interface requestsTableProps {
   data: Request[];
@@ -51,6 +92,11 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const [viewObservationsModalOpen, setViewObservationsModalOpen] = useState(false);
   const [requestToViewObservations, setRequestToViewObservations] = useState<number | null>(null);
   const [isProcessingObservation, setIsProcessingObservation] = useState(false);
+
+  const [correctionsModalOpen, setCorrectionsModalOpen] = useState(false);
+  const [requestToCorrect, setRequestToCorrect] = useState<number | null>(null);
+  const [resourceCorrections, setResourceCorrections] = useState<{[key: number]: File[] | string | null}>({});
+  const [isSendingCorrections, setIsSendingCorrections] = useState(false);
   const [isConfirmingRequest, setIsConfirmingRequest] = useState(false);
 
   useEffect(() => { 
@@ -246,29 +292,103 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
 
   /**
    * Maneja la acción de aceptar desde el modal de observaciones
+   * Abre el modal de correcciones
    */
-  const handleAcceptFromObservations = async () => {
+  const handleAcceptFromObservations = () => {
     if (requestToViewObservations !== null) {
+      // Cerrar el modal de observaciones
+      setViewObservationsModalOpen(false);
+      
+      // Abrir el modal de correcciones con el mismo request
+      setRequestToCorrect(requestToViewObservations);
+      setCorrectionsModalOpen(true);
+      
+      // Inicializar las correcciones con los valores actuales
+      const currentRequest = requests[requestToViewObservations];
+      const initialCorrections: {[key: number]: File[] | string | null} = {};
+      
+      currentRequest.documents.forEach(doc => {
+        doc.resources.forEach(resource => {
+          initialCorrections[resource.id] = resource.value || '';
+        });
+      });
+      
+      setResourceCorrections(initialCorrections);
+      
+      // Limpiar el estado de observaciones
+      setRequestToViewObservations(null);
+    }
+  };
+
+  /**
+   * Cierra el modal de correcciones
+   */
+  const handleCancelCorrections = () => {
+    setRequestToCorrect(null);
+    setCorrectionsModalOpen(false);
+    setResourceCorrections({});
+  };
+
+  /**
+   * Maneja el cambio de valor de un recurso (texto o archivos)
+   */
+  const handleResourceCorrectionChange = (resourceId: number, value: File[] | string | null) => {
+    setResourceCorrections(prev => ({
+      ...prev,
+      [resourceId]: value
+    }));
+  };
+
+  /**
+   * Maneja el envío de correcciones con el formato requerido por el API
+   */
+  const handleSendCorrections = async () => {
+    if (requestToCorrect !== null) {
       try {
-        setIsProcessingObservation(true);
-        const personId = parseInt(requests[requestToViewObservations].id);
+        setIsSendingCorrections(true);
         
-       // Usar el servicio putStatusPerson para rechazar la solicitud
-        await RequestsService.putStatusPerson(personId, 'IN_PROGRESS');
+        // Procesar las correcciones, subiendo archivos si es necesario
+        const resources = [];
+        
+        // Obtener la solicitud actual para acceder a la estructura de recursos
+        const currentRequest = requests[requestToCorrect];
+        
+        for (const [resourceId, value] of Object.entries(resourceCorrections)) {
+          let processedValue = value;
+          
+          // Si el valor es un array de archivos, procesarlos
+          if (Array.isArray(value) && value.length > 0) {
+            const file = value[0]; // Tomar el primer archivo
+            const fileKey = await handleFileUpload(file, uploadFile);
+            processedValue = fileKey || file.name;
+          }
+          
+          // Preparar el objeto de corrección en el formato esperado por el API
+          const resource = {
+            resourceId: parseInt(resourceId),
+            value: processedValue as string
+          };
+          
+          resources.push(resource);
+        }
+        
+        console.log('Enviando correcciones:', { requestId: currentRequest.id, resources });
+        
+        // Enviar las correcciones usando el servicio
+        await RequestsService.sendCorrections(resources);
         
         // Refetch de las solicitudes para actualizar el estado
         await onRefresh();
         
         // Cerrar el modal
-        setRequestToViewObservations(null);
-        setViewObservationsModalOpen(false);
+        handleCancelCorrections();
         
-        Notify.success('Solicitud aceptada exitosamente');
+        Notify.success('Correcciones enviadas exitosamente');
       } catch (error) {
-        console.error('Error al aceptar la solicitud:', error);
-        Notify.failure('Error al aceptar la solicitud. Por favor, inténtelo de nuevo.');
+        console.error('Error al enviar correcciones:', error);
+        Notify.failure('Error al enviar correcciones. Por favor, inténtelo de nuevo.');
       } finally {
-        setIsProcessingObservation(false);
+        setIsSendingCorrections(false);
       }
     }
   };
@@ -570,7 +690,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
           {selectedRequest !== null && requests[selectedRequest] && (
             <div className="text-sm">
               {requests[selectedRequest]?.documents.map((doc: any, i: any) => (
-                <div key={i} className="gap-2 border-b border-gray-300 px-[32px] py-[15px] px-[32px]">
+                <div key={i} className="gap-2 border-b border-gray-300 px-[32px] py-[15px]">
                   <div className="flex w-full justify-between">
                     <h2 className="text-[24px]">{doc.name}</h2>
                     <span className={doc.status == 'Pendiente' ? "text-yellow-500 text-[16px]" : "text-green-500 text-[16px]"}>{doc.status}</span>
@@ -728,51 +848,116 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         </div>
       </Modal>
 
+      {/* Modal de Correcciones */}
+      <Modal
+        isOpen={correctionsModalOpen}
+        title="Correcciones de Recursos"
+        onClose={isSendingCorrections ? () => {} : handleCancelCorrections}
+        position="center"
+        width="800px"
+        className=""
+        footer={
+          <div className="flex gap-3">
+            <button
+              className="px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+              onClick={handleCancelCorrections}
+              disabled={isSendingCorrections}
+            >
+              Cancelar
+            </button>
+            <button
+              className="px-4 py-2 text-sm bg-main text-black rounded-md hover:bg-main-2 transition-colors flex items-center gap-2"
+              onClick={handleSendCorrections}
+              disabled={isSendingCorrections}
+            >
+              {isSendingCorrections && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+              )}
+              Enviar correcciones
+            </button>
+          </div>
+        }
+      >
+        {requestToCorrect !== null && requests[requestToCorrect] && (
+          <div className="space-y-6">
+            {/* Información del solicitante */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-2">Información del Solicitante</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="font-medium">Nombre:</span> {requests[requestToCorrect].fullname}
+                </div>
+                <div>
+                  <span className="font-medium">DNI:</span> {requests[requestToCorrect].dni}
+                </div>
+                <div>
+                  <span className="font-medium">Teléfono:</span> {requests[requestToCorrect].phone}
+                </div>
+                <div>
+                  <span className="font-medium">Estado:</span> 
+                  <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                    requests[requestToCorrect].status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                    requests[requestToCorrect].status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
+                    requests[requestToCorrect].status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                    requests[requestToCorrect].status === 'OBSERVED' ? 'bg-orange-100 text-orange-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {requests[requestToCorrect].status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Documentos y Recursos */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Documentos y Recursos</h3>
+              {requests[requestToCorrect].documents.map((document, docIndex) => (
+                <div key={docIndex} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-medium text-gray-900">{document.name}</h4>
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      document.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
+                      document.status === 'Realizado' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {document.status}
+                    </span>
+                  </div>
+                  
+                  {document.result && (
+                    <div className="mb-3 p-2 bg-blue-50 rounded">
+                      <span className="font-medium text-blue-800">Resultado:</span>
+                      <span className="ml-2 text-blue-700">{document.result}</span>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-3">
+                    {document.resources.map((resource, resourceIndex) => (
+                      <div key={resourceIndex} className="bg-gray-50 p-3 rounded">
+                        <ResourceInput
+                          name={resource.name}
+                          allowedFileTypes={resource.allowedFileTypes || []}
+                          onChange={(value) => handleResourceCorrectionChange(resource.id, value)}
+                        />
+                        <div className="mt-1 text-xs text-gray-500">
+                          Valor actual: {resource.value || 'Sin valor'}
+                        </div>
+                        {isSendingCorrections && (
+                          <div className="absolute inset-0 bg-gray-200 bg-opacity-50 rounded flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-main"></div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
-};
-
-const processDocuments = async (documents: any[], uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
-  const documentsToUpdate = [];
-
-  for (const doc of documents) {
-    if (doc.filename instanceof File) {
-      const fileKey = await handleFileUpload(doc.filename, uploadFile);
-      if (fileKey) {
-        documentsToUpdate.push({
-          id: doc.id,
-          result: doc.result || '',
-          filename: fileKey
-        });
-      }
-    }
-  }
-
-  return documentsToUpdate;
-};
-
-const handleFileUpload = async (file: File, uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
-  try {
-
-    const response = await apiClient.post('upload/write-signed-url', {
-      fileName: file.name,
-      contentType: file.type
-    });
-
-    if (response.status !== 200) {
-      throw new Error('No se pudo obtener la URL firmada para subir el archivo');
-    }
-
-    const { signedUrl } = response.data;
-
-    await uploadFile(file, signedUrl);
-
-    return file.name;
-  } catch (error) {
-    console.error('Error al subir el archivo:', error);
-    Notify.failure('Error al subir el archivo. Por favor, inténtelo de nuevo.');
-    return null;
-  }
 };
 
 enum HeaderType {

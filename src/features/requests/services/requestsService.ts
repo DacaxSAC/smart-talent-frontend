@@ -19,6 +19,7 @@ export interface Request {
             id: number;
             name: string;
             value: string;
+            allowedFileTypes?: string[];
         }[]
     }[];
 }
@@ -91,6 +92,18 @@ export const RequestsService = {
             throw error;
         }
     },
+
+    sendCorrections: async (resources: Array<{resourceId: number, value: string}>): Promise<void> => {
+        try {
+            await apiClient.patch(REQUEST_ENDPOINTS.PATCH_RESOURCES_UPDATE_MULTIPLE, { 
+                resources 
+            });
+        } catch (error) {
+            console.error('Error al enviar las correcciones:', error);
+            throw error;
+        }
+    },
+
     putStatusPerson: async (personId: number, status: string): Promise<void> => {
         try {
             await apiClient.patch(REQUEST_ENDPOINTS.PUT_STATUS_PERSON, { personId, status });
@@ -99,4 +112,5 @@ export const RequestsService = {
             throw error;
         }
     }
+
 };
