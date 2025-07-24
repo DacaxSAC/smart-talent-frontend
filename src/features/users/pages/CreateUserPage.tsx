@@ -10,9 +10,9 @@ export function CreateUserPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col mx-5 md:mx-8 my-15 gap-5 md:gap-11 font-karla font-light">
+    <div className="h-full flex flex-col px-5 md:px-8 py-15 gap-5 font-karla font-light">
       <div className="flex flex-col gap-6 md:gap-0 md:flex-row justify-between items-center
-                    w-full mt-5 mb-5 md:mt-0
+                    w-full
                     text-black dark:text-white">
         <div className="flex flex-col text-start">
           <p className="text-[32px] md:text-[36px] xl:text-[36px]">
@@ -40,6 +40,7 @@ export function CreateUserPage() {
           Regresar a la lista de usuarios
         </motion.button>
       </div>
+      {/** User Type Buttons */}
       <div className="flex gap-6">
         <UserTypeButton
           expectedType="NATURAL"
@@ -52,12 +53,9 @@ export function CreateUserPage() {
           hanldeUserType={() => setUserType("JURIDICA")}
         />
       </div>
+     
+        {userType === "NATURAL" ? <FormNatural /> : <FormJuridica />}
 
-      <p className="text-[14px] text-black dark:text-white">
-        Ingresa los datos en los campos correspondientes:
-      </p>
-
-      {userType === "NATURAL" ? <FormNatural /> : <FormJuridica />}
     </div>
   );
 }
