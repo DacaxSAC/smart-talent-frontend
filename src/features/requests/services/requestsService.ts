@@ -91,5 +91,12 @@ export const RequestsService = {
             throw error;
         }
     },
-
+    putStatusPerson: async (personId: number, status: string): Promise<void> => {
+        try {
+            await apiClient.patch(REQUEST_ENDPOINTS.PUT_STATUS_PERSON, { personId, status });
+        } catch (error) {
+            console.error('Error al actualizar el estado de la persona:', error);
+            throw error;
+        }
+    }
 };
