@@ -190,10 +190,10 @@ export const CreationTable = ({
                       </span>
                     ))}
                   </div>
-                  <AddButton
+                  {!requests[index].isConfirmed && <AddButton
                     type="document"
                     onClick={() => toggleOpenOptions(index)}
-                  />
+                  />}
                 </div>
                 <DocsChecklist
                   index={index}
