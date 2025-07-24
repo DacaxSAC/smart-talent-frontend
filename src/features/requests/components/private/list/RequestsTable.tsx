@@ -11,7 +11,7 @@ import { Request, RequestsService } from "@/features/requests/services/requestsS
 
 // Components
 import { Modal } from "@/shared/components/Modal";
-import { ResourceOutput } from "../../public/ResourceOutput";
+import { ResourceOutput } from "@/features/requests/components/public/ResourceOutput";
 
 // Hooks
 import { useUpload } from '@/shared/hooks/useUpload';
