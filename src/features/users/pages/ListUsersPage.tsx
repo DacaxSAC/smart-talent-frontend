@@ -4,6 +4,7 @@ import { UsersService } from "../service/usersService";
 import { UsersList } from "../components/private/list/UsersList";
 import { UsersListResponse } from "../types/UserListResponse";
 import { motion } from "framer-motion";
+import { ReusableButton } from "../components/shared/ReusableButton";
 
 export function ListUsersPage() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -33,17 +34,13 @@ export function ListUsersPage() {
             Visualiza todos los clientes registrados.
           </p>
         </div>
-        <motion.button
-          whileHover={{
-            scale: 1.01,
-            transition: { duration: 0.2 },
-          }}
-          whileTap={{ scale: 0.98 }}
-          className="bg-main-1plus dark:bg-main hover:bg-main dark:hover:bg-main-1plus rounded-sidebar my-5 py-2 px-16 text-[14px] font-light text-black dark:text-white"
-          onClick={() => navigate("/users/create")}
-        >
-          Crear nuevo usuario
-        </motion.button>
+        <div className="my-5">
+          <ReusableButton
+            handleClick={() => navigate("/users/create")}
+            text="Crear nuevo usuario"
+            justify="start"
+          />
+        </div>
       </div>
       {/** USERS TABLE */}
       <div className="w-full flex-1 p-3 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">

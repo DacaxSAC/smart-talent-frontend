@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { UsersService } from "@/features/users/service/usersService";
 import { FormInput } from "../../shared/FormInput";
-import { CreationButton } from "../../shared/CreationButton";
+import { ReusableButton } from "../../shared/ReusableButton";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { Loader } from "@/shared/components/Loader";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +24,12 @@ interface FormErrors {
   phone: { error: boolean; message: string };
 }
 
-export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: UsersListResponse, isUpdate?: boolean }>) => {
+export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: Readonly<{ 
+  userEdit?: UsersListResponse, 
+  isUpdate?: boolean,
+  isReadOnly?: boolean,
+  onCancelEdit?: () => void 
+}>) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -166,6 +172,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.documentNumber.error}
           errorMessage={errors.documentNumber.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Razón social"
@@ -177,6 +184,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.businessName.error}
           errorMessage={errors.businessName.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Dirección"
@@ -188,6 +196,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.address.error}
           errorMessage={errors.address.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Teléfono"
@@ -199,6 +208,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.phone.error}
           errorMessage={errors.phone.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Correo"
@@ -210,10 +220,26 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.email.error}
           errorMessage={errors.email.message}
+          disabled={isReadOnly}
         />
         
       </div>
-      <CreationButton handleClick={handleClick} />
+      {!isReadOnly && (
+        <div className="flex gap-4 justify-end">
+          {isUpdate && onCancelEdit && (
+            <ReusableButton
+              handleClick={onCancelEdit}
+              text="Cancelar edición"
+              variant="tertiary"
+              justify="start"
+            />
+          )}
+          <ReusableButton 
+            handleClick={handleClick}
+            text="Confirmar registro"
+          />
+        </div>
+      )}
       <ConfirmationModal
         isOpen={openModal}
         onClose={() => setOpenModal(false)}

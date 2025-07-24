@@ -9,7 +9,7 @@ export const UsersList = ({
   const navigate = useNavigate();
 
   const handleEdit = (user:UsersListResponse) => {
-    navigate(`/users/edit/${user.id}`, { state: { user } });
+    navigate(`/users/detail/${user.id}`, { state: { user } });
   };
   return (
     <div className="w-full text-[14px] font-karla font-light">

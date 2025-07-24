@@ -1,4 +1,5 @@
 import React from 'react';
+import { ReusableButton } from './ReusableButton';
 
 /**
  * Interfaz para definir un campo de información del usuario
@@ -60,19 +61,19 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </div>
           ))}
         </div>
-        <div className="flex justify-around">
-          <button
-            onClick={onClose}
-            className="cursor-pointer text-[14px] font-light border border-white-1 dark:border-black-1 rounded-[5px] px-10 py-1"
-          >
-            {cancelText}
-          </button>
-          <button
-            onClick={onConfirm}
-            className="cursor-pointer text-[14px] font-light bg-main rounded-[5px] px-10 py-1"
-          >
-            {confirmText}
-          </button>
+        <div className="flex justify-around gap-4">
+          <ReusableButton
+            handleClick={onClose}
+            text={cancelText}
+            variant="tertiary"
+            justify="start"
+          />
+          <ReusableButton
+            handleClick={onConfirm}
+            text={confirmText}
+            variant="secondary"
+            justify="start"
+          />
         </div>
       </div>
     </div>

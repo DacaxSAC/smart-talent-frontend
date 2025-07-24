@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { FormInput } from "../../shared/FormInput";
-import { CreationButton } from "../../shared/CreationButton";
+import { ReusableButton } from "../../shared/ReusableButton";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { UsersService } from "@/features/users/service/usersService";
 import { UserProps } from "@/features/users/types/UserListResponse";
@@ -18,7 +19,12 @@ interface FormErrors {
   phone: { error: boolean; message: string };
 }
 
-export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListResponse, isUpdate?:boolean}>) => {
+export const FormNatural = ({userEdit, isUpdate, isReadOnly, onCancelEdit}:Readonly<{
+  userEdit?:UsersListResponse, 
+  isUpdate?:boolean,
+  isReadOnly?:boolean,
+  onCancelEdit?:() => void
+}>) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
@@ -181,6 +187,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.documentNumber.error}
           errorMessage={errors.documentNumber.message}
+          disabled={isReadOnly}
         />
 
         <FormInput
@@ -193,6 +200,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.firstName.error}
           errorMessage={errors.firstName.message}
+          disabled={isReadOnly}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormInput
@@ -205,6 +213,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
             }}
             error={errors.paternalSurname.error}
             errorMessage={errors.paternalSurname.message}
+            disabled={isReadOnly}
           />
           <FormInput
             fieldName="Apellido Materno"
@@ -216,6 +225,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
             }}
             error={errors.maternalSurname.error}
             errorMessage={errors.maternalSurname.message}
+            disabled={isReadOnly}
           />
         </div>
 
@@ -229,6 +239,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.address.error}
           errorMessage={errors.address.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Teléfono"
@@ -240,6 +251,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.phone.error}
           errorMessage={errors.phone.message}
+          disabled={isReadOnly}
         />
 
         <FormInput
@@ -252,16 +264,32 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.email.error}
           errorMessage={errors.email.message}
+          disabled={isReadOnly}
         />
 
         
       </div>
 
-      <CreationButton handleClick={() => {
-          if (validateForm()) {
-            setOpenModal(true);
-          }
-        }} />
+      {!isReadOnly && (
+        <div className="flex gap-4 justify-end">
+          {isUpdate && onCancelEdit && (
+            <ReusableButton
+              handleClick={onCancelEdit}
+              text="Cancelar edición"
+              variant="tertiary"
+              justify="start"
+            />
+          )}
+          <ReusableButton 
+            handleClick={() => {
+              if (validateForm()) {
+                setOpenModal(true);
+              }
+            }}
+            text="Confirmar registro"
+          />
+        </div>
+      )}
 
       <ConfirmationModal
         isOpen={openModal}

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { UserTypeButton } from "../components/private/create/UserTypeButton";
 import { FormNatural } from "../components/private/create/FormNatural";
 import { FormJuridica } from "../components/private/create/FormJuridica";
-import { motion } from "framer-motion";
+import { ReusableButton } from "../components/shared/ReusableButton";
 
 export function CreateUserPage() {
   const [userType, setUserType] = useState<"NATURAL" | "JURIDICA">("JURIDICA");
@@ -22,23 +22,12 @@ export function CreateUserPage() {
             Añade clientes y completa sus datos personales o empresariales.
           </p>
         </div>
-        <motion.button
-          whileHover={{
-            scale: 1.01,
-            transition: { duration: 0.2 },
-          }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate("/users")}
-          className="
-          bg-white-2 dark:bg-black-2 hover:bg-white-1 dark:hover:bg-black-1 
-          border border-medium rounded-sidebar 
-           py-2 px-16 
-          text-[14px] font-light
-          cursor-pointer
-        "
-        >
-          Regresar a la lista de usuarios
-        </motion.button>
+        <ReusableButton
+          handleClick={() => navigate("/users")}
+          text="Regresar a la lista de usuarios"
+          variant="tertiary"
+          justify="start"
+        />
       </div>
       {/** User Type Buttons */}
       <div className="flex gap-6">
