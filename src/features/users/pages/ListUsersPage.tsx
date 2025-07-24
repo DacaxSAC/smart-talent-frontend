@@ -4,6 +4,8 @@ import { UsersService } from "../service/usersService";
 import { UsersList } from "../components/private/list/UsersList";
 import { UsersListResponse } from "../types/UserListResponse";
 import { ReusableButton } from "../components/shared/ReusableButton";
+import { PageTitle } from "../components/shared/PageTitle";
+import { PageLayout } from "../components/shared/PageLayout";
 
 export function ListUsersPage() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -23,16 +25,14 @@ export function ListUsersPage() {
   }, []);
 
   return (
-    <div className="h-full flex flex-col px-5 md:px-8 py-15 gap-11 font-karla font-light">
+    <PageLayout>
       <div className="flex flex-col md:flex-row justify-center md:justify-between">
-        <div className="flex flex-col text-black dark:text-white">
-          <p className="text-[32px] md:text-[36px] xl:text-[36px]">
-            LISTA DE USUARIOS
-          </p>
-          <p className="text-[14px] font-light">
-            Visualiza todos los clientes registrados.
-          </p>
-        </div>
+
+        <PageTitle 
+          title="Gestión de clientes"
+          description="Gestiona y visualiza los clientes registrados."
+        />
+        
         <div className="my-5">
           <ReusableButton
             handleClick={() => navigate("/users/create")}
@@ -58,6 +58,6 @@ export function ListUsersPage() {
           <UsersList users={users} />
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }

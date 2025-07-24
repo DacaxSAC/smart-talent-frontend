@@ -172,9 +172,9 @@ export const FormNatural = ({userEdit, isUpdate, isReadOnly, onCancelEdit}:Reado
       <Loader isLoading={loading} />
 
       <div className="p-6 flex-1 flex flex-col gap-4 text-black dark:text-white border border-[#C3C3C3] rounded-[12px]">
-        <p className="text-[14px] text-black dark:text-white mb-4">
+       {!isReadOnly && <p className="text-[14px] text-medium dark:text-white mb-4">
           Ingresa los datos en los campos correspondientes:
-        </p>
+        </p>}
       
         <FormInput
           fieldName="DNI"

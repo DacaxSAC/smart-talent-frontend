@@ -4,7 +4,9 @@ import { UserTypeButton } from "../components/private/create/UserTypeButton";
 import { FormNatural } from "../components/private/create/FormNatural";
 import { FormJuridica } from "../components/private/create/FormJuridica";
 import { ReusableButton } from "../components/shared/ReusableButton";
+import { PageTitle } from "../components/shared/PageTitle";
 import { UsersListResponse } from "../types/UserListResponse";
+import { PageLayout } from "../components/shared/PageLayout";
 
 export function DetailUserPage() {
   const navigate = useNavigate();
@@ -17,18 +19,14 @@ export function DetailUserPage() {
   }
 
   return (
-    <div className="h-full flex flex-col px-5 md:px-8 py-15 gap-5 font-karla font-light">
-      <div className="flex flex-col gap-6 md:gap-0 md:flex-row justify-between items-center
-                    w-full mt-5 mb-5 md:mt-0
-                    text-black dark:text-white">
-        <div className="flex flex-col text-start">
-          <p className="text-[32px] md:text-[36px] xl:text-[36px]">
-            DATOS DE USUARIO
-          </p>
-          <p className="text-[14px] font-light">
-            Edita los datos del cliente seleccionado y completa sus datos personales o empresariales.
-          </p>
-        </div>
+    <PageLayout>
+      <div className="w-full pt-5 pb-5 md:pt-0 flex flex-col gap-6 md:gap-0 md:flex-row justify-between items-center text-black dark:text-white">
+
+        <PageTitle 
+          title="Detalles del cliente"
+          description="Visualiza y edita los datos personales o empresariales del cliente."
+        />
+
         <ReusableButton
           handleClick={() => navigate("/users")}
           text="Regresar a la lista de usuarios"
@@ -75,6 +73,6 @@ export function DetailUserPage() {
           />
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }
