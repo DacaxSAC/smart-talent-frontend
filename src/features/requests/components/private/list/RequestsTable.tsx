@@ -376,6 +376,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         
         // Enviar las correcciones usando el servicio
         await RequestsService.sendCorrections(resources);
+        await RequestsService.putStatusPerson(parseInt(currentRequest.id), 'IN_PROGRESS');
         
         // Refetch de las solicitudes para actualizar el estado
         await onRefresh();
