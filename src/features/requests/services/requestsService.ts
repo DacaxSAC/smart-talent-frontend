@@ -19,6 +19,7 @@ export interface Request {
             id: number;
             name: string;
             value: string;
+            allowedFileTypes?: string[];
         }[]
     }[];
 }
@@ -88,6 +89,21 @@ export const RequestsService = {
             await apiClient.patch(REQUEST_ENDPOINTS.POST_OBSERVATIONS, { personId, observations });
         } catch (error) {
             console.error('Error al agregar las observaciones:', error);
+            throw error;
+        }
+    },
+    /**
+     * Envía correcciones de recursos para una solicitud específica
+     * @param requestId - ID de la solicitud
+     * @param resources - Array de recursos con sus nuevos valores
+     */
+    sendCorrections: async (resources: Array<{resourceId: number, value: string}>): Promise<void> => {
+        try {
+            await apiClient.patch(REQUEST_ENDPOINTS.PATCH_RESOURCES_UPDATE_MULTIPLE, { 
+                resources 
+            });
+        } catch (error) {
+            console.error('Error al enviar las correcciones:', error);
             throw error;
         }
     },
