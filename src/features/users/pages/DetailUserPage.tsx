@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router";
 import { UserTypeButton } from "../components/private/create/UserTypeButton";
 import { FormNatural } from "../components/private/create/FormNatural";
 import { FormJuridica } from "../components/private/create/FormJuridica";
-import { motion } from "framer-motion";
 import { ReusableButton } from "../components/shared/ReusableButton";
 import { UsersListResponse } from "../types/UserListResponse";
 

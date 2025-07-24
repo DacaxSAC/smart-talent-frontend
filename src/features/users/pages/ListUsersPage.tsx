@@ -3,7 +3,6 @@ import { useNavigate } from "react-router";
 import { UsersService } from "../service/usersService";
 import { UsersList } from "../components/private/list/UsersList";
 import { UsersListResponse } from "../types/UserListResponse";
-import { motion } from "framer-motion";
 import { ReusableButton } from "../components/shared/ReusableButton";
 
 export function ListUsersPage() {

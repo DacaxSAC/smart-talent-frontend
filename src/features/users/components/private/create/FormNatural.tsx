@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { FormInput } from "../../shared/FormInput";
 import { ReusableButton } from "../../shared/ReusableButton";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";

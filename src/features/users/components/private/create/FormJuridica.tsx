@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { UsersService } from "@/features/users/service/usersService";
 import { FormInput } from "../../shared/FormInput";
 import { ReusableButton } from "../../shared/ReusableButton";
