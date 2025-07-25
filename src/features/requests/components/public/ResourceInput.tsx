@@ -1,3 +1,6 @@
+import { useState, useRef } from 'react';
+import { FaTrash } from 'react-icons/fa';
+
 interface ResourceInputProps {
     name: string;
     allowedFileTypes: string[];
@@ -5,56 +8,110 @@ interface ResourceInputProps {
 }
 
 export const ResourceInput = (props: ResourceInputProps) => {
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [textValue, setTextValue] = useState<string>('');
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
-        if (files) {
-            const filesArray = Array.from(files);
-            props.onChange(filesArray);
+        if (files && files.length > 0) {
+            const fileArray = Array.from(files);
+            setSelectedFiles(fileArray);
+
+            if (fileArray.length === 1) {
+                setTextValue(fileArray[0].name);
+            } else {
+                setTextValue(`${fileArray.length} archivos seleccionados`);
+            }
+
+            props.onChange(fileArray);
         }
     };
 
-    const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        props.onChange(event.target.value);
+    const handleTextChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const value = event.target.value;
+        setTextValue(value);
+        props.onChange(value);
+    };
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleRemove = () => {
+        setSelectedFiles([]);
+        setTextValue('');
+        props.onChange(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const getTooltipContent = () => {
+        if (selectedFiles.length <= 1) return '';
+        return selectedFiles.map(file => file.name).join('\n');
     };
 
     return (
-        <div className="flex py-[14px]">
-            <div className="flex w-full justify-between align-center">
-                <div className="text-[16px] text-black-2">
-                    {props.name}
-                </div>
+        <div className="flex py-[14px] items-start gap-4">
+            <div className="text-[16px] text-black-2 dark:text-white w-68">
+                {props.name}
+            </div>
+            <div className="flex items-start gap-2 flex-1">
                 {props.allowedFileTypes.length === 0 ? (
-                    <input
-                        type="text"
+                    <textarea
                         placeholder=""
+                        value={textValue}
                         onChange={handleTextChange}
-                        className="w-full max-w-[400px] px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
+                        rows={3}
+                        className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
                         rounded-md focus:outline-none focus:ring-2 focus:ring-main focus:border-transparent 
                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
                         placeholder-gray-400 dark:placeholder-gray-300
-                        transition-all duration-200"
+                        transition-all duration-200 resize-vertical"
                     />
                 ) : (
-                    <div className="relative">
+                    <>
                         <input
+                            type="text"
+                            placeholder="No hay archivo importado"
+                            value={textValue}
+                            readOnly
+                            title={getTooltipContent()}
+                            className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
+                            rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white 
+                            placeholder-gray-400 dark:placeholder-gray-300
+                            cursor-default"
+                        />
+                        <input
+                            ref={fileInputRef}
                             type="file"
-                            multiple
                             accept={props.allowedFileTypes.join(',')}
                             onChange={handleFileChange}
-                            className="w-full max-w-[200px] text-sm
-                            file:mr-0 file:py-[6px] file:px-[68px]
-                            file:rounded-[6px] file:border-[1px] file:border-black-2
-                            file:text-[10px] file:font-medium
-                            file:bg-white file:text-black-2
-                            hover:file:bg-black-2 hover:file:text-white hover:file:border-transparent
-                            file:w-full
-                            [&:not(:placeholder-shown)::file-selector-button]:content-none
-                            text-black-2 text-center
-                            cursor-pointer
-                            transition-all duration-200"
+                            multiple
+                            className="hidden"
                         />
-                    </div>
+                        <button
+                            type="button"
+                            onClick={handleUploadClick}
+                            className="px-4 py-2 text-sm bg-gray-800 dark:bg-gray-700 text-white rounded-md 
+                                hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200
+                                border border-gray-300 dark:border-gray-600"
+                        >
+                            Subir archivo
+                        </button>
+                        {(selectedFiles.length > 0 || textValue) && (
+                            <button
+                                type="button"
+                                onClick={handleRemove}
+                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 
+                                    rounded-md transition-colors duration-200"
+                                title="Eliminar archivo"
+                            >
+                                <FaTrash className="w-4 h-4" />
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
         </div>
