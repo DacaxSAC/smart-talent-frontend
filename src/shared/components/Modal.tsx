@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, TargetAndTransition, VariantLabels } from 'framer-motion';
+import { motion, AnimatePresence, TargetAndTransition, VariantLabels, Transition } from 'framer-motion';
 import CloseImg from '@/assets/close.svg';
 
 interface ModalProps {
@@ -18,7 +18,7 @@ interface ModalProps {
         initial?: TargetAndTransition | VariantLabels;
         animate?: TargetAndTransition | VariantLabels;
         exit?: TargetAndTransition | VariantLabels;
-        transition?: any;
+        transition?: Transition;
     };
 }
 

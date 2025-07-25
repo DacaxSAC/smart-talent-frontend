@@ -24,6 +24,28 @@ export function ListUsersPage() {
     handleGetUsers();
   }, []);
 
+  const handleDelete = async (user: UsersListResponse) => {
+    try {
+      await UsersService.deleteUser(user.id);
+      handleGetUsers();
+    } catch (error: any) {
+      if (error.message === "Unauthorized") {
+        navigate("/login");
+      }
+    }
+  };
+
+  const handleReactivate = async (user: UsersListResponse) => {
+    try {
+      await UsersService.reactivateUser(user.id);
+      handleGetUsers();
+    } catch (error: any) {
+      if (error.message === "Unauthorized") {
+        navigate("/login");
+      }
+    }
+  };
+
   return (
     <PageLayout>
       <div className="flex flex-col md:flex-row justify-center md:justify-between">
@@ -55,7 +77,7 @@ export function ListUsersPage() {
             </div>
           </div>
         ) : (
-          <UsersList users={users} />
+          <UsersList users={users} handleDelete={handleDelete} handleReactivate={handleReactivate} />
         )}
       </div>
     </PageLayout>

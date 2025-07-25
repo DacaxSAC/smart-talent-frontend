@@ -33,6 +33,19 @@ export interface PostRequestsResponse {
     status: number;
 }
 
+export interface PersonRequest {
+    dni: string;
+    fullname: string;
+    phone: string;
+    documents: {
+        id: number;
+        resources: {
+            id: number;
+            value: string;
+        }[];
+    }[];
+}
+
 export const RequestsService = {
     /**
      * Obtiene todas las personas/solicitudes con filtros de estado opcionales
@@ -60,7 +73,7 @@ export const RequestsService = {
             throw error;
         }
     },
-    postRequest: async ({ entityId, people } : { entityId: number, people: any[] }): Promise<PostRequestsResponse> => {
+    postRequest: async ({ entityId, people } : { entityId: number, people: PersonRequest[] }): Promise<PostRequestsResponse> => {
         try {
             return apiClient.post(REQUEST_ENDPOINTS.POST_REQUESTS, { entityId, people });
         } catch (error) {

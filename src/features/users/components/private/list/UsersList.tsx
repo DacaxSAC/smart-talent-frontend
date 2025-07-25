@@ -3,14 +3,19 @@ import { useNavigate } from "react-router";
 
 export const UsersList = ({
   users,
+  handleDelete,
+  handleReactivate,
 }: Readonly<{
   users: UsersListResponse[];
+  handleDelete: (user: UsersListResponse) => Promise<void>;
+  handleReactivate: (user: UsersListResponse) => Promise<void>;
 }>) => {
   const navigate = useNavigate();
 
   const handleEdit = (user:UsersListResponse) => {
     navigate(`/users/detail/${user.id}`, { state: { user } });
   };
+
   return (
     <div className="w-full text-[14px] font-karla font-light">
       <div className="px-2 grid grid-cols-7 gap-0 bg-table-head  text-black dark:text-white rounded-sidebar mb-4">
@@ -39,7 +44,7 @@ export const UsersList = ({
               </div>
               <div className="col-span-2 p-2 flex gap-4 justify-start">
                 <button onClick={()=>handleEdit(request)} className="cursor-pointer hover:text-table-head">Ver detalles</button>
-                <button onClick={()=>handleEdit(request)} className="cursor-pointer hover:text-table-head">Desactivar</button>
+                <button onClick={()=>request.active ? handleDelete(request) : handleReactivate(request)} className="cursor-pointer hover:text-table-head">{request.active ? 'Dehabilitar' : 'Habilitar'}</button>
               </div>
             </div>
           </div>
