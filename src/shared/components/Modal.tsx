@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, TargetAndTransition, VariantLabels, Transition } from 'framer-motion';
-import CloseImg from '@/assets/close.svg';
+import CloseIcon from '../icons/CloseIcon';
 
 interface ModalProps {
     isOpen: boolean;
@@ -101,7 +101,7 @@ export const Modal = ({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black-opacity-50 z-40"
+                            className="fixed inset-0 bg-opacity z-40"
                         />
                     )}
 
@@ -115,19 +115,19 @@ export const Modal = ({
                             exit={selectedAnimation.exit}
                             transition={selectedAnimation.transition}
                         >
-                            <div className="flex flex-col gap-4 dark:text-white">
+                            <div className="flex flex-col dark:text-white py-3">
                                 {title &&
-                                    <div className="flex justify-between items-center border-b border-gray-300 px-[32px] py-[15px]">
-                                        <h3 className="text-black-2 dark:text-white text-[16px]">{title}</h3>
+                                    <div className="flex justify-between items-center border-b border-gray-300 px-3 pb-3">
+                                        <h3 className="text-black-2 dark:text-white text-[14px]">{title}</h3>
                                         <button
                                             onClick={onClose}
-                                            className="p-2 hover:text-main transition-colors"
+                                            className="hover:text-main transition-colors cursor-pointer"
                                         >
-                                            <img src={CloseImg} alt="Close modal" />
+                                            <CloseIcon />
                                         </button>
                                     </div>
                                 }
-                                <div className="max-h-[70vh] overflow-y-auto scrollbar-hide py-[16px]">
+                                <div className="max-h-[100vh] overflow-y-auto scrollbar-hide py-[16px]">
                                     {children}
                                 </div>
                                 {footer &&

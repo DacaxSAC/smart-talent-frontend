@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { UsersListResponse } from "@/features/users/types/UserListResponse";
 import { useNavigate } from "react-router";
+import { YesOrNotModal } from "../../shared/YesOrNotModal";
+import { Loader } from "@/shared/components/Loader";
 
 export const UsersList = ({
   users,
@@ -11,12 +14,36 @@ export const UsersList = ({
   handleReactivate: (user: UsersListResponse) => Promise<void>;
 }>) => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UsersListResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEdit = (user:UsersListResponse) => {
     navigate(`/users/detail/${user.id}`, { state: { user } });
   };
 
+  const handleOpenModal = (user: UsersListResponse) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleYesOrNot = async () => {
+    setIsModalOpen(false);
+    setIsLoading(true);
+    if (!selectedUser) return;
+    
+    if (selectedUser.active) {
+      await handleDelete(selectedUser);
+    } else {
+      await handleReactivate(selectedUser);
+    }
+    setSelectedUser(null);
+    setIsLoading(false);
+  };
+
   return (
+    <>
+    <Loader isLoading={isLoading} />
     <div className="w-full text-[14px] font-karla font-light">
       <div className="px-2 grid grid-cols-7 gap-0 bg-table-head  text-black dark:text-white rounded-sidebar mb-4">
         <div className="col-span-1 p-2">Tipo</div>
@@ -44,12 +71,23 @@ export const UsersList = ({
               </div>
               <div className="col-span-2 p-2 flex gap-4 justify-start">
                 <button onClick={()=>handleEdit(request)} className="cursor-pointer hover:text-table-head">Ver detalles</button>
-                <button onClick={()=>request.active ? handleDelete(request) : handleReactivate(request)} className="cursor-pointer hover:text-table-head">{request.active ? 'Dehabilitar' : 'Habilitar'}</button>
+                <button onClick={()=>handleOpenModal(request)} className="cursor-pointer hover:text-table-head">{request.active ? 'Dehabilitar' : 'Habilitar'}</button>
               </div>
             </div>
           </div>
         ))}
       </div>
     </div>
-  );
+    
+    <YesOrNotModal 
+       isOpen={isModalOpen} 
+       onClose={() => {
+         setIsModalOpen(false);
+         setSelectedUser(null);
+       }} 
+       handleDecision={handleYesOrNot} 
+       isDelete={selectedUser?.active || false}
+     />
+     </>
+   );
 };
