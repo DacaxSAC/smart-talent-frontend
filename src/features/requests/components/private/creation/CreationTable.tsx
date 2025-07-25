@@ -5,7 +5,7 @@ import { IDocumentType } from "@/features/requests/interfaces/IDocumentTypeRespo
 import { Modal } from "@/shared/components/Modal";
 import { Notify } from 'notiflix';
 import { RequestsType } from "@/features/requests/types/RequestsListType";
-import { ResourceInput } from "../../public/ResourceInput";
+import { ResourceField } from "../../public/ResourceField";
 
 interface InputErrors {
   dni: Record<number, boolean>;
@@ -379,9 +379,10 @@ const ResourceModalContent = ({ selectedRequest, requests, handleRequests }: Res
         <div key={i} className="gap-2 border-b border-gray-300 px-[32px] py-[15px]">
           <h2 className="text-[24px]">{doc.name}</h2>
           {doc.resourceTypes.map((resourceType, j) => (
-            <ResourceInput
+            <ResourceField
               key={j}
               {...resourceType}
+              isEditable={true}
               onChange={(value) => {
                 const newRequests = [...requests];
                 const currentDoc = newRequests[selectedRequest].documents[i];

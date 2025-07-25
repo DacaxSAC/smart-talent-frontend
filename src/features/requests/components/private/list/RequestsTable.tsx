@@ -11,8 +11,7 @@ import { Request, RequestsService } from "@/features/requests/services/requestsS
 
 // Components
 import { Modal } from "@/shared/components/Modal";
-import { ResourceOutput } from "@/features/requests/components/public/ResourceOutput";
-import { ResourceInput } from "@/features/requests/components/public/ResourceInput";
+import { ResourceField } from "@/features/requests/components/public/ResourceField";
 
 // Hooks
 import { useUpload } from '@/shared/hooks/useUpload';
@@ -454,7 +453,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                 </div>
               </div>
               <div className="col-span-2 p-2  hidden md:block text-center">
-                {(isUser || (isRecruiter && (request.status === 'IN_PROGRESS' || request.status === 'OBSERVED')) )&& (
+                {(isAdmin || isUser || (isRecruiter && (request.status === STATUS.IN_PROGRESS || request.status === STATUS.OBSERVED))) && (
                   <button
                     title="Ver detalles de solicitud"
                     className="cursor-pointer text-center hover:text-main-2plus border border-white-1 px-1 rounded-[5px]"
@@ -698,69 +697,42 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                   </div>
                   {isAdmin || isRecruiter ?
                     <div className="flex flex-col">
-                      <div className="flex w-full justify-between align-center py-[14px]">
-                        <div className="text-[16px] text-black-2 dark:text-white">
-                          Resultado
-                        </div>
-                        <input
-                          type="text"
-                          placeholder="Agregar una descripción"
-                          value={doc.result || ''}
-                          onChange={(e) => {
-                            if (selectedRequest !== null) {
-                              const newRequests = [...requests];
-                              newRequests[selectedRequest].documents[i].result = e.target.value;
-                              handleRequests(newRequests);
+                      <ResourceField
+                        name="Resultado"
+                        allowedFileTypes={[]}
+                        value={doc.result as string}
+                        isEditable={doc.status === 'Pendiente'}
+                        onChange={(value) => {
+                          if (selectedRequest !== null) {
+                            const newRequests = [...requests];
+                            newRequests[selectedRequest].documents[i].result = value as string;
+                            handleRequests(newRequests);
+                          }
+                        }}
+                      />
+                      <ResourceField
+                        name="Documento"
+                        allowedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']}
+                        value={doc.filename as string}
+                        isEditable={doc.status === 'Pendiente'}
+                        onChange={(value) => {
+                          if (value && selectedRequest !== null) {
+                            const newRequests = [...requests];
+                            if (Array.isArray(value) && value.length > 0) {
+                              newRequests[selectedRequest].documents[i].filename = value[0];
                             }
-                          }}
-                          disabled={doc.status !== 'Pendiente'}
-                          className={`w-full max-w-[400px] px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
-                        rounded-md focus:outline-none focus:ring-2 focus:ring-main focus:border-transparent 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
-                        placeholder-gray-400 dark:placeholder-gray-300
-                        transition-all duration-200 ${doc.status !== 'Pendiente' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        />
-                      </div>
-                      <div className="flex w-full justify-between align-center py-[14px]">
-                        <div className="text-[16px] text-black-2">
-                          Documento
-                        </div>
-
-                        <div className="relative">
-                          <input
-                            type="file"
-                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files.length > 0 && selectedRequest !== null) {
-                                const file = e.target.files[0];
-                                const newRequests = [...requests];
-                                newRequests[selectedRequest].documents[i].filename = file;
-                                handleRequests(newRequests);
-                              }
-                            }}
-                            disabled={doc.status !== 'Pendiente'}
-                            className={`w-full max-w-[200px] text-sm
-                              file:mr-0 file:py-[6px] file:px-[68px]
-                              file:rounded-[6px] file:border-[1px] file:border-black-2
-                              file:text-[10px] file:font-medium
-                              file:bg-white file:text-black-2
-                              hover:file:bg-black-2 hover:file:text-white hover:file:border-transparent
-                              file:w-full
-                              [&:not(:placeholder-shown)::file-selector-button]:content-none
-                              text-black-2 text-center
-                              cursor-pointer
-                              transition-all duration-200 ${doc.status !== 'Pendiente' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          />
-                        </div>
-                      </div>
+                            handleRequests(newRequests);
+                          }
+                        }}
+                      />
 
                       {doc.resources.map((resource: any, j: any) => (
-                        <ResourceOutput key={j} {...resource} />
+                        <ResourceField key={j} {...resource} isEditable={false} />
                       ))}
                     </div> :
                     <div>
-                      <ResourceOutput key={Date.now() - 1} name="Comentarios" value={doc.result as string} />
-                      <ResourceOutput key={Date.now() - 2} name="Documento" value={doc.filename as string} />
+                      <ResourceField key={Date.now() - 1} name="Comentarios" value={doc.result as string} isEditable={false} allowedFileTypes={[]} />
+                      <ResourceField key={Date.now() - 2} name="Documento" value={doc.filename as string} isEditable={false} allowedFileTypes={[]} />
                     </div>
                   }
                 </div>
@@ -935,10 +907,11 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                   <div className="space-y-3">
                     {document.resources.map((resource, resourceIndex) => (
                       <div key={resourceIndex} className="bg-gray-50 p-3 rounded">
-                        <ResourceInput
+                        <ResourceField
                           name={resource.name}
                           allowedFileTypes={resource.allowedFileTypes || []}
-                          onChange={(value) => handleResourceCorrectionChange(resource.id, value)}
+                          isEditable={true}
+                          onChange={(value: string | File[] | null) => handleResourceCorrectionChange(resource.id, value)}
                         />
                         <div className="mt-1 text-xs text-gray-500">
                           Valor actual: {resource.value || 'Sin valor'}
