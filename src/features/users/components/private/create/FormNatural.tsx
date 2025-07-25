@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FormInput } from "../../shared/FormInput";
-import { CreationButton } from "../../shared/CreationButton";
+import { ReusableButton } from "../../shared/ReusableButton";
+import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { UsersService } from "@/features/users/service/usersService";
 import { UserProps } from "@/features/users/types/UserListResponse";
 import { useNavigate } from "react-router";
@@ -17,7 +18,12 @@ interface FormErrors {
   phone: { error: boolean; message: string };
 }
 
-export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListResponse, isUpdate?:boolean}>) => {
+export const FormNatural = ({userEdit, isUpdate, isReadOnly, onCancelEdit}:Readonly<{
+  userEdit?:UsersListResponse, 
+  isUpdate?:boolean,
+  isReadOnly?:boolean,
+  onCancelEdit?:() => void
+}>) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
@@ -164,7 +170,12 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
   return (
     <>
       <Loader isLoading={loading} />
-      <div className="flex flex-col gap-4 text-black dark:text-white">
+
+      <div className="p-6 flex-1 flex flex-col gap-4 text-black dark:text-white border border-[#C3C3C3] rounded-[12px]">
+       {!isReadOnly && <p className="text-[14px] text-medium dark:text-white mb-4">
+          Ingresa los datos en los campos correspondientes:
+        </p>}
+      
         <FormInput
           fieldName="DNI"
           value={user.documentNumber}
@@ -175,6 +186,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.documentNumber.error}
           errorMessage={errors.documentNumber.message}
+          disabled={isReadOnly}
         />
 
         <FormInput
@@ -187,6 +199,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.firstName.error}
           errorMessage={errors.firstName.message}
+          disabled={isReadOnly}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormInput
@@ -199,6 +212,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
             }}
             error={errors.paternalSurname.error}
             errorMessage={errors.paternalSurname.message}
+            disabled={isReadOnly}
           />
           <FormInput
             fieldName="Apellido Materno"
@@ -210,6 +224,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
             }}
             error={errors.maternalSurname.error}
             errorMessage={errors.maternalSurname.message}
+            disabled={isReadOnly}
           />
         </div>
 
@@ -223,6 +238,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.address.error}
           errorMessage={errors.address.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Teléfono"
@@ -234,6 +250,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.phone.error}
           errorMessage={errors.phone.message}
+          disabled={isReadOnly}
         />
 
         <FormInput
@@ -246,67 +263,49 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
           }}
           error={errors.email.error}
           errorMessage={errors.email.message}
+          disabled={isReadOnly}
         />
 
-        <CreationButton handleClick={() => {
-          if (validateForm()) {
-            setOpenModal(true);
-          }
-        }} />
+        
       </div>
-      {openModal && (
-        <div className="fixed inset-0 bg-black-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-black text-black dark:text-white p-6 rounded-lg shadow-lg max-w-md w-full flex flex-col gap-5 border border-medium dark:border-black-1">
-            <h3 className="text-[16px] pb-1 border-b border-white-1 dark:border-black-1">
-              Detalles del nuevo cliente
-            </h3>
-            <div className="w-full flex flex-col gap-2">
-                <div className="flex">
-                  <p className="min-w-[120px]">DNI</p>
-                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.documentNumber}</p>
-                </div>
-                <div className="flex">
-                  <p className="min-w-[120px]">Nombres</p>
-                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.firstName}</p>
-                </div>
-                <div className="flex">
-                  <p className="min-w-[120px]">Ap. Paterno</p>
-                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.paternalSurname}</p>
-                </div>
-                <div className="flex">
-                  <p className="min-w-[120px]">Ap. Materno</p>
-                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.maternalSurname}</p>
-                </div>
-                <div className="flex">
-                  <p className="min-w-[120px]">Dirección</p>
-                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.address}</p>
-                </div>
-                <div className="flex">
-                  <p className="min-w-[120px]">Telefono</p>
-                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.phone}</p>
-                </div>
-                <div className="flex">
-                  <p className="min-w-[120px]">Correo</p>
-                  <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.email}</p>
-                </div>
-            </div>
-            <div className="flex justify-around">
-              <button
-                onClick={() => setOpenModal(false)}
-                className="text-[14px] font-light border border-white-1 dark:border-black-1 rounded-[5px] px-10 py-1"
-              >
-                Regresar
-              </button>
-              <button
-                onClick={() => {handleButtonToConfirm()}}
-                className="text-[14px] font-light bg-main rounded-[5px] px-10 py-1"
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
+
+      {!isReadOnly && (
+        <div className="flex gap-4 justify-end">
+          {isUpdate && onCancelEdit && (
+            <ReusableButton
+              handleClick={onCancelEdit}
+              text="Cancelar edición"
+              variant="tertiary"
+              justify="start"
+            />
+          )}
+          <ReusableButton 
+            handleClick={() => {
+              if (validateForm()) {
+                setOpenModal(true);
+              }
+            }}
+            text="Confirmar registro"
+          />
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={openModal}
+        onClose={() => setOpenModal(false)}
+        onConfirm={() => handleButtonToConfirm()}
+        title="Detalles del nuevo cliente"
+        fields={[
+          { label: "DNI", value: user.documentNumber },
+          { label: "Nombres", value: user.firstName },
+          { label: "Ap. Paterno", value: user.paternalSurname },
+          { label: "Ap. Materno", value: user.maternalSurname },
+          { label: "Dirección", value: user.address },
+          { label: "Telefono", value: user.phone },
+          { label: "Correo", value: user.email }
+        ]}
+      />
+
     </>
   );
 };

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { UsersService } from "@/features/users/service/usersService";
 import { FormInput } from "../../shared/FormInput";
-import { CreationButton } from "../../shared/CreationButton";
+import { ReusableButton } from "../../shared/ReusableButton";
+import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { Loader } from "@/shared/components/Loader";
 import { useNavigate } from "react-router-dom";
 import { UsersListResponse } from "@/features/users/types/UserListResponse";
@@ -22,7 +23,12 @@ interface FormErrors {
   phone: { error: boolean; message: string };
 }
 
-export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: UsersListResponse, isUpdate?: boolean }>) => {
+export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: Readonly<{ 
+  userEdit?: UsersListResponse, 
+  isUpdate?: boolean,
+  isReadOnly?: boolean,
+  onCancelEdit?: () => void 
+}>) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -150,7 +156,11 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
   return (
     <>
       <Loader isLoading={loading} />
-      <div className="flex flex-col gap-4 text-black dark:text-white">
+       <div className="p-6 flex-1 flex flex-col gap-4 text-black dark:text-white border border-[#C3C3C3] rounded-[12px]">
+        <p className="text-[14px] text-black dark:text-white mb-4">
+          Ingresa los datos en los campos correspondientes:
+        </p>
+      
         <FormInput
           fieldName="RUC"
           value={user.documentNumber}
@@ -161,6 +171,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.documentNumber.error}
           errorMessage={errors.documentNumber.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Razón social"
@@ -172,6 +183,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.businessName.error}
           errorMessage={errors.businessName.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Dirección"
@@ -183,6 +195,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.address.error}
           errorMessage={errors.address.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Teléfono"
@@ -194,6 +207,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.phone.error}
           errorMessage={errors.phone.message}
+          disabled={isReadOnly}
         />
         <FormInput
           fieldName="Correo"
@@ -205,55 +219,39 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
           }}
           error={errors.email.error}
           errorMessage={errors.email.message}
+          disabled={isReadOnly}
         />
-        <CreationButton handleClick={handleClick} />
+        
       </div>
-
-      {openModal && (
-        <div className="fixed inset-0 bg-black-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-black text-black dark:text-white p-6 rounded-lg shadow-lg max-w-md w-full flex flex-col gap-5 border border-medium dark:border-black-1">
-            <h3 className="text-[16px] pb-1 border-b border-white-1 dark:border-black-1">
-              Detalles del nuevo cliente
-            </h3>
-            <div className="w-full flex flex-col gap-2">
-              <div className="flex">
-                <p className="min-w-[120px]">RUC</p>
-                <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.documentNumber}</p>
-              </div>
-              <div className="flex">
-                <p className="min-w-[120px]">Razón social</p>
-                <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.businessName}</p>
-              </div>
-              <div className="flex">
-                <p className="min-w-[120px]">Dirección</p>
-                <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.address}</p>
-              </div>
-              <div className="flex">
-                <p className="min-w-[120px]">Teléfono</p>
-                <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.phone}</p>
-              </div>
-              <div className="flex">
-                <p className="min-w-[120px]">Correo</p>
-                <p className="flex-1 border border-white-1 dark:border-black-1 rounded-[5px] px-2 text-end">{user.email}</p>
-              </div>
-            </div>
-            <div className="flex justify-around">
-              <button
-                onClick={() => setOpenModal(false)}
-                className="text-[14px] font-light border border-white-1 dark:border-black-1 rounded-[5px] px-10 py-1"
-              >
-                Regresar
-              </button>
-              <button
-                onClick={handleConfirm}
-                className="text-[14px] font-light bg-main rounded-[5px] px-10 py-1"
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
+      {!isReadOnly && (
+        <div className="flex gap-4 justify-end">
+          {isUpdate && onCancelEdit && (
+            <ReusableButton
+              handleClick={onCancelEdit}
+              text="Cancelar edición"
+              variant="tertiary"
+              justify="start"
+            />
+          )}
+          <ReusableButton 
+            handleClick={handleClick}
+            text="Confirmar registro"
+          />
         </div>
       )}
+      <ConfirmationModal
+        isOpen={openModal}
+        onClose={() => setOpenModal(false)}
+        onConfirm={handleConfirm}
+        title="Detalles del nuevo cliente"
+        fields={[
+          { label: "RUC", value: user.documentNumber },
+          { label: "Razón social", value: user.businessName },
+          { label: "Dirección", value: user.address },
+          { label: "Teléfono", value: user.phone },
+          { label: "Correo", value: user.email }
+        ]}
+      />
     </>
   );
 };

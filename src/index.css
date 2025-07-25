@@ -34,7 +34,8 @@
 --color-main-1plus:#FF9E44;
 --color-main-2plus:#FFBD81;
 --color-main-3plus:#FFDCBD;
---color-opacity:#101010;
+--color-table-head:rgba(250, 141, 40, 0.5);
+--color-opacity:rgba(16, 16, 16, 0.5);
 
 --color-input:#0000000D;
 

@@ -1,7 +1,7 @@
 import { ROLES } from "@/features/auth/constants/roles";
 import { CreateUserPage } from "../pages/CreateUserPage";
 import { ListUsersPage } from "../pages/ListUsersPage";
-import { UpdateUserPage } from "../pages/UpdateUserPage";
+import { DetailUserPage } from "../pages/DetailUserPage";
 
 export const usersRoutes = [
   {
@@ -13,8 +13,8 @@ export const usersRoutes = [
     element: <CreateUserPage />,
     roles: [ROLES.ADMIN]
   },{
-    path: '/users/edit/:id',
-    element: <UpdateUserPage />,
+    path: '/users/detail/:id',
+    element: <DetailUserPage />,
     roles: [ROLES.ADMIN]
   }
 ];
