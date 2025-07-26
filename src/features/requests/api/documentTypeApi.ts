@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib/axios/client';
+import { apiClient } from '../../../lib/axios/client';
 import { DOCUMENT_TYPE_ENDPOINTS } from './endpoints';
 import { DocumentTypeResponse } from '../interfaces/IDocumentTypeResponse';
 
