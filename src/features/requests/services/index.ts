@@ -1,2 +1,2 @@
-export { DocumentTypeService } from './DocumentTypeService';
+export * from './DocumentTypeService';
 export * from './requestsService';
