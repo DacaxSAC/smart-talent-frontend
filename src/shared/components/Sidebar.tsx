@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TbUserFilled } from 'react-icons/tb';
-import { FaUserTie } from "react-icons/fa6";
+//import { FaUserTie } from "react-icons/fa6";
 import { useUser } from '@/features/auth/hooks/useUser';
 import { useModalStore } from '@/shared/store/modalStore';
 import { Logotipo } from './Logotipo';
