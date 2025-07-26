@@ -106,7 +106,7 @@ export function ListUsersPage() {
         <div className="my-5">
           <ReusableButton
             handleClick={() => navigate("/users/create")}
-            text="Crear nuevo usuario"
+            text="Registrar nuevo cliente"
             justify="start"
           />
         </div>

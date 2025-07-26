@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TbUserFilled } from 'react-icons/tb';
+import { FaUserTie } from "react-icons/fa6";
 import { useUser } from '@/features/auth/hooks/useUser';
 import { useModalStore } from '@/shared/store/modalStore';
 import { Logotipo } from './Logotipo';
@@ -33,11 +34,18 @@ export const Sidebar = () => {
   const sidebarItems = [
     {
       icon: <TbUserFilled className='w-[25px] h-[25px] text-black-2 dark:text-white-1' />,
-      label: 'Gestión de usuarios',
+      label: 'Gestión de clientes',
       onClick: () => navigate('/users'),
       hasSubItems: false,
       showCondition: isAdmin,
     },
+    //{
+    //  icon: <FaUserTie className='w-[20px] h-[20px] text-black-2 dark:text-white-1' />,
+    //  label: 'Gestión de empleados',
+    //  onClick: () => navigate('/employees'),
+    //  hasSubItems: false,
+    //  showCondition: isAdmin,
+    //},
     {
       icon: <PaperIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
       label: 'Solicitudes',
