@@ -6,6 +6,7 @@ import { UsersListResponse } from "../types/UserListResponse";
 import { ReusableButton } from "../components/shared/ReusableButton";
 import { PageTitle } from "../components/shared/PageTitle";
 import { PageLayout } from "../components/shared/PageLayout";
+import { NoData } from "@/shared/components/NoData";
 
 export function ListUsersPage() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -184,16 +185,18 @@ export function ListUsersPage() {
                   text-black dark:text-white font-light text-[14px] rounded-sidebar mb-4"
             >
               <p className="p-2 w-full text-center">
-                Cargando lista de empleados...
+                Cargando lista de clientes...
               </p>
             </div>
           </div>
-        ) : (
+        ) : filteredUsers.length > 0 ? (
           <UsersList
             users={filteredUsers}
             handleDelete={handleDelete}
             handleReactivate={handleReactivate}
           />
+        ) : (
+          <NoData />
         )}
       </div>
     </PageLayout>
