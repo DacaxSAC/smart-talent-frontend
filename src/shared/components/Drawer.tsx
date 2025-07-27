@@ -43,7 +43,7 @@ export const Drawer = ({ isActive, handleActive, children }: DrawerProps) => {
               duration: 0.2,
               ease: "easeInOut"
             }}
-            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-black rounded-t-sidebar shadow-optionsmodal p-5 z-10 text-black dark:text-white border border-transparent dark:border-x-black-1 dark:border-t-black-1 font-karla overflow-hidden will-change-transform"
+            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-black rounded-t-sidebar shadow-drawer p-5 z-10 text-black dark:text-white border border-transparent dark:border-x-black-1 dark:border-t-black-1 overflow-hidden will-change-transform"
             ref={modalRef}
           >
             {children}
