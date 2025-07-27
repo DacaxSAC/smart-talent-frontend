@@ -1,7 +1,7 @@
 // External libraries
 import { Notify } from "notiflix";
 import { useEffect, useState } from "react";
-import { FaChevronCircleDown } from "react-icons/fa";
+import { NoData } from "@/shared/components/NoData";
 
 // Internal services and utilities
 import { apiClient } from "@/lib/axios/client";
@@ -79,7 +79,6 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   // States
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [openRows, setOpenRows] = useState<number[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const [requestToAccept, setRequestToAccept] = useState<number | null>(null);
@@ -137,10 +136,6 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
     }
 
     setModalOpen(false);
-  };
-
-  const handleToggleRow = (index: number) => {
-    setOpenRows((prev) => prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]);
   };
 
   const openResourceModal = (index: number) => {
@@ -401,19 +396,22 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
     return <Header type={HeaderType.ERROR} description={errorText} />
   }
 
+  if (requests.length === 0) {
+    return <NoData />
+  }
+
   return (
-    <div className="w-full text-[14px] font-karla font-light">
+    <div className="w-full text-[12px] font-light">
       {/* Header */}
-      <div className="px-2 grid grid-cols-12 gap-0 bg-main-3plus dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4">
+      <div className={`px-2 grid ${isAdmin ? 'grid-cols-44' : 'grid-cols-38'} gap-0 bg-table-head dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4`}>
         {isAdmin &&
-          <div className="col-span-1 p-2">Propietario</div>
+          <div className="col-span-6 p-2">Propietario</div>
         }
-        <div className="col-span-1 p-2">DNI</div>
-        <div className="col-span-3 p-2 hidden md:block">Nombre Completo</div>
-        <div className="col-span-1 p-2 hidden md:block">Estado</div>
-        <div className="col-span-5 p-2 hidden md:block">Informes</div>
-        <div className="col-span-1 p-2 hidden md:block">Acciones</div>
-        <div className="col-span-1 p-2 md:hidden">Acciones</div>
+        <div className="col-span-5 p-2">DNI</div>
+        <div className="col-span-6 p-2">Nombre Completo</div>
+        <div className="col-span-5 p-2">Estado</div>
+        <div className="col-span-16 p-2">Informes</div>
+        <div className="col-span-6 p-2">Acciones</div>
       </div>
 
       {/* Rows */}
@@ -421,22 +419,27 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         {requests.map((request, index) => (
           <div key={index}>
             {/* Main Row */}
-            <div className="px-2 grid grid-cols-12 border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10">
+            <div className={`px-2 grid ${isAdmin ? 'grid-cols-44' : 'grid-cols-38'} border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10`}>
+              {/** Propietario */}
               {isAdmin &&
-                <div className="col-span-1 p-2">
+                <div className="col-span-6 p-2">
                   {request.owner}
                 </div>
               }
-              <div className="col-span-1 p-2 ">
+              {/** DNI */}
+              <div className="col-span-5 p-2 ">
                 {request.dni}
               </div>
-              <div className="col-span-3 p-2 ">
+              {/** Nombre Completo */}
+              <div className="col-span-6 p-2 ">
                 {request.fullname}
               </div>
-              <div className="col-span-1 p-2  hidden md:block">
+              {/** Estado */}
+              <div className="col-span-5 p-2">
                 <span>{STATUS[request.status as keyof typeof STATUS]}</span>
               </div>
-              <div className="col-span-5 p-2  hidden md:block">
+              {/** Lista de documentos */}
+              <div className="col-span-16 p-2">
                 <div className="flex flex-wrap gap-1">
                   {request.documents.map((doc: any, docIndex: number) => (
                     <span
@@ -452,19 +455,20 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                   ))}
                 </div>
               </div>
-              <div className="col-span-2 p-2  hidden md:block text-center">
+              {/** Acciones */}
+              <div className="col-span-6 p-2 text-center flex flex-col justify-start items-start gap-1">
                 {(isAdmin || isUser || (isRecruiter && (request.status === STATUS.IN_PROGRESS || request.status === STATUS.OBSERVED))) && (
                   <button
                     title="Ver detalles de solicitud"
-                    className="cursor-pointer text-center hover:text-main-2plus border border-white-1 px-1 rounded-[5px]"
+                    className="cursor-pointer text-center hover:text-table-head border border-white-1 px-1 rounded-[5px]"
                     onClick={() => openResourceModal(index)}
                   >
-                    <p>Ver</p>
+                    <p>Ver detalles</p>
                   </button>
                 )}
                 {isRecruiter && request.status === 'PENDING' && (
                   <button 
-                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px] ml-2"
+                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
                     onClick={() => handleOpenAcceptModal(index)}
                   >
                     Aceptar solicitud
@@ -472,92 +476,23 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                 )}
                 {isRecruiter && request.status === 'IN_PROGRESS' && (
                   <button 
-                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px] ml-2"
+                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
                     onClick={() => handleOpenObservationModal(index)}
                   >
-                    Agregar observacion
+                    Agregar observación
                   </button>
                 )}
                 {isUser && request.status === 'OBSERVED' && request.observations && (
                   <button 
-                    className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
+                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
                     onClick={() => handleOpenViewObservationsModal(index)}
                   >
                     Ver observaciones
                   </button>
                 )}
               </div>
-              <div className="col-span-1 p-2  md:hidden text-center">
-                <button
-                  className="text-center"
-                  onClick={() => handleToggleRow(index)}
-                >
-                  <FaChevronCircleDown
-                    className={`w-[20px] h-[20px] transform origin-center transition-all duration-500 ease-in-out ${openRows.includes(index) ? "rotate-180" : ""
-                      }`}
-                  />
-                </button>
-              </div>
             </div>
 
-            {/* Expanded Row (Mobile) */}
-            {openRows.includes(index) && (
-              <div className="md:hidden col-span-12">
-                <div className="p-2 border border-black-05 dark:border-shadow-dark">
-                  <div className="flex flex-col gap-2 mx-4 my-2">
-                    <p>
-                      Estado: <strong>{STATUS[request.status as keyof typeof STATUS]}</strong>
-                    </p>
-                    <p>Informes solicitados:</p>
-                    <div className="flex flex-col gap-1 items-center">
-                      {request.documents.map((doc: any, docIndex: number) => (
-                        <span
-                          key={docIndex}
-                          className={`w-full ${doc.state
-                            ? "bg-success text-white"
-                            : "bg-transparent border border-black-05 dark:border-shadow-dark text-black dark:text-white"
-                            } py-0.5 px-2 rounded-[5px] text-center`}
-                        >
-                          {doc.name}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="w-full flex justify-end mt-2">
-                      <button
-                        onClick={() => openResourceModal(index)}
-                        className="py-0.5 px-2 bg-black-15 dark:bg-white-20 rounded-[5px]"
-                      >
-                        Ver Informes
-                      </button>
-                      {isRecruiter && request.status === 'PENDING' && (
-                        <button 
-                          className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
-                          onClick={() => handleOpenAcceptModal(index)}
-                        >
-                          Aceptar solicitud
-                        </button>
-                      )}
-                      {isRecruiter && request.status === 'IN_PROGRESS' && (
-                        <button 
-                          className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
-                          onClick={() => handleOpenObservationModal(index)}
-                        >
-                          Agregar observación
-                        </button>
-                      )}
-                      {isUser && request.status === 'IN_PROGRESS' && (
-                        <button 
-                          className="bg-success text-white py-0.5 px-2 rounded-[5px] ml-2"
-                          onClick={() => {}}
-                        >
-                          Ver observaciones
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         ))}
       </div>

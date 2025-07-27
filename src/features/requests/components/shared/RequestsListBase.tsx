@@ -87,9 +87,6 @@ export function RequestsListBase({
       }
     >
       <Fragment>
-        {requests.length === 0 ? (
-          <NoData />
-        ) : (
           <RequestsTable 
             data={requests} 
             isLoading={loading} 
@@ -98,7 +95,6 @@ export function RequestsListBase({
             errorText="Error al cargar las solicitudes, por favor recargue la página."
             onRefresh={handleGetRequests}
           />
-        )}
         {showAddButton && (
           <OptionsDrawer
             isActive={isActiveDrawerRegisterRequests}

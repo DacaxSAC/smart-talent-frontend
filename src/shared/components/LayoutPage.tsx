@@ -8,7 +8,7 @@ interface LayoutPageProps {
 
 export function LayoutPage({ title, description, buttonsHeader, footer, children }: LayoutPageProps) {
     return (
-        <div className="flex flex-col mx-5 md:mx-8 my-15 gap-11 font-light">
+        <div className="h-screen flex flex-col px-5 md:px-8 py-15 gap-11 font-light">
             <div
                 className="
                     flex flex-row justify-between items-center
@@ -31,7 +31,7 @@ export function LayoutPage({ title, description, buttonsHeader, footer, children
                 )}
             </div>
 
-            <div className="w-full h-[500px] p-3 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">
+            <div className="w-full flex-1 p-3 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">
                 {children}
             </div>
 

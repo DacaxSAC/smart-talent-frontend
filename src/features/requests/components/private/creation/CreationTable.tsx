@@ -347,7 +347,7 @@ const InputField = ({ value, onChange, error, type = 'text', className = '', row
 
 // Table Header Component
 const TableHeader = () => (
-  <div className="px-2 grid grid-cols-40 items-center min-w-[800px] sticky top-0 z-10 bg-main-3plus dark:bg-main rounded-sidebar mb-4">
+  <div className="px-2 grid grid-cols-40 items-center min-w-[800px] sticky top-0 z-10 bg-table-head dark:bg-main rounded-sidebar mb-4">
     {HEADERS.map((header, index) => (
       <div
         key={index}

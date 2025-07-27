@@ -44,7 +44,7 @@ export const UsersList = ({
   return (
     <>
     <Loader isLoading={isLoading} />
-    <div className="w-full text-[14px] font-karla font-light">
+    <div className="w-full text-[12px] font-karla font-light">
       <div className="px-2 grid grid-cols-7 gap-0 bg-table-head  text-black dark:text-white rounded-sidebar mb-4">
         <div className="col-span-1 p-2">Tipo</div>
         <div className="col-span-1 p-2">Nro Doc</div>

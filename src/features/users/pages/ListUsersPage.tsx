@@ -179,7 +179,7 @@ export function ListUsersPage() {
       {/** USERS TABLE */}
       <div className="w-full flex-1 p-3 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">
         {loading ? (
-          <div className="w-full text-[14px] font-karla font-light">
+          <div className="w-full text-[12px] font-karla font-light">
             <div
               className="px-2 bg-white-1 dark:bg-black-2
                   text-black dark:text-white font-light text-[14px] rounded-sidebar mb-4"
