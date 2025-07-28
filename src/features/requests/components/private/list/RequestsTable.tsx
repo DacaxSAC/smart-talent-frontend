@@ -548,17 +548,9 @@ export const RequestsTable = ({
         onClose={isAcceptingRequest ? () => {} : handleCancelAccept}
         position="center"
         width="400px"
-      >
-        <div className="py-2 px-8 text-lg text-center">
-          {isAcceptingRequest ? (
-            <div className="flex flex-col items-center gap-4">
-              <Loader isLoading={true} />
-              <p>Procesando solicitud...</p>
-            </div>
-          ) : (
-            <>
-              <p>¿Está seguro que desea aceptar esta solicitud?</p>
-              <div className="flex justify-center gap-6 pt-4">
+        title="¿Está seguro que desea aceptar esta solicitud?"
+        footer={
+          <div className="flex gap-4">
                 <Button
                   type="secondary"
                   handleClick={handleCancelAccept}
@@ -570,55 +562,59 @@ export const RequestsTable = ({
                   description="Confirmar"
                 />
               </div>
+        }
+      >
+        <div className="">
+          {isAcceptingRequest ? (
+            <Loader isLoading={true} />
+          ) : (
+            <>
+              <div className="flex flex-col gap-2 text-[12px] text-medium">
+                Al aceptar esta solicitud, usted es responsable del proceso completo de la misma.
+              </div>
             </>
           )}
         </div>
       </Modal>
 
-      {/* Modal de observación */}
+      {/* Modal para añadir observación */}
       <Modal
         isOpen={observationModalOpen}
         onClose={isAddingObservation ? () => {} : handleCancelObservation}
         position="center"
         width="500px"
+        title="Añadir observaciones a la solicitud"
+        footer={
+          <div className="flex">
+            <Button
+              type="primary"
+              handleClick={handleConfirmObservation}
+              description="Enviar observaciones"
+            />
+          </div>
+        }
       >
-        <div className="py-4 px-8">
+        <div className="flex flex-col gap-4">
           {isAddingObservation ? (
-            <div className="flex flex-col items-center gap-4">
-              <Loader isLoading={true} />
-              <p>Agregando observación...</p>
-            </div>
+            <Loader isLoading={true} />
           ) : (
             <>
-              <h3 className="text-lg font-medium mb-4 text-center">
-                Agregar Observación
-              </h3>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Observación:
-                </label>
-                <textarea
-                  value={observation}
-                  onChange={(e) => setObservation(e.target.value)}
-                  placeholder="Escriba su observación aquí..."
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-main focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 resize-none"
-                />
-              </div>
-              <div className="flex justify-center gap-6">
-                <button
-                  onClick={handleCancelObservation}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleConfirmObservation}
-                  disabled={!observation.trim()}
-                  className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Agregar
-                </button>
+              <textarea
+                value={observation}
+                onChange={(e) => setObservation(e.target.value)}
+                placeholder="Escriba su observación aquí..."
+                rows={4}
+                className="w-full p-4 text-[14px] border border-[#C3C3C3] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-table-head focus:border-transparent placeholder-gray-400 resize-none"
+              />
+              <div className="flex flex-col text-medium text-[12px]">
+                <p>Se le recordará al cliente:</p>
+                <p>
+                  -Sí acepta levantar las observaciones, será redirigido a la
+                  vista editar los datos de la solicitud.
+                </p>
+                <p>
+                  -Si rechaza levantar observaciones, se terminará el proceso.
+                </p>
               </div>
             </>
           )}
@@ -793,7 +789,7 @@ export const RequestsTable = ({
         footer={
           <div className="flex gap-3 justify-end">
             {isProcessingObservation ? (
-                <Loader isLoading={true} />
+              <Loader isLoading={true} />
             ) : (
               <>
                 <Button
@@ -814,7 +810,7 @@ export const RequestsTable = ({
         <div className="flex flex-col gap-4">
           {requestToViewObservations !== null &&
             requests[requestToViewObservations] && (
-              <div className="px-3 flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
                 <div>
                   <p className="text-[12px]">
                     Las observaciones planteadas fueron descritas por:
@@ -864,135 +860,146 @@ export const RequestsTable = ({
         width="800px"
         className=""
         footer={
-          <div className="flex gap-3">
-            <button
-              className="px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-              onClick={handleCancelCorrections}
-              disabled={isSendingCorrections}
-            >
-              Cancelar
-            </button>
-            <button
-              className="px-4 py-2 text-sm bg-main text-black rounded-md hover:bg-main-2 transition-colors flex items-center gap-2"
-              onClick={handleSendCorrections}
-              disabled={isSendingCorrections}
-            >
-              {isSendingCorrections && (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
-              )}
-              Enviar correcciones
-            </button>
+          <div className="flex gap-3 justify-end">
+            <>
+              <Button
+                type="secondary"
+                handleClick={handleCancelCorrections}
+                description="Cancelar"
+                disabled={isSendingCorrections}
+              />
+              <Button
+                type="primary"
+                description="Enviar correcciones"
+                handleClick={handleSendCorrections}
+                disabled={isSendingCorrections}
+              />
+            </>
           </div>
         }
       >
         {requestToCorrect !== null && requests[requestToCorrect] && (
-          <div className="space-y-6">
-            {/* Información del solicitante */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold mb-2">
-                Información del Solicitante
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="font-medium">Nombre:</span>{" "}
-                  {requests[requestToCorrect].fullname}
-                </div>
-                <div>
-                  <span className="font-medium">DNI:</span>{" "}
-                  {requests[requestToCorrect].dni}
-                </div>
-                <div>
-                  <span className="font-medium">Teléfono:</span>{" "}
-                  {requests[requestToCorrect].phone}
-                </div>
-                <div>
-                  <span className="font-medium">Estado:</span>
-                  <span
-                    className={`ml-2 px-2 py-1 rounded text-xs ${
-                      requests[requestToCorrect].status === "PENDING"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : requests[requestToCorrect].status === "IN_PROGRESS"
-                        ? "bg-blue-100 text-blue-800"
-                        : requests[requestToCorrect].status === "COMPLETED"
-                        ? "bg-green-100 text-green-800"
-                        : requests[requestToCorrect].status === "OBSERVED"
-                        ? "bg-orange-100 text-orange-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {requests[requestToCorrect].status}
-                  </span>
-                </div>
+          <>
+            {isSendingCorrections ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader isLoading={true} />
+                <span className="ml-3 text-gray-600">
+                  Enviando correcciones...
+                </span>
               </div>
-            </div>
-
-            {/* Documentos y Recursos */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Documentos y Recursos</h3>
-              {requests[requestToCorrect].documents.map(
-                (document, docIndex) => (
-                  <div
-                    key={docIndex}
-                    className="border border-gray-200 rounded-lg p-4"
-                  >
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="font-medium text-gray-900">
-                        {document.name}
-                      </h4>
+            ) : (
+              <>
+                {/* Información del solicitante */}
+                <div className="p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold mb-2">
+                    Información del Solicitante
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="font-medium">Nombre:</span>{" "}
+                      {requests[requestToCorrect].fullname}
+                    </div>
+                    <div>
+                      <span className="font-medium">DNI:</span>{" "}
+                      {requests[requestToCorrect].dni}
+                    </div>
+                    <div>
+                      <span className="font-medium">Teléfono:</span>{" "}
+                      {requests[requestToCorrect].phone}
+                    </div>
+                    <div>
+                      <span className="font-medium">Estado:</span>
                       <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          document.status === "Pendiente"
+                        className={`ml-2 px-2 py-1 rounded text-xs ${
+                          requests[requestToCorrect].status === "PENDING"
                             ? "bg-yellow-100 text-yellow-800"
-                            : document.status === "Realizado"
+                            : requests[requestToCorrect].status ===
+                              "IN_PROGRESS"
+                            ? "bg-blue-100 text-blue-800"
+                            : requests[requestToCorrect].status === "COMPLETED"
                             ? "bg-green-100 text-green-800"
+                            : requests[requestToCorrect].status === "OBSERVED"
+                            ? "bg-orange-100 text-orange-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {document.status}
+                        {requests[requestToCorrect].status}
                       </span>
                     </div>
-
-                    {document.result && (
-                      <div className="mb-3 p-2 bg-blue-50 rounded">
-                        <span className="font-medium text-blue-800">
-                          Resultado:
-                        </span>
-                        <span className="ml-2 text-blue-700">
-                          {document.result}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="space-y-3">
-                      {document.resources.map((resource, resourceIndex) => (
-                        <div
-                          key={resourceIndex}
-                          className="bg-gray-50 p-3 rounded"
-                        >
-                          <ResourceField
-                            name={resource.name}
-                            allowedFileTypes={resource.allowedFileTypes || []}
-                            isEditable={true}
-                            onChange={(value: string | File[] | null) =>
-                              handleResourceCorrectionChange(resource.id, value)
-                            }
-                          />
-                          <div className="mt-1 text-xs text-gray-500">
-                            Valor actual: {resource.value || "Sin valor"}
-                          </div>
-                          {isSendingCorrections && (
-                            <div className="absolute inset-0 bg-gray-200 bg-opacity-50 rounded flex items-center justify-center">
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-main"></div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
                   </div>
-                )
-              )}
-            </div>
-          </div>
+                </div>
+
+                {/* Documentos y Recursos */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Documentos y Recursos
+                  </h3>
+                  {requests[requestToCorrect].documents.map(
+                    (document, docIndex) => (
+                      <div
+                        key={docIndex}
+                        className="border border-gray-200 rounded-lg p-4"
+                      >
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="font-medium text-gray-900">
+                            {document.name}
+                          </h4>
+                          <span
+                            className={`px-2 py-1 rounded text-xs ${
+                              document.status === "Pendiente"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : document.status === "Realizado"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {document.status}
+                          </span>
+                        </div>
+
+                        {document.result && (
+                          <div className="mb-3 p-2 bg-blue-50 rounded">
+                            <span className="font-medium text-blue-800">
+                              Resultado:
+                            </span>
+                            <span className="ml-2 text-blue-700">
+                              {document.result}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="space-y-3">
+                          {document.resources.map((resource, resourceIndex) => (
+                            <div
+                              key={resourceIndex}
+                              className="bg-gray-50 p-3 rounded"
+                            >
+                              <ResourceField
+                                name={resource.name}
+                                allowedFileTypes={
+                                  resource.allowedFileTypes || []
+                                }
+                                isEditable={true}
+                                onChange={(value: string | File[] | null) =>
+                                  handleResourceCorrectionChange(
+                                    resource.id,
+                                    value
+                                  )
+                                }
+                              />
+                              <div className="mt-1 text-xs text-gray-500">
+                                Valor actual: {resource.value || "Sin valor"}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </>
+            )}
+          </>
         )}
       </Modal>
     </div>
