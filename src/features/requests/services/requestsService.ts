@@ -22,6 +22,14 @@ export interface Request {
             allowedFileTypes?: string[];
         }[]
     }[];
+    Users: {
+        id: number;
+        username: string;
+        email:string;
+        Roles: {
+            name: string;
+        }[];
+    }[];
 }
 
 export interface GetAllPeopleResponse {

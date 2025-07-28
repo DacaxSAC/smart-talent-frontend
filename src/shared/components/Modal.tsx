@@ -131,7 +131,7 @@ export const Modal = ({
                                     {children}
                                 </div>
                                 {footer &&
-                                    <div className="flex justify-center p-[14px]">
+                                    <div className="flex justify-center p-[14px] border-t border-gray-300 ">
                                         {footer}
                                     </div>
                                 }

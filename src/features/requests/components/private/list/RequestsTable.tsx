@@ -7,19 +7,26 @@ import { NoData } from "@/shared/components/NoData";
 import { apiClient } from "@/lib/axios/client";
 import { STATUS } from "@/features/auth/constants/status";
 import { ROLES } from "@/features/auth/constants/roles";
-import { Request, RequestsService } from "@/features/requests/services/requestsService";
+import {
+  Request,
+  RequestsService,
+} from "@/features/requests/services/requestsService";
 
 // Components
 import { Modal } from "@/shared/components/Modal";
 import { ResourceField } from "@/features/requests/components/public/ResourceField";
+import { Button } from "@/shared/components/Button";
 
 // Hooks
-import { useUpload } from '@/shared/hooks/useUpload';
+import { useUpload } from "@/shared/hooks/useUpload";
 import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 
 import { Loader } from "@/shared/components/Loader";
 
-const processDocuments = async (documents: any[], uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
+const processDocuments = async (
+  documents: any[],
+  uploadFile: (file: File, signedUrl: string) => Promise<any>
+) => {
   const documentsToUpdate = [];
 
   for (const doc of documents) {
@@ -28,8 +35,8 @@ const processDocuments = async (documents: any[], uploadFile: (file: File, signe
       if (fileKey) {
         documentsToUpdate.push({
           id: doc.id,
-          result: doc.result || '',
-          filename: fileKey
+          result: doc.result || "",
+          filename: fileKey,
         });
       }
     }
@@ -38,23 +45,25 @@ const processDocuments = async (documents: any[], uploadFile: (file: File, signe
   return documentsToUpdate;
 };
 
-const handleFileUpload = async (file: File, uploadFile: (file: File, signedUrl: string) => Promise<any>) => {
+const handleFileUpload = async (
+  file: File,
+  uploadFile: (file: File, signedUrl: string) => Promise<any>
+) => {
   try {
-
-    const response = await apiClient.post('upload/write-signed-url', {
+    const response = await apiClient.post("upload/write-signed-url", {
       fileName: file.name,
-      contentType: file.type
+      contentType: file.type,
     });
 
     if (response.status !== 200) {
-      throw new Error('Failed to get signed URL');
+      throw new Error("Failed to get signed URL");
     }
 
     const { signedUrl, key } = response.data;
     await uploadFile(file, signedUrl);
     return key;
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error("Error uploading file:", error);
     return null;
   }
 };
@@ -68,7 +77,14 @@ interface requestsTableProps {
   onRefresh: () => Promise<void>;
 }
 
-export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText, onRefresh }: requestsTableProps) => {
+export const RequestsTable = ({
+  data,
+  isLoading,
+  isError,
+  loadingText,
+  errorText,
+  onRefresh,
+}: requestsTableProps) => {
   // Hooks
   const isAdmin = useHasRole([ROLES.ADMIN]);
   const isUser = useHasRole([ROLES.USER]);
@@ -85,21 +101,26 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   const [isAcceptingRequest, setIsAcceptingRequest] = useState(false);
   const [observationModalOpen, setObservationModalOpen] = useState(false);
   const [requestToObserve, setRequestToObserve] = useState<number | null>(null);
-  const [observation, setObservation] = useState('');
+  const [observation, setObservation] = useState("");
   const [isAddingObservation, setIsAddingObservation] = useState(false);
-  const [viewObservationsModalOpen, setViewObservationsModalOpen] = useState(false);
-  const [requestToViewObservations, setRequestToViewObservations] = useState<number | null>(null);
+  const [viewObservationsModalOpen, setViewObservationsModalOpen] =
+    useState(false);
+  const [requestToViewObservations, setRequestToViewObservations] = useState<
+    number | null
+  >(null);
   const [isProcessingObservation, setIsProcessingObservation] = useState(false);
 
   const [correctionsModalOpen, setCorrectionsModalOpen] = useState(false);
   const [requestToCorrect, setRequestToCorrect] = useState<number | null>(null);
-  const [resourceCorrections, setResourceCorrections] = useState<{[key: number]: File[] | string | null}>({});
+  const [resourceCorrections, setResourceCorrections] = useState<{
+    [key: number]: File[] | string | null;
+  }>({});
   const [isSendingCorrections, setIsSendingCorrections] = useState(false);
   const [isConfirmingRequest, setIsConfirmingRequest] = useState(false);
 
-  useEffect(() => { 
+  useEffect(() => {
     setRequests(data);
-    console.log('data', data);
+    console.log("data", data);
   }, [data]);
 
   const handleRequests = (newRequests: Request[]) => {
@@ -116,21 +137,25 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
 
     try {
       setIsConfirmingRequest(true);
-      Notify.info('Procesando informes...');
+      Notify.info("Procesando informes...");
 
       const selectedRequestData = requests[selectedRequest];
-      const documentsToUpdate = await processDocuments(selectedRequestData.documents, uploadFile);
+      const documentsToUpdate = await processDocuments(
+        selectedRequestData.documents,
+        uploadFile
+      );
 
       await RequestsService.updateDocuments(documentsToUpdate);
-      await RequestsService.putStatusPerson(selectedRequest, 'COMPLETED');
+      await RequestsService.putStatusPerson(selectedRequest, "COMPLETED");
 
       await onRefresh();
       setModalOpen(false);
-      Notify.success('Informes actualizados correctamente');
-
+      Notify.success("Informes actualizados correctamente");
     } catch (error) {
-      console.error('Error al actualizar los informes:', error);
-      Notify.failure('Error al actualizar los informes. Por favor, inténtelo de nuevo.');
+      console.error("Error al actualizar los informes:", error);
+      Notify.failure(
+        "Error al actualizar los informes. Por favor, inténtelo de nuevo."
+      );
     } finally {
       setIsConfirmingRequest(false);
     }
@@ -169,20 +194,22 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         setIsAcceptingRequest(true);
         const personId = parseInt(requests[requestToAccept].id); // Convertir string a number
         const userId = user.id; // Convertir number a string
-        
+
         await RequestsService.assignRecruiter(personId, userId);
-        
+
         // Refetch de las solicitudes para actualizar el estado
         await onRefresh();
-        
+
         // Cerrar el modal
         setRequestToAccept(null);
         setConfirmModalOpen(false);
-        
-        Notify.success('Solicitud aceptada exitosamente');
+
+        Notify.success("Solicitud aceptada exitosamente");
       } catch (error) {
-        console.error('Error al aceptar la solicitud:', error);
-        Notify.failure('Error al aceptar la solicitud. Por favor, inténtelo de nuevo.');
+        console.error("Error al aceptar la solicitud:", error);
+        Notify.failure(
+          "Error al aceptar la solicitud. Por favor, inténtelo de nuevo."
+        );
       } finally {
         setIsAcceptingRequest(false);
       }
@@ -194,7 +221,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
    */
   const handleOpenObservationModal = (index: number) => {
     setRequestToObserve(index);
-    setObservation('');
+    setObservation("");
     setObservationModalOpen(true);
   };
 
@@ -203,7 +230,7 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
    */
   const handleCancelObservation = () => {
     setRequestToObserve(null);
-    setObservation('');
+    setObservation("");
     setObservationModalOpen(false);
   };
 
@@ -215,24 +242,26 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
       try {
         setIsAddingObservation(true);
         const personId = parseInt(requests[requestToObserve].id); // Convertir string a number
-        
+
         // TODO: Implementar el servicio real
-        console.log('personId:', personId);
-        console.log('observation:', observation);
+        console.log("personId:", personId);
+        console.log("observation:", observation);
         await RequestsService.postObservations(personId, observation);
-        
+
         // Refetch de las solicitudes para actualizar el estado
         await onRefresh();
-        
+
         // Cerrar el modal
         setRequestToObserve(null);
-        setObservation('');
+        setObservation("");
         setObservationModalOpen(false);
-        
-        Notify.success('Observación agregada exitosamente');
+
+        Notify.success("Observación agregada exitosamente");
       } catch (error) {
-        console.error('Error al agregar observación:', error);
-        Notify.failure('Error al agregar observación. Por favor, inténtelo de nuevo.');
+        console.error("Error al agregar observación:", error);
+        Notify.failure(
+          "Error al agregar observación. Por favor, inténtelo de nuevo."
+        );
       } finally {
         setIsAddingObservation(false);
       }
@@ -263,21 +292,23 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
       try {
         setIsProcessingObservation(true);
         const personId = parseInt(requests[requestToViewObservations].id);
-        
+
         // Usar el servicio putStatusPerson para rechazar la solicitud
-        await RequestsService.putStatusPerson(personId, 'REJECTED');
-        
+        await RequestsService.putStatusPerson(personId, "REJECTED");
+
         // Refetch de las solicitudes para actualizar el estado
         await onRefresh();
-        
+
         // Cerrar el modal
         setRequestToViewObservations(null);
         setViewObservationsModalOpen(false);
-        
-        Notify.success('Solicitud rechazada exitosamente');
+
+        Notify.success("Solicitud rechazada exitosamente");
       } catch (error) {
-        console.error('Error al rechazar la solicitud:', error);
-        Notify.failure('Error al rechazar la solicitud. Por favor, inténtelo de nuevo.');
+        console.error("Error al rechazar la solicitud:", error);
+        Notify.failure(
+          "Error al rechazar la solicitud. Por favor, inténtelo de nuevo."
+        );
       } finally {
         setIsProcessingObservation(false);
       }
@@ -292,23 +323,23 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
     if (requestToViewObservations !== null) {
       // Cerrar el modal de observaciones
       setViewObservationsModalOpen(false);
-      
+
       // Abrir el modal de correcciones con el mismo request
       setRequestToCorrect(requestToViewObservations);
       setCorrectionsModalOpen(true);
-      
+
       // Inicializar las correcciones con los valores actuales
       const currentRequest = requests[requestToViewObservations];
-      const initialCorrections: {[key: number]: File[] | string | null} = {};
-      
-      currentRequest.documents.forEach(doc => {
-        doc.resources.forEach(resource => {
-          initialCorrections[resource.id] = resource.value || '';
+      const initialCorrections: { [key: number]: File[] | string | null } = {};
+
+      currentRequest.documents.forEach((doc) => {
+        doc.resources.forEach((resource) => {
+          initialCorrections[resource.id] = resource.value || "";
         });
       });
-      
+
       setResourceCorrections(initialCorrections);
-      
+
       // Limpiar el estado de observaciones
       setRequestToViewObservations(null);
     }
@@ -326,10 +357,13 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   /**
    * Maneja el cambio de valor de un recurso (texto o archivos)
    */
-  const handleResourceCorrectionChange = (resourceId: number, value: File[] | string | null) => {
-    setResourceCorrections(prev => ({
+  const handleResourceCorrectionChange = (
+    resourceId: number,
+    value: File[] | string | null
+  ) => {
+    setResourceCorrections((prev) => ({
       ...prev,
-      [resourceId]: value
+      [resourceId]: value,
     }));
   };
 
@@ -340,48 +374,56 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
     if (requestToCorrect !== null) {
       try {
         setIsSendingCorrections(true);
-        
+
         // Procesar las correcciones, subiendo archivos si es necesario
         const resources = [];
-        
+
         // Obtener la solicitud actual para acceder a la estructura de recursos
         const currentRequest = requests[requestToCorrect];
-        
+
         for (const [resourceId, value] of Object.entries(resourceCorrections)) {
           let processedValue = value;
-          
+
           // Si el valor es un array de archivos, procesarlos
           if (Array.isArray(value) && value.length > 0) {
             const file = value[0]; // Tomar el primer archivo
             const fileKey = await handleFileUpload(file, uploadFile);
             processedValue = fileKey || file.name;
           }
-          
+
           // Preparar el objeto de corrección en el formato esperado por el API
           const resource = {
             resourceId: parseInt(resourceId),
-            value: processedValue as string
+            value: processedValue as string,
           };
-          
+
           resources.push(resource);
         }
-        
-        console.log('Enviando correcciones:', { requestId: currentRequest.id, resources });
-        
+
+        console.log("Enviando correcciones:", {
+          requestId: currentRequest.id,
+          resources,
+        });
+
         // Enviar las correcciones usando el servicio
         await RequestsService.sendCorrections(resources);
-        await RequestsService.putStatusPerson(parseInt(currentRequest.id), 'IN_PROGRESS');
-        
+        await RequestsService.putStatusPerson(
+          parseInt(currentRequest.id),
+          "IN_PROGRESS"
+        );
+
         // Refetch de las solicitudes para actualizar el estado
         await onRefresh();
-        
+
         // Cerrar el modal
         handleCancelCorrections();
-        
-        Notify.success('Correcciones enviadas exitosamente');
+
+        Notify.success("Correcciones enviadas exitosamente");
       } catch (error) {
-        console.error('Error al enviar correcciones:', error);
-        Notify.failure('Error al enviar correcciones. Por favor, inténtelo de nuevo.');
+        console.error("Error al enviar correcciones:", error);
+        Notify.failure(
+          "Error al enviar correcciones. Por favor, inténtelo de nuevo."
+        );
       } finally {
         setIsSendingCorrections(false);
       }
@@ -389,24 +431,26 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
   };
 
   if (isLoading && !isError) {
-    return <Header type={HeaderType.LOADING} description={loadingText} />
+    return <Header type={HeaderType.LOADING} description={loadingText} />;
   }
 
   if (isError) {
-    return <Header type={HeaderType.ERROR} description={errorText} />
+    return <Header type={HeaderType.ERROR} description={errorText} />;
   }
 
   if (requests.length === 0) {
-    return <NoData />
+    return <NoData />;
   }
 
   return (
     <div className="w-full text-[12px] font-light">
       {/* Header */}
-      <div className={`px-2 grid ${isAdmin ? 'grid-cols-44' : 'grid-cols-38'} gap-0 bg-table-head dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4`}>
-        {isAdmin &&
-          <div className="col-span-6 p-2">Propietario</div>
-        }
+      <div
+        className={`px-2 grid ${
+          isAdmin ? "grid-cols-44" : "grid-cols-38"
+        } gap-0 bg-table-head dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4`}
+      >
+        {isAdmin && <div className="col-span-6 p-2">Propietario</div>}
         <div className="col-span-5 p-2">DNI</div>
         <div className="col-span-6 p-2">Nombre Completo</div>
         <div className="col-span-5 p-2">Estado</div>
@@ -419,21 +463,17 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         {requests.map((request, index) => (
           <div key={index}>
             {/* Main Row */}
-            <div className={`px-2 grid ${isAdmin ? 'grid-cols-44' : 'grid-cols-38'} border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10`}>
+            <div
+              className={`px-2 grid ${
+                isAdmin ? "grid-cols-44" : "grid-cols-38"
+              } border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10`}
+            >
               {/** Propietario */}
-              {isAdmin &&
-                <div className="col-span-6 p-2">
-                  {request.owner}
-                </div>
-              }
+              {isAdmin && <div className="col-span-6 p-2">{request.owner}</div>}
               {/** DNI */}
-              <div className="col-span-5 p-2 ">
-                {request.dni}
-              </div>
+              <div className="col-span-5 p-2 ">{request.dni}</div>
               {/** Nombre Completo */}
-              <div className="col-span-6 p-2 ">
-                {request.fullname}
-              </div>
+              <div className="col-span-6 p-2 ">{request.fullname}</div>
               {/** Estado */}
               <div className="col-span-5 p-2">
                 <span>{STATUS[request.status as keyof typeof STATUS]}</span>
@@ -444,11 +484,11 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                   {request.documents.map((doc: any, docIndex: number) => (
                     <span
                       key={docIndex}
-
-                      className={`${doc.state
-                        ? "bg-success text-white"
-                        : "border border-white-1 dark:border-black-1 text-black dark:text-white"
-                        } py-0.5 px-2 rounded-[5px]`}
+                      className={`${
+                        doc.state
+                          ? "bg-success text-white"
+                          : "border border-white-1 dark:border-black-1 text-black dark:text-white"
+                      } py-0.5 px-2 rounded-[5px]`}
                     >
                       {doc.name}
                     </span>
@@ -457,7 +497,11 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
               </div>
               {/** Acciones */}
               <div className="col-span-6 p-2 text-center flex flex-col justify-start items-start gap-1">
-                {(isAdmin || isUser || (isRecruiter && (request.status === STATUS.IN_PROGRESS || request.status === STATUS.OBSERVED))) && (
+                {(isAdmin ||
+                  isUser ||
+                  (isRecruiter &&
+                    (request.status === STATUS.IN_PROGRESS ||
+                      request.status === STATUS.OBSERVED))) && (
                   <button
                     title="Ver detalles de solicitud"
                     className="cursor-pointer text-center hover:text-table-head border border-white-1 px-1 rounded-[5px]"
@@ -466,66 +510,65 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                     <p>Ver detalles</p>
                   </button>
                 )}
-                {isRecruiter && request.status === 'PENDING' && (
-                  <button 
+                {isRecruiter && request.status === "PENDING" && (
+                  <button
                     className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
                     onClick={() => handleOpenAcceptModal(index)}
                   >
                     Aceptar solicitud
                   </button>
                 )}
-                {isRecruiter && request.status === 'IN_PROGRESS' && (
-                  <button 
+                {isRecruiter && request.status === "IN_PROGRESS" && (
+                  <button
                     className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
                     onClick={() => handleOpenObservationModal(index)}
                   >
                     Agregar observación
                   </button>
                 )}
-                {isUser && request.status === 'OBSERVED' && request.observations && (
-                  <button 
-                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
-                    onClick={() => handleOpenViewObservationsModal(index)}
-                  >
-                    Ver observaciones
-                  </button>
-                )}
+                {isUser &&
+                  request.status === "OBSERVED" &&
+                  request.observations && (
+                    <button
+                      className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
+                      onClick={() => handleOpenViewObservationsModal(index)}
+                    >
+                      Ver observaciones
+                    </button>
+                  )}
               </div>
             </div>
-
           </div>
         ))}
       </div>
 
       {/* Modal de confirmación para aceptar solicitud */}
-      <Modal 
-        isOpen={confirmModalOpen} 
-        onClose={isAcceptingRequest ? () => {} : handleCancelAccept} 
-        position="center" 
+      <Modal
+        isOpen={confirmModalOpen}
+        onClose={isAcceptingRequest ? () => {} : handleCancelAccept}
+        position="center"
         width="400px"
       >
         <div className="py-2 px-8 text-lg text-center">
           {isAcceptingRequest ? (
-             <div className="flex flex-col items-center gap-4">
-               <Loader isLoading={true}  />
-               <p>Procesando solicitud...</p>
-             </div>
-           ) : (
+            <div className="flex flex-col items-center gap-4">
+              <Loader isLoading={true} />
+              <p>Procesando solicitud...</p>
+            </div>
+          ) : (
             <>
               <p>¿Está seguro que desea aceptar esta solicitud?</p>
               <div className="flex justify-center gap-6 pt-4">
-                <button
-                  onClick={handleCancelAccept}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleConfirmAccept}
-                  className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
-                >
-                  Confirmar
-                </button>
+                <Button
+                  type="secondary"
+                  handleClick={handleCancelAccept}
+                  description="Cancelar"
+                />
+                <Button
+                  type="primary"
+                  handleClick={handleConfirmAccept}
+                  description="Confirmar"
+                />
               </div>
             </>
           )}
@@ -533,10 +576,10 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
       </Modal>
 
       {/* Modal de observación */}
-      <Modal 
-        isOpen={observationModalOpen} 
-        onClose={isAddingObservation ? () => {} : handleCancelObservation} 
-        position="center" 
+      <Modal
+        isOpen={observationModalOpen}
+        onClose={isAddingObservation ? () => {} : handleCancelObservation}
+        position="center"
         width="500px"
       >
         <div className="py-4 px-8">
@@ -547,7 +590,9 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
             </div>
           ) : (
             <>
-              <h3 className="text-lg font-medium mb-4 text-center">Agregar Observación</h3>
+              <h3 className="text-lg font-medium mb-4 text-center">
+                Agregar Observación
+              </h3>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
                   Observación:
@@ -582,25 +627,45 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
 
       <Modal
         isOpen={modalOpen}
-        title={isUser ? "Visualización y descarga de archivos" : "Carga de informes solicitados"}
-        onClose={isConfirmingRequest ? () => {} : () => {
-          setModalOpen(false);
-          if (selectedRequest !== null && requests[selectedRequest]?.documents) {
-            const newRequests = [...requests];
-            newRequests[selectedRequest].documents = newRequests[selectedRequest].documents.filter((doc: any) => doc.resources && doc.resources.length > 0);
-            handleRequests(newRequests);
-          }
-        }}
+        title={
+          isUser
+            ? "Visualización y descarga de archivos"
+            : "Carga de informes solicitados"
+        }
+        onClose={
+          isConfirmingRequest
+            ? () => {}
+            : () => {
+                setModalOpen(false);
+                if (
+                  selectedRequest !== null &&
+                  requests[selectedRequest]?.documents
+                ) {
+                  const newRequests = [...requests];
+                  newRequests[selectedRequest].documents = newRequests[
+                    selectedRequest
+                  ].documents.filter(
+                    (doc: any) => doc.resources && doc.resources.length > 0
+                  );
+                  handleRequests(newRequests);
+                }
+              }
+        }
         position="center"
         width="800px"
         className="dark:text-white"
-        footer={<>{          
-          isUser ? null :
-            selectedRequest !== null && requests[selectedRequest]?.documents.some((doc: any) => doc.status === 'Pendiente') ? (
+        footer={
+          <>
+            {isUser ? null : selectedRequest !== null &&
+              requests[selectedRequest]?.documents.some(
+                (doc: any) => doc.status === "Pendiente"
+              ) ? (
               isConfirmingRequest ? (
                 <div className="flex items-center gap-2">
                   <Loader isLoading={true} />
-                  <span className="text-sm text-gray-600">Procesando informes...</span>
+                  <span className="text-sm text-gray-600">
+                    Procesando informes...
+                  </span>
                 </div>
               ) : (
                 <button
@@ -617,44 +682,65 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
               >
                 OK
               </button>
-            )
-        }</>
+            )}
+          </>
         }
       >
         <div className="flex flex-col">
           {selectedRequest !== null && requests[selectedRequest] && (
             <div className="text-sm">
               {requests[selectedRequest]?.documents.map((doc: any, i: any) => (
-                <div key={i} className="gap-2 border-b border-gray-300 px-[32px] py-[15px]">
+                <div
+                  key={i}
+                  className="gap-2 border-b border-gray-300 px-[32px] py-[15px]"
+                >
                   <div className="flex w-full justify-between">
                     <h2 className="text-[24px]">{doc.name}</h2>
-                    <span className={doc.status == 'Pendiente' ? "text-yellow-500 text-[16px]" : "text-green-500 text-[16px]"}>{doc.status}</span>
+                    <span
+                      className={
+                        doc.status == "Pendiente"
+                          ? "text-yellow-500 text-[16px]"
+                          : "text-green-500 text-[16px]"
+                      }
+                    >
+                      {doc.status}
+                    </span>
                   </div>
-                  {isAdmin || isRecruiter ?
+                  {isAdmin || isRecruiter ? (
                     <div className="flex flex-col">
                       <ResourceField
                         name="Resultado"
                         allowedFileTypes={[]}
                         value={doc.result as string}
-                        isEditable={doc.status === 'Pendiente'}
+                        isEditable={doc.status === "Pendiente"}
                         onChange={(value) => {
                           if (selectedRequest !== null) {
                             const newRequests = [...requests];
-                            newRequests[selectedRequest].documents[i].result = value as string;
+                            newRequests[selectedRequest].documents[i].result =
+                              value as string;
                             handleRequests(newRequests);
                           }
                         }}
                       />
                       <ResourceField
                         name="Documento"
-                        allowedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']}
+                        allowedFileTypes={[
+                          ".pdf",
+                          ".doc",
+                          ".docx",
+                          ".jpg",
+                          ".jpeg",
+                          ".png",
+                        ]}
                         value={doc.filename as string}
-                        isEditable={doc.status === 'Pendiente'}
+                        isEditable={doc.status === "Pendiente"}
                         onChange={(value) => {
                           if (value && selectedRequest !== null) {
                             const newRequests = [...requests];
                             if (Array.isArray(value) && value.length > 0) {
-                              newRequests[selectedRequest].documents[i].filename = value[0];
+                              newRequests[selectedRequest].documents[
+                                i
+                              ].filename = value[0];
                             }
                             handleRequests(newRequests);
                           }
@@ -662,17 +748,33 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
                       />
 
                       {doc.resources.map((resource: any, j: any) => (
-                        <ResourceField key={j} {...resource} isEditable={false} />
+                        <ResourceField
+                          key={j}
+                          {...resource}
+                          isEditable={false}
+                        />
                       ))}
-                    </div> :
-                    <div>
-                      <ResourceField key={Date.now() - 1} name="Comentarios" value={doc.result as string} isEditable={false} allowedFileTypes={[]} />
-                      <ResourceField key={Date.now() - 2} name="Documento" value={doc.filename as string} isEditable={false} allowedFileTypes={[]} />
                     </div>
-                  }
+                  ) : (
+                    <div>
+                      <ResourceField
+                        key={Date.now() - 1}
+                        name="Comentarios"
+                        value={doc.result as string}
+                        isEditable={false}
+                        allowedFileTypes={[]}
+                      />
+                      <ResourceField
+                        key={Date.now() - 2}
+                        name="Documento"
+                        value={doc.filename as string}
+                        isEditable={false}
+                        allowedFileTypes={[]}
+                      />
+                    </div>
+                  )}
                 </div>
-              )
-              )}
+              ))}
             </div>
           )}
         </div>
@@ -681,7 +783,9 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
       {/* Modal para ver observaciones */}
       <Modal
         isOpen={viewObservationsModalOpen}
-        onClose={isProcessingObservation ? () => {} : handleCancelViewObservations}
+        onClose={
+          isProcessingObservation ? () => {} : handleCancelViewObservations
+        }
         title="Observaciones de la solicitud"
         position="center"
         width="600px"
@@ -689,70 +793,65 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
         footer={
           <div className="flex gap-3 justify-end">
             {isProcessingObservation ? (
-              <div className="flex items-center gap-2">
                 <Loader isLoading={true} />
-                <span className="text-sm text-gray-600">Procesando...</span>
-              </div>
             ) : (
               <>
-                <button
-                  className="px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-                  onClick={handleCancelViewObservations}
-                >
-                  Cerrar
-                </button>
-                <button
-                  className="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-                  onClick={handleRejectFromObservations}
-                >
-                  Rechazar
-                </button>
-                <button
-                  className="px-4 py-2 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-                  onClick={handleAcceptFromObservations}
-                >
-                  Aceptar
-                </button>
+                <Button
+                  type="secondary"
+                  handleClick={handleRejectFromObservations}
+                  description="Rechazar"
+                />
+                <Button
+                  type="primary"
+                  handleClick={handleAcceptFromObservations}
+                  description="Aceptar"
+                />
               </>
             )}
           </div>
         }
       >
         <div className="flex flex-col gap-4">
-          {requestToViewObservations !== null && requests[requestToViewObservations] && (
-            <>
-              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                  Información de la solicitud
-                </h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-600 dark:text-gray-300">Nombre:</span>
-                    <span className="ml-2 text-gray-800 dark:text-white">
-                      {requests[requestToViewObservations].fullname}
-                    </span>
+          {requestToViewObservations !== null &&
+            requests[requestToViewObservations] && (
+              <div className="px-3 flex flex-col gap-4">
+                <div>
+                  <p className="text-[12px]">
+                    Las observaciones planteadas fueron descritas por:
+                  </p>
+                  <div className="flex gap-2">
+                    <p className="text-[12px] font-[500]">Reclutador:</p>
+                    <p className="text-[12px]">
+                      {requests[requestToViewObservations].Users[0].username}
+                    </p>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-600 dark:text-gray-300">Estado:</span>
-                    <span className="ml-2 text-gray-800 dark:text-white">
-                      {requests[requestToViewObservations].status}
-                    </span>
+                  <div className="flex gap-2">
+                    <p className="text-[12px] font-[500]">Contacto:</p>
+                    <p className="text-[12px]">
+                      {requests[requestToViewObservations].Users[0].email}
+                    </p>
                   </div>
                 </div>
-              </div>
-              
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-200">
-                  Observaciones
-                </h3>
-                <div className="bg-white dark:bg-gray-700 p-3 rounded border border-blue-200 dark:border-blue-700">
+
+                <div className="text-[14px] border border-[#C3C3C3] p-4 rounded-[4px]">
                   <p className="text-gray-800 dark:text-white whitespace-pre-wrap">
-                    {requests[requestToViewObservations].observations || 'No hay observaciones disponibles.'}
+                    {requests[requestToViewObservations].observations ||
+                      "No hay observaciones disponibles."}
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2 text-medium">
+                  <p>
+                    Sí acepta levantar las observaciones, será redirigido a la
+                    vista editar los datos de la solicitud.
+                  </p>
+
+                  <p>
+                    Si rechaza levantar observaciones, se terminará el proceso.
                   </p>
                 </div>
               </div>
-            </>
-          )}
+            )}
         </div>
       </Modal>
 
@@ -790,26 +889,37 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
           <div className="space-y-6">
             {/* Información del solicitante */}
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold mb-2">Información del Solicitante</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Información del Solicitante
+              </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="font-medium">Nombre:</span> {requests[requestToCorrect].fullname}
+                  <span className="font-medium">Nombre:</span>{" "}
+                  {requests[requestToCorrect].fullname}
                 </div>
                 <div>
-                  <span className="font-medium">DNI:</span> {requests[requestToCorrect].dni}
+                  <span className="font-medium">DNI:</span>{" "}
+                  {requests[requestToCorrect].dni}
                 </div>
                 <div>
-                  <span className="font-medium">Teléfono:</span> {requests[requestToCorrect].phone}
+                  <span className="font-medium">Teléfono:</span>{" "}
+                  {requests[requestToCorrect].phone}
                 </div>
                 <div>
-                  <span className="font-medium">Estado:</span> 
-                  <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                    requests[requestToCorrect].status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                    requests[requestToCorrect].status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                    requests[requestToCorrect].status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                    requests[requestToCorrect].status === 'OBSERVED' ? 'bg-orange-100 text-orange-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span className="font-medium">Estado:</span>
+                  <span
+                    className={`ml-2 px-2 py-1 rounded text-xs ${
+                      requests[requestToCorrect].status === "PENDING"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : requests[requestToCorrect].status === "IN_PROGRESS"
+                        ? "bg-blue-100 text-blue-800"
+                        : requests[requestToCorrect].status === "COMPLETED"
+                        ? "bg-green-100 text-green-800"
+                        : requests[requestToCorrect].status === "OBSERVED"
+                        ? "bg-orange-100 text-orange-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
                     {requests[requestToCorrect].status}
                   </span>
                 </div>
@@ -819,48 +929,68 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
             {/* Documentos y Recursos */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Documentos y Recursos</h3>
-              {requests[requestToCorrect].documents.map((document, docIndex) => (
-                <div key={docIndex} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <h4 className="font-medium text-gray-900">{document.name}</h4>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      document.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                      document.status === 'Realizado' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {document.status}
-                    </span>
-                  </div>
-                  
-                  {document.result && (
-                    <div className="mb-3 p-2 bg-blue-50 rounded">
-                      <span className="font-medium text-blue-800">Resultado:</span>
-                      <span className="ml-2 text-blue-700">{document.result}</span>
+              {requests[requestToCorrect].documents.map(
+                (document, docIndex) => (
+                  <div
+                    key={docIndex}
+                    className="border border-gray-200 rounded-lg p-4"
+                  >
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="font-medium text-gray-900">
+                        {document.name}
+                      </h4>
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${
+                          document.status === "Pendiente"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : document.status === "Realizado"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {document.status}
+                      </span>
                     </div>
-                  )}
-                  
-                  <div className="space-y-3">
-                    {document.resources.map((resource, resourceIndex) => (
-                      <div key={resourceIndex} className="bg-gray-50 p-3 rounded">
-                        <ResourceField
-                          name={resource.name}
-                          allowedFileTypes={resource.allowedFileTypes || []}
-                          isEditable={true}
-                          onChange={(value: string | File[] | null) => handleResourceCorrectionChange(resource.id, value)}
-                        />
-                        <div className="mt-1 text-xs text-gray-500">
-                          Valor actual: {resource.value || 'Sin valor'}
-                        </div>
-                        {isSendingCorrections && (
-                          <div className="absolute inset-0 bg-gray-200 bg-opacity-50 rounded flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-main"></div>
-                          </div>
-                        )}
+
+                    {document.result && (
+                      <div className="mb-3 p-2 bg-blue-50 rounded">
+                        <span className="font-medium text-blue-800">
+                          Resultado:
+                        </span>
+                        <span className="ml-2 text-blue-700">
+                          {document.result}
+                        </span>
                       </div>
-                    ))}
+                    )}
+
+                    <div className="space-y-3">
+                      {document.resources.map((resource, resourceIndex) => (
+                        <div
+                          key={resourceIndex}
+                          className="bg-gray-50 p-3 rounded"
+                        >
+                          <ResourceField
+                            name={resource.name}
+                            allowedFileTypes={resource.allowedFileTypes || []}
+                            isEditable={true}
+                            onChange={(value: string | File[] | null) =>
+                              handleResourceCorrectionChange(resource.id, value)
+                            }
+                          />
+                          <div className="mt-1 text-xs text-gray-500">
+                            Valor actual: {resource.value || "Sin valor"}
+                          </div>
+                          {isSendingCorrections && (
+                            <div className="absolute inset-0 bg-gray-200 bg-opacity-50 rounded flex items-center justify-center">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-main"></div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         )}
@@ -870,8 +1000,8 @@ export const RequestsTable = ({ data, isLoading, isError, loadingText, errorText
 };
 
 enum HeaderType {
-  LOADING = 'LOADING',
-  ERROR = 'ERROR',
+  LOADING = "LOADING",
+  ERROR = "ERROR",
 }
 
 interface HeaderProps {
@@ -881,13 +1011,12 @@ interface HeaderProps {
 
 const Header = ({ type, description }: HeaderProps) => {
   const styles = {
-    'main': 'px-4 py-2 mb-4 font-light text-[14px] rounded-sidebar text-center',
-    [HeaderType.LOADING]: 'bg-white-1 dark:bg-black-2 text-black dark:text-white',
-    [HeaderType.ERROR]: 'bg-error hover:bg-error-1 text-white',
-  }
+    main: "px-4 py-2 mb-4 font-light text-[14px] rounded-sidebar text-center",
+    [HeaderType.LOADING]:
+      "bg-white-1 dark:bg-black-2 text-black dark:text-white",
+    [HeaderType.ERROR]: "bg-error hover:bg-error-1 text-white",
+  };
   return (
-    <div className={`${styles['main']} ${styles[type]}`}>
-      {description}
-    </div>
-  )
-}
+    <div className={`${styles["main"]} ${styles[type]}`}>{description}</div>
+  );
+};
