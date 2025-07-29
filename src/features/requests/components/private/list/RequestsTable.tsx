@@ -544,7 +544,7 @@ export const RequestsTable = ({
                 )}
                 {isRecruiter && request.status === "PENDING" && (
                   <button
-                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
+                    className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-1 rounded-[5px]"
                     onClick={() => handleOpenAcceptModal(index)}
                   >
                     Aceptar solicitud
@@ -552,7 +552,7 @@ export const RequestsTable = ({
                 )}
                 {isRecruiter && request.status === "IN_PROGRESS" && (
                   <button
-                    className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
+                    className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-1 rounded-[5px]"
                     onClick={() => handleOpenObservationModal(index)}
                   >
                     Agregar observación
@@ -562,7 +562,7 @@ export const RequestsTable = ({
                   request.status === "OBSERVED" &&
                   request.observations && (
                     <button
-                      className="cursor-pointer bg-success text-white py-0.5 px-1 rounded-[5px]"
+                      className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-1 rounded-[5px]"
                       onClick={() => handleOpenViewObservationsModal(index)}
                     >
                       Ver observaciones
