@@ -32,6 +32,12 @@ export interface Request {
     }[];
 }
 
+export interface GetPersonResponse {
+    message: string;
+    person: Request;
+}
+
+
 export interface GetAllPeopleResponse {
     message: string;
     people: Request[];
@@ -78,6 +84,15 @@ export const RequestsService = {
             return response.data;
         } catch (error) {
             console.error('Error al obtener las solicitudes:', error);
+            throw error;
+        }
+    },
+    getRequestDetail: async (requestId: number): Promise<GetPersonResponse> => {
+        try {
+            const response = await apiClient.get(REQUEST_ENDPOINTS.GET_REQUEST_DETAIL(requestId));
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener los detalles de la solicitud:', error);
             throw error;
         }
     },

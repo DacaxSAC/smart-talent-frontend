@@ -7,7 +7,7 @@ export default function App() {
       {/* Smart Talent Header */}
       
       <Sidebar />
-      <main className='w-full h-screen '>
+      <main className='w-full h-screen overflow-y-auto'>
           <Outlet />
       </main>
       

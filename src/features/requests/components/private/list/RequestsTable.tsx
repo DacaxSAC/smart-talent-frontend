@@ -1,6 +1,7 @@
 // External libraries
 import { Notify } from "notiflix";
 import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { NoData } from "@/shared/components/NoData";
 
 // Internal services and utilities
@@ -85,6 +86,8 @@ export const RequestsTable = ({
   errorText,
   onRefresh,
 }: requestsTableProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   // Hooks
   const isAdmin = useHasRole([ROLES.ADMIN]);
   const isUser = useHasRole([ROLES.USER]);
@@ -125,6 +128,19 @@ export const RequestsTable = ({
 
   const handleRequests = (newRequests: Request[]) => {
     setRequests(newRequests);
+  };
+
+  /**
+   * Navega a la página de detalles del request
+   * Pasa los datos del request a través del state de navegación
+   */
+  const handleViewDetails = (request: Request) => {
+    const currentPath = location.pathname;
+    const detailPath = `${currentPath}/detail/${request.id}`;
+    
+    navigate(detailPath, {
+      state: { request }
+    });
   };
 
   const handleConfirmRequest = async () => {
@@ -481,11 +497,11 @@ export const RequestsTable = ({
               {/** Lista de documentos */}
               <div className="col-span-16 p-2">
                 <div className="flex flex-wrap gap-1">
-                  {request.documents.map((doc: any, docIndex: number) => (
+                  {request.documents.map((doc, docIndex: number) => (
                     <span
                       key={docIndex}
                       className={`${
-                        doc.state
+                        doc.filename
                           ? "bg-success text-white"
                           : "border border-white-1 dark:border-black-1 text-black dark:text-white"
                       } py-0.5 px-2 rounded-[5px]`}
@@ -500,12 +516,11 @@ export const RequestsTable = ({
                 {(isAdmin ||
                   isUser ||
                   (isRecruiter &&
-                    (request.status === STATUS.IN_PROGRESS ||
-                      request.status === STATUS.OBSERVED))) && (
+                    (request.status !== "PENDING"))) && (
                   <button
                     title="Ver detalles de solicitud"
                     className="cursor-pointer text-center hover:text-table-head border border-white-1 px-1 rounded-[5px]"
-                    onClick={() => openResourceModal(index)}
+                    onClick={() => handleViewDetails(request)}
                   >
                     <p>Ver detalles</p>
                   </button>
@@ -542,85 +557,7 @@ export const RequestsTable = ({
         ))}
       </div>
 
-      {/* Modal de confirmación para aceptar solicitud */}
-      <Modal
-        isOpen={confirmModalOpen}
-        onClose={isAcceptingRequest ? () => {} : handleCancelAccept}
-        position="center"
-        width="400px"
-        title="¿Está seguro que desea aceptar esta solicitud?"
-        footer={
-          <div className="flex gap-4">
-                <Button
-                  type="secondary"
-                  handleClick={handleCancelAccept}
-                  description="Cancelar"
-                />
-                <Button
-                  type="primary"
-                  handleClick={handleConfirmAccept}
-                  description="Confirmar"
-                />
-              </div>
-        }
-      >
-        <div className="">
-          {isAcceptingRequest ? (
-            <Loader isLoading={true} />
-          ) : (
-            <>
-              <div className="flex flex-col gap-2 text-[12px] text-medium">
-                Al aceptar esta solicitud, usted es responsable del proceso completo de la misma.
-              </div>
-            </>
-          )}
-        </div>
-      </Modal>
-
-      {/* Modal para añadir observación */}
-      <Modal
-        isOpen={observationModalOpen}
-        onClose={isAddingObservation ? () => {} : handleCancelObservation}
-        position="center"
-        width="500px"
-        title="Añadir observaciones a la solicitud"
-        footer={
-          <div className="flex">
-            <Button
-              type="primary"
-              handleClick={handleConfirmObservation}
-              description="Enviar observaciones"
-            />
-          </div>
-        }
-      >
-        <div className="flex flex-col gap-4">
-          {isAddingObservation ? (
-            <Loader isLoading={true} />
-          ) : (
-            <>
-              <textarea
-                value={observation}
-                onChange={(e) => setObservation(e.target.value)}
-                placeholder="Escriba su observación aquí..."
-                rows={4}
-                className="w-full p-4 text-[14px] border border-[#C3C3C3] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-table-head focus:border-transparent placeholder-gray-400 resize-none"
-              />
-              <div className="flex flex-col text-medium text-[12px]">
-                <p>Se le recordará al cliente:</p>
-                <p>
-                  -Sí acepta levantar las observaciones, será redirigido a la
-                  vista editar los datos de la solicitud.
-                </p>
-                <p>
-                  -Si rechaza levantar observaciones, se terminará el proceso.
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      </Modal>
-
+      {/** Modal para ver y cargar archivos */}
       <Modal
         isOpen={modalOpen}
         title={
@@ -772,6 +709,85 @@ export const RequestsTable = ({
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* Modal de confirmación para aceptar solicitud */}
+      <Modal
+        isOpen={confirmModalOpen}
+        onClose={isAcceptingRequest ? () => {} : handleCancelAccept}
+        position="center"
+        width="400px"
+        title="¿Está seguro que desea aceptar esta solicitud?"
+        footer={
+          <div className="flex gap-4">
+                <Button
+                  type="secondary"
+                  handleClick={handleCancelAccept}
+                  description="Cancelar"
+                />
+                <Button
+                  type="primary"
+                  handleClick={handleConfirmAccept}
+                  description="Confirmar"
+                />
+              </div>
+        }
+      >
+        <div className="">
+          {isAcceptingRequest ? (
+            <Loader isLoading={true} />
+          ) : (
+            <>
+              <div className="flex flex-col gap-2 text-[12px] text-medium">
+                Al aceptar esta solicitud, usted es responsable del proceso completo de la misma.
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
+
+      {/* Modal para añadir observación */}
+      <Modal
+        isOpen={observationModalOpen}
+        onClose={isAddingObservation ? () => {} : handleCancelObservation}
+        position="center"
+        width="500px"
+        title="Añadir observaciones a la solicitud"
+        footer={
+          <div className="flex">
+            <Button
+              type="primary"
+              handleClick={handleConfirmObservation}
+              description="Enviar observaciones"
+            />
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          {isAddingObservation ? (
+            <Loader isLoading={true} />
+          ) : (
+            <>
+              <textarea
+                value={observation}
+                onChange={(e) => setObservation(e.target.value)}
+                placeholder="Escriba su observación aquí..."
+                rows={4}
+                className="w-full p-4 text-[14px] border border-[#C3C3C3] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-table-head focus:border-transparent placeholder-gray-400 resize-none"
+              />
+              <div className="flex flex-col text-medium text-[12px]">
+                <p>Se le recordará al cliente:</p>
+                <p>
+                  -Sí acepta levantar las observaciones, será redirigido a la
+                  vista editar los datos de la solicitud.
+                </p>
+                <p>
+                  -Si rechaza levantar observaciones, se terminará el proceso.
+                </p>
+              </div>
+            </>
           )}
         </div>
       </Modal>
