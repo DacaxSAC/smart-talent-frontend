@@ -10,6 +10,8 @@ import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
 import { Notify } from "notiflix";
 import { useUpload } from "@/shared/hooks/useUpload";
+import { MdExpandMore } from "react-icons/md";
+import { STATUS } from "@/features/auth/constants/status";
 
 /**
  * Página de detalles de una solicitud específica
@@ -30,6 +32,7 @@ export const RequestDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRequestDataExpanded, setIsRequestDataExpanded] = useState(true);
 
   /**
    * Carga los datos del request desde el servicio API
@@ -152,6 +155,13 @@ export const RequestDetailPage = () => {
     navigate(-1);
   };
 
+  /**
+   * Alterna la visibilidad de los datos de solicitud
+   */
+  const toggleRequestDataExpansion = () => {
+    setIsRequestDataExpanded(!isRequestDataExpanded);
+  };
+
   useEffect(() => {
     loadRequestData();
   }, [id]);
@@ -159,16 +169,6 @@ export const RequestDetailPage = () => {
   if (loading) {
     return <Loader isLoading={true} />;
   }
-
-  // Debug logs
-  console.log(
-    "Current state - loading:",
-    loading,
-    "error:",
-    error,
-    "request:",
-    request
-  );
 
   if (error || !request) {
     console.log(
@@ -193,6 +193,7 @@ export const RequestDetailPage = () => {
 
   return (
     <PageLayout>
+      {/** Encabezado de la página */}
       <div className="flex flex-col md:flex-row justify-center md:justify-between">
         <PageTitle
           title="DETALLES DE SOLICITUD"
@@ -215,76 +216,42 @@ export const RequestDetailPage = () => {
         </div>
       </div>
 
-      <div className="overflow-y-auto">
+      <div className="overflow-y-auto flex flex-col gap-4">
         {/* Información del solicitante */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            Información del Solicitante
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                Nombre:
-              </span>
-              <p className="text-gray-900 dark:text-white">
-                {request.fullname}
-              </p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                DNI:
-              </span>
-              <p className="text-gray-900 dark:text-white">{request.dni}</p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                Teléfono:
-              </span>
-              <p className="text-gray-900 dark:text-white">{request.phone}</p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                Usuario:
-              </span>
-              <p className="text-gray-900 dark:text-white">
-                {request.Users?.[0]?.email || "N/A"}
-              </p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                Estado:
-              </span>
-              <span
-                className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${
-                  request.status === "PENDING"
-                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                    : request.status === "IN_PROGRESS"
-                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                    : request.status === "COMPLETED"
-                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    : request.status === "OBSERVED"
-                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                    : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                }`}
-              >
-                {request.status}
-              </span>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                Observaciones:
-              </span>
-              <p className="text-gray-900 dark:text-white">
-                {request.observations || "Sin observaciones"}
-              </p>
+        <div className="text-[12px] flex flex-col gap-4">
+          <div 
+            className="p-2 flex items-center justify-between cursor-pointer bg-white-2 border border-medium rounded-[12px]"
+            onClick={toggleRequestDataExpansion}
+          >
+            <h2 className="text-[16px]">
+              Información principal
+            </h2>
+            <div className={`transition-all duration-300 transform ${isRequestDataExpanded ? 'rotate-180' : 'rotate-0'}`}>
+              <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
             </div>
           </div>
+          {isRequestDataExpanded && (
+            <div className="flex flex-col px-3">
+              <div className="px-2 grid grid-cols-25 gap-0 bg-table-head dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4">
+                 <div className="col-span-5 p-2">DNI</div>
+                <div className="col-span-10 p-2">Nombre Completo</div>
+                <div className="col-span-5 p-2">Estado</div>
+                <div className="col-span-5 p-2">Telefono</div>
+              </div>
+              <div className="grid grid-cols-25 border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10">
+                <div className="col-span-5 p-2 ">{request.dni}</div>
+                <div className="col-span-10 p-2 ">{request.fullname}</div>
+                <div className="col-span-5 p-2 "><span>{STATUS[request.status as keyof typeof STATUS]}</span></div>
+                <div className="col-span-5 p-2 ">{request.phone}</div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Documentos y Recursos */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Documentos y Recursos
+        <div className="">
+          <h2 className="p-2 flex items-center justify-between cursor-pointer bg-white-2 border border-medium rounded-[12px]">
+            Listado de documentos solicitados
           </h2>
 
           {request.documents.map((document, docIndex) => (
