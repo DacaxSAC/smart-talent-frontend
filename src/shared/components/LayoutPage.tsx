@@ -25,7 +25,7 @@ export function LayoutPage({ title, description, buttonsHeader, footer, children
                 </div>
 
                 {buttonsHeader && (
-                    <div>
+                    <div className="flex justify-end gap-3">
                         {buttonsHeader}
                     </div>
                 )}
