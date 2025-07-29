@@ -3,6 +3,7 @@ import { Notify } from "notiflix";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NoData } from "@/shared/components/NoData";
+import { MdExpandMore } from "react-icons/md";
 
 // Internal services and utilities
 import { apiClient } from "@/lib/axios/client";
@@ -120,11 +121,27 @@ export const RequestsTable = ({
   }>({});
   const [isSendingCorrections, setIsSendingCorrections] = useState(false);
   //const [isConfirmingRequest, setIsConfirmingRequest] = useState(false);
+  
+  // Estados para expansión de secciones
+  const [isRequestDataExpanded, setIsRequestDataExpanded] = useState(true);
+  const [expandedDocuments, setExpandedDocuments] = useState<{[key: number]: boolean}>({});
 
   useEffect(() => {
     setRequests(data);
     console.log("data", data);
   }, [data]);
+
+  // Funciones para expansión de secciones
+  const toggleRequestDataExpansion = () => {
+    setIsRequestDataExpanded(!isRequestDataExpanded);
+  };
+
+  const toggleDocumentExpansion = (docIndex: number) => {
+    setExpandedDocuments(prev => ({
+      ...prev,
+      [docIndex]: !prev[docIndex]
+    }));
+  };
 
   //const handleRequests = (newRequests: Request[]) => {
   //  setRequests(newRequests);
@@ -904,116 +921,122 @@ export const RequestsTable = ({
                 </span>
               </div>
             ) : (
-              <>
+              <div className="space-y-6">
                 {/* Información del solicitante */}
-                <div className="p-4 rounded-lg">
-                  <h3 className="text-lg font-semibold mb-2">
-                    Información del Solicitante
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="font-medium">Nombre:</span>{" "}
-                      {requests[requestToCorrect].fullname}
-                    </div>
-                    <div>
-                      <span className="font-medium">DNI:</span>{" "}
-                      {requests[requestToCorrect].dni}
-                    </div>
-                    <div>
-                      <span className="font-medium">Teléfono:</span>{" "}
-                      {requests[requestToCorrect].phone}
-                    </div>
-                    <div>
-                      <span className="font-medium">Estado:</span>
-                      <span
-                        className={`ml-2 px-2 py-1 rounded text-xs ${
-                          requests[requestToCorrect].status === "PENDING"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : requests[requestToCorrect].status ===
-                              "IN_PROGRESS"
-                            ? "bg-blue-100 text-blue-800"
-                            : requests[requestToCorrect].status === "COMPLETED"
-                            ? "bg-green-100 text-green-800"
-                            : requests[requestToCorrect].status === "OBSERVED"
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {requests[requestToCorrect].status}
-                      </span>
+                <div className="text-[12px] flex flex-col gap-4">
+                  <div
+                    className="p-2 flex items-center justify-between cursor-pointer bg-white-2 border border-medium rounded-[12px]"
+                    onClick={toggleRequestDataExpansion}
+                  >
+                    <h2 className="text-[16px]">Información del Solicitante</h2>
+                    <div
+                      className={`transition-all duration-300 transform ${
+                        isRequestDataExpanded ? "rotate-180" : "rotate-0"
+                      }`}
+                    >
+                      <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
                     </div>
                   </div>
+                  {isRequestDataExpanded && (
+                    <div className="flex flex-col px-3">
+                      <div className="px-2 grid grid-cols-25 gap-0 bg-table-head dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4">
+                        <div className="col-span-5 p-2">DNI</div>
+                        <div className="col-span-10 p-2">Nombre Completo</div>
+                        <div className="col-span-5 p-2">Estado</div>
+                        <div className="col-span-5 p-2">Teléfono</div>
+                      </div>
+                      <div className="grid grid-cols-25 border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10">
+                        <div className="col-span-5 p-2">{requests[requestToCorrect].dni}</div>
+                        <div className="col-span-10 p-2">{requests[requestToCorrect].fullname}</div>
+                        <div className="col-span-5 p-2 ">
+                          <span>
+                            {STATUS[requests[requestToCorrect].status as keyof typeof STATUS]}
+                          </span>
+                        </div>
+                        <div className="col-span-5 p-2">{requests[requestToCorrect].phone}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Documentos y Recursos */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
-                    Documentos y Recursos
-                  </h3>
-                  {requests[requestToCorrect].documents.map(
-                    (document, docIndex) => (
-                      <div
-                        key={docIndex}
-                        className="border border-gray-200 rounded-lg p-4"
-                      >
-                        <div className="flex justify-between items-center mb-3">
-                          <h4 className="font-medium text-gray-900">
-                            {document.name}
-                          </h4>
-                          <span
-                            className={`px-2 py-1 rounded text-xs ${
-                              document.status === "Pendiente"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : document.status === "Realizado"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {document.status}
-                          </span>
+                  <h2 className="text-[16px] font-semibold">Documentos y Recursos</h2>
+                  {requests[requestToCorrect].documents
+                    .sort((a, b) => {
+                      // Ordenar para que "Pendiente" aparezca primero
+                      if (a.status === "Pendiente" && b.status !== "Pendiente") return -1;
+                      if (a.status !== "Pendiente" && b.status === "Pendiente") return 1;
+                      return 0;
+                    })
+                    .map((document, docIndex) => {
+                    const isExpanded = expandedDocuments[docIndex] ?? false;
+                    const canExpand = document.status !== "Realizado";
+
+                    return (
+                      <div key={docIndex} className="px-3 flex flex-col gap-4 text-[14px]">
+                        {/* Header del documento */}
+                        <div
+                          className={`p-2 flex justify-between items-center border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10 ${
+                            canExpand ? "cursor-pointer" : "cursor-default"
+                          }`}
+                          onClick={() => canExpand && toggleDocumentExpansion(docIndex)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <h3 className="">{document.name}</h3>
+                          </div>
+                          <div className="flex gap-2 items-center">
+                            <span
+                              className={`text-[12px] px-3 py-1 rounded-full ${
+                                document.status === "Pendiente"
+                                  ? "bg-warning"
+                                  : document.status === "Realizado"
+                                  ? "bg-success"
+                                  : "bg-medium"
+                              }`}
+                            >
+                              {document.status}
+                            </span>
+                            {canExpand && (
+                              <div
+                                className={`transition-all duration-300 transform ${
+                                  isExpanded ? "rotate-180" : "rotate-0"
+                                }`}
+                              >
+                                <MdExpandMore className="w-[20px] h-[20px] text-black-2 dark:text-white-1" />
+                              </div>
+                            )}
+                          </div>
                         </div>
 
-                        {document.result && (
-                          <div className="mb-3 p-2 bg-blue-50 rounded">
-                            <span className="font-medium text-blue-800">
-                              Resultado:
-                            </span>
-                            <span className="ml-2 text-blue-700">
-                              {document.result}
-                            </span>
+                        {isExpanded && canExpand && (
+                          <div className="flex flex-col gap-3">
+                            {/* Recursos del documento */}
+                            <div className="p-3 border border-white-1 rounded-[12px]">
+                              <p className="mb-2 font-[500] text-gray-900 dark:text-white">
+                                Recursos requeridos para corrección:
+                              </p>
+                              {document.resources.map((resource, resourceIndex) => (
+                                <div key={resourceIndex} className="mb-4">
+                                  <ResourceField
+                                    name={resource.name}
+                                    value={resource.value}
+                                    allowedFileTypes={resource.allowedFileTypes || []}
+                                    isEditable={true}
+                                    onChange={(value: string | File[] | null) =>
+                                      handleResourceCorrectionChange(resource.id, value)
+                                    }
+                                  />
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
-
-                        <div className="space-y-3">
-                          {document.resources.map((resource, resourceIndex) => (
-                            <div
-                              key={resourceIndex}
-                              className="bg-gray-50 p-3 rounded"
-                            >
-                              <ResourceField
-                                name={resource.name}
-                                allowedFileTypes={
-                                  resource.allowedFileTypes || []
-                                }
-                                isEditable={true}
-                                onChange={(value: string | File[] | null) =>
-                                  handleResourceCorrectionChange(
-                                    resource.id,
-                                    value
-                                  )
-                                }
-                              />
-                              <div className="mt-1 text-xs text-gray-500">
-                                Valor actual: {resource.value || "Sin valor"}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
                       </div>
-                    )
-                  )}
+                    );
+                  })}
                 </div>
-              </>
+              </div>
             )}
           </>
         )}
