@@ -1,9 +1,9 @@
 // React imports
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 
 // Third-party imports
 import { Notify } from "notiflix";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 
 // Component imports
 import { Button } from "../../../shared/components/Button";
@@ -27,6 +27,7 @@ import { RequestsService } from "@/features/requests/services/requestsService";
 export function RequestsCreationPage() {
   // Hooks
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useUser();
   const { uploadFile } = useUpload();
 
@@ -35,6 +36,17 @@ export function RequestsCreationPage() {
   const [openOptionsIndex, setOpenOptionsIndex] = useState<number | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  /**
+   * Efecto para cargar datos del CSV si vienen desde la navegación
+   */
+  useEffect(() => {
+    const csvData = location.state?.csvData;
+    if (csvData && Array.isArray(csvData) && csvData.length > 0) {
+      setRequests(csvData);
+      Notify.info(`Se cargaron ${csvData.length} registros desde el archivo CSV`);
+    }
+  }, [location.state]);
 
   const toggleOpenOptions = (rowIndex: number) => {
     setOpenOptionsIndex(openOptionsIndex === rowIndex ? null : rowIndex);
