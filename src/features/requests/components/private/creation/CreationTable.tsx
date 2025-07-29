@@ -373,11 +373,11 @@ interface ResourceModalProps {
 }
 
 const ResourceModalContent = ({ selectedRequest, requests, handleRequests }: ResourceModalProps) => (
-  <div className="flex flex-col">
-    <div className="text-sm">
+  <div className="flex flex-col gap-2 text-[14px]">
+    <>
       {requests[selectedRequest]?.documents.map((doc, i) => (
-        <div key={i} className="gap-2 border-b border-gray-300 px-[32px] py-[15px]">
-          <h2 className="text-[24px]">{doc.name}</h2>
+        <div key={i} className="px-4 py-2 gap-2 border border-white-1 rounded-[4px]">
+          <h2 className="text-[14px] mb-2">{doc.name}</h2>
           {doc.resourceTypes.map((resourceType, j) => (
             <ResourceField
               key={j}
@@ -405,7 +405,7 @@ const ResourceModalContent = ({ selectedRequest, requests, handleRequests }: Res
           ))}
         </div>
       ))}
-    </div>
+    </>
   </div>
 );
 
