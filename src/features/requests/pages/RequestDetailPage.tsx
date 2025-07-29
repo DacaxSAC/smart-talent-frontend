@@ -270,7 +270,7 @@ export const RequestDetailPage = () => {
           </h2>
 
           {request.documents.map((document, docIndex) => {
-            const isExpanded = expandedDocuments[docIndex] ?? true;
+            const isExpanded = expandedDocuments[docIndex] ?? false;
 
             return (
               <div key={docIndex} className="px-3 flex flex-col gap-4 text-[14px]">
