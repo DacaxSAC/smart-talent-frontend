@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Request, RequestsService } from "../services/requestsService";
 import { ResourceField } from "../components/public/ResourceField";
@@ -6,10 +6,10 @@ import { PageLayout } from "@/features/users/components/shared/PageLayout";
 import { PageTitle } from "@/features/users/components/shared/PageTitle";
 import { Button } from "@/shared/components/Button";
 import { Loader } from "@/shared/components/Loader";
-import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
+import { useHasRole } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
 import { Notify } from "notiflix";
-import { useUpload } from "@/shared/hooks/useUpload";
+//import { useUpload } from "@/shared/hooks/useUpload";
 import { MdExpandMore } from "react-icons/md";
 import { STATUS } from "@/features/auth/constants/status";
 
@@ -21,18 +21,19 @@ import { STATUS } from "@/features/auth/constants/status";
 export const RequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useUser();
   const isAdmin = useHasRole(ROLES.ADMIN);
   const isRecruiter = useHasRole(ROLES.RECRUITER);
   const isUser = useHasRole(ROLES.USER);
-  const { uploadFile } = useUpload();
+  //const { uploadFile } = useUpload();
 
   const [request, setRequest] = useState<Request | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isRequestDataExpanded, setIsRequestDataExpanded] = useState(true);
+  const [expandedDocuments, setExpandedDocuments] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   /**
    * Carga los datos del request desde el servicio API
@@ -162,6 +163,16 @@ export const RequestDetailPage = () => {
     setIsRequestDataExpanded(!isRequestDataExpanded);
   };
 
+  /**
+   * Alterna la visibilidad de un documento específico
+   */
+  const toggleDocumentExpansion = (docIndex: number) => {
+    setExpandedDocuments((prev) => ({
+      ...prev,
+      [docIndex]: !prev[docIndex],
+    }));
+  };
+
   useEffect(() => {
     loadRequestData();
   }, [id]);
@@ -219,21 +230,23 @@ export const RequestDetailPage = () => {
       <div className="overflow-y-auto flex flex-col gap-4">
         {/* Información del solicitante */}
         <div className="text-[12px] flex flex-col gap-4">
-          <div 
+          <div
             className="p-2 flex items-center justify-between cursor-pointer bg-white-2 border border-medium rounded-[12px]"
             onClick={toggleRequestDataExpansion}
           >
-            <h2 className="text-[16px]">
-              Información principal
-            </h2>
-            <div className={`transition-all duration-300 transform ${isRequestDataExpanded ? 'rotate-180' : 'rotate-0'}`}>
+            <h2 className="text-[16px]">Información principal</h2>
+            <div
+              className={`transition-all duration-300 transform ${
+                isRequestDataExpanded ? "rotate-180" : "rotate-0"
+              }`}
+            >
               <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
             </div>
           </div>
           {isRequestDataExpanded && (
             <div className="flex flex-col px-3">
               <div className="px-2 grid grid-cols-25 gap-0 bg-table-head dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4">
-                 <div className="col-span-5 p-2">DNI</div>
+                <div className="col-span-5 p-2">DNI</div>
                 <div className="col-span-10 p-2">Nombre Completo</div>
                 <div className="col-span-5 p-2">Estado</div>
                 <div className="col-span-5 p-2">Telefono</div>
@@ -241,7 +254,9 @@ export const RequestDetailPage = () => {
               <div className="grid grid-cols-25 border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10">
                 <div className="col-span-5 p-2 ">{request.dni}</div>
                 <div className="col-span-10 p-2 ">{request.fullname}</div>
-                <div className="col-span-5 p-2 "><span>{STATUS[request.status as keyof typeof STATUS]}</span></div>
+                <div className="col-span-5 p-2 ">
+                  <span>{STATUS[request.status as keyof typeof STATUS]}</span>
+                </div>
                 <div className="col-span-5 p-2 ">{request.phone}</div>
               </div>
             </div>
@@ -249,115 +264,138 @@ export const RequestDetailPage = () => {
         </div>
 
         {/* Documentos y Recursos */}
-        <div className="">
-          <h2 className="p-2 flex items-center justify-between cursor-pointer bg-white-2 border border-medium rounded-[12px]">
+        <div className="flex flex-col gap-4">
+          <h2 className="p-2 flex items-center justify-between bg-white-2 border border-medium rounded-[12px]">
             Listado de documentos solicitados
           </h2>
 
-          {request.documents.map((document, docIndex) => (
-            <div
-              key={docIndex}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
-            >
-              {/* Header del documento */}
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  {document.name}
-                </h3>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    document.status === "Pendiente"
-                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                      : document.status === "Realizado"
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                  }`}
+          {request.documents.map((document, docIndex) => {
+            const isExpanded = expandedDocuments[docIndex] ?? true;
+
+            return (
+              <div key={docIndex} className="px-3 flex flex-col gap-4 text-[14px]">
+                {/* Header del documento */}
+                <div
+                  className="p-2 flex justify-between items-center border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10 cursor-pointer"
+                  onClick={() => toggleDocumentExpansion(docIndex)}
                 >
-                  {document.status}
-                </span>
-              </div>
-
-              {/* Campos específicos para ADMIN/RECRUITER */}
-              {(isAdmin || isRecruiter) && (
-                <div className="space-y-4 mb-6">
-                  <ResourceField
-                    name="Resultado"
-                    allowedFileTypes={[]}
-                    value={document.result as string}
-                    isEditable={document.status === "Pendiente"}
-                    onChange={(value) =>
-                      handleResultChange(docIndex, value as string)
-                    }
-                  />
-                  <ResourceField
-                    name="Documento"
-                    allowedFileTypes={[
-                      ".pdf",
-                      ".doc",
-                      ".docx",
-                      ".jpg",
-                      ".jpeg",
-                      ".png",
-                    ]}
-                    value={document.filename as string}
-                    isEditable={document.status === "Pendiente"}
-                    onChange={(value) =>
-                      handleFileChange(docIndex, value as File[])
-                    }
-                  />
+                  <div className="flex items-center gap-3">
+                    <h3 className="">{document.name}</h3>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <span
+                      className={`text-[12px] px-3 py-1 rounded-full  ${
+                        document.status === "Pendiente"
+                          ? "bg-warning"
+                          : document.status === "Realizado"
+                          ? "bg-success"
+                          : "bg-medium"
+                      }`}
+                    >
+                      {document.status}
+                    </span>
+                    <div
+                      className={`transition-all duration-300 transform ${
+                        isExpanded ? "rotate-180" : "rotate-0"
+                      }`}
+                    >
+                      <MdExpandMore className="w-[20px] h-[20px] text-black-2 dark:text-white-1" />
+                    </div>
+                  </div>
                 </div>
-              )}
 
-              {/* Campos específicos para USER */}
-              {isUser && (
-                <div className="space-y-4 mb-6">
-                  <ResourceField
-                    name="Comentarios"
-                    value={document.result as string}
-                    isEditable={false}
-                    allowedFileTypes={[]}
-                  />
-                  <ResourceField
-                    name="Documento"
-                    value={document.filename as string}
-                    isEditable={false}
-                    allowedFileTypes={[]}
-                  />
-                </div>
-              )}
+                {isExpanded && (
+                  <div className="flex flex-col gap-3">
+                    {/* Recursos del documento */}
+                    <div className="p-3 border border-white-1 rounded-[12px]">
 
-              {/* Recursos del documento */}
-              <div className="space-y-4">
-                <h4 className="text-md font-medium text-gray-900 dark:text-white">
-                  Recursos requeridos:
-                </h4>
-                {document.resources.map((resource, resourceIndex) => (
-                  <div
-                    key={resourceIndex}
-                    className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg"
-                  >
-                    <ResourceField
-                      name={resource.name}
-                      value={resource.value}
-                      allowedFileTypes={resource.allowedFileTypes || []}
-                      isEditable={isUser && document.status === "Pendiente"}
-                      onChange={(value) =>
-                        handleResourceChange(docIndex, resourceIndex, value)
-                      }
-                    />
-                    {resource.value && (
-                      <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        Valor actual:{" "}
-                        {typeof resource.value === "string"
-                          ? resource.value
-                          : "Archivo cargado"}
+                      <p className="mb-2 font-[500] text-gray-900 dark:text-white">
+                        Recursos requeridos para el informe correspondiente:
+                      </p>
+                      {document.resources.map((resource, resourceIndex) => (
+                          <ResourceField
+                            key={resourceIndex}
+                            name={resource.name}
+                            value={resource.value}
+                            allowedFileTypes={resource.allowedFileTypes || []}
+                            isEditable={
+                              isUser && request.status === "PENDING"
+                            }
+                            onChange={(value) =>
+                              handleResourceChange(
+                                docIndex,
+                                resourceIndex,
+                                value
+                              )
+                            }
+                          />
+                      ))}
+                    </div>
+                    {/* Campos específicos para ADMIN/RECRUITER */}
+                    {(isAdmin || isRecruiter) && (
+                      <div className="p-3 border border-white-1 rounded-[12px]">
+                         <p className="mb-2 font-medium text-gray-900 dark:text-white">
+                            Resultados obtenidos para el informe correspondiente:
+                        </p>
+                        <ResourceField
+                          name="Documento"
+                          allowedFileTypes={[
+                            ".pdf",
+                            ".doc",
+                            ".docx",
+                            ".jpg",
+                            ".jpeg",
+                            ".png",
+                          ]}
+                          isResult={true}
+                          value={document.filename as string}
+                          isEditable={request.status !== 'COMPLETED'}
+                          onChange={(value) =>
+                            handleFileChange(docIndex, value as File[])
+                          }
+                        />
+                        <ResourceField
+                          isResult={true}
+                          name="Resultado"
+                          allowedFileTypes={[]}
+                          value={document.result as string}
+                          isEditable={request.status !== 'COMPLETED'}
+                          onChange={(value) =>
+                            handleResultChange(docIndex, value as string)
+                          }
+                        />
                       </div>
                     )}
+
+                    {/* Campos específicos para USER */}
+                    {isUser && (
+                      <div className="p-3 border border-white-1 rounded-[12px]">
+                        <p className="mb-2 font-medium text-gray-900 dark:text-white">
+                            Resultados obtenidos para el informe correspondiente:
+                        </p>
+                        <ResourceField
+                          isResult={true}
+                          name="Informe"
+                          value={document.filename as string}
+                          isEditable={false}
+                          allowedFileTypes={[]}
+                        />
+                        <ResourceField
+                          isResult={true}
+                          name="Comentarios adicionales"
+                          value={document.result as string}
+                          isEditable={false}
+                          allowedFileTypes={[]}
+                        />
+                      </div>
+                    )}
+
+                    
                   </div>
-                ))}
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </PageLayout>

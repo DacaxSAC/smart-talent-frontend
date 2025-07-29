@@ -24,27 +24,27 @@ import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
 
 import { Loader } from "@/shared/components/Loader";
 
-const processDocuments = async (
-  documents: any[],
-  uploadFile: (file: File, signedUrl: string) => Promise<any>
-) => {
-  const documentsToUpdate = [];
-
-  for (const doc of documents) {
-    if (doc.filename instanceof File) {
-      const fileKey = await handleFileUpload(doc.filename, uploadFile);
-      if (fileKey) {
-        documentsToUpdate.push({
-          id: doc.id,
-          result: doc.result || "",
-          filename: fileKey,
-        });
-      }
-    }
-  }
-
-  return documentsToUpdate;
-};
+//const processDocuments = async (
+//  documents: any[],
+//  uploadFile: (file: File, signedUrl: string) => Promise<any>
+//) => {
+//  const documentsToUpdate = [];
+//
+//  for (const doc of documents) {
+//    if (doc.filename instanceof File) {
+//      const fileKey = await handleFileUpload(doc.filename, uploadFile);
+//      if (fileKey) {
+//        documentsToUpdate.push({
+//          id: doc.id,
+//          result: doc.result || "",
+//          filename: fileKey,
+//        });
+//      }
+//    }
+//  }
+//
+//  return documentsToUpdate;
+//};
 
 const handleFileUpload = async (
   file: File,
@@ -96,10 +96,10 @@ export const RequestsTable = ({
   const { user } = useUser();
 
   // States
-  const [modalOpen, setModalOpen] = useState(false);
+  //const [modalOpen, setModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [requests, setRequests] = useState<Request[]>([]);
-  const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
+  //const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const [requestToAccept, setRequestToAccept] = useState<number | null>(null);
   const [isAcceptingRequest, setIsAcceptingRequest] = useState(false);
   const [observationModalOpen, setObservationModalOpen] = useState(false);
@@ -119,16 +119,16 @@ export const RequestsTable = ({
     [key: number]: File[] | string | null;
   }>({});
   const [isSendingCorrections, setIsSendingCorrections] = useState(false);
-  const [isConfirmingRequest, setIsConfirmingRequest] = useState(false);
+  //const [isConfirmingRequest, setIsConfirmingRequest] = useState(false);
 
   useEffect(() => {
     setRequests(data);
     console.log("data", data);
   }, [data]);
 
-  const handleRequests = (newRequests: Request[]) => {
-    setRequests(newRequests);
-  };
+  //const handleRequests = (newRequests: Request[]) => {
+  //  setRequests(newRequests);
+  //};
 
   /**
    * Navega a la página de detalles del request
@@ -143,46 +143,46 @@ export const RequestsTable = ({
     });
   };
 
-  const handleConfirmRequest = async () => {
-    if (selectedRequest === null) return;
+  //const handleConfirmRequest = async () => {
+  //  if (selectedRequest === null) return;
+//
+  //  if (isUser) {
+  //    setModalOpen(false);
+  //    return;
+  //  }
+//
+  //  try {
+  //    setIsConfirmingRequest(true);
+  //    Notify.info("Procesando informes...");
+//
+  //    const selectedRequestData = requests[selectedRequest];
+  //    const documentsToUpdate = await processDocuments(
+  //      selectedRequestData.documents,
+  //      uploadFile
+  //    );
+//
+  //    await RequestsService.updateDocuments(documentsToUpdate);
+  //    await RequestsService.putStatusPerson(selectedRequest, "COMPLETED");
+//
+  //    await onRefresh();
+  //    setModalOpen(false);
+  //    Notify.success("Informes actualizados correctamente");
+  //  } catch (error) {
+  //    console.error("Error al actualizar los informes:", error);
+  //    Notify.failure(
+  //      "Error al actualizar los informes. Por favor, inténtelo de nuevo."
+  //    );
+  //  } finally {
+  //    setIsConfirmingRequest(false);
+  //  }
+//
+  //  setModalOpen(false);
+  //};
 
-    if (isUser) {
-      setModalOpen(false);
-      return;
-    }
-
-    try {
-      setIsConfirmingRequest(true);
-      Notify.info("Procesando informes...");
-
-      const selectedRequestData = requests[selectedRequest];
-      const documentsToUpdate = await processDocuments(
-        selectedRequestData.documents,
-        uploadFile
-      );
-
-      await RequestsService.updateDocuments(documentsToUpdate);
-      await RequestsService.putStatusPerson(selectedRequest, "COMPLETED");
-
-      await onRefresh();
-      setModalOpen(false);
-      Notify.success("Informes actualizados correctamente");
-    } catch (error) {
-      console.error("Error al actualizar los informes:", error);
-      Notify.failure(
-        "Error al actualizar los informes. Por favor, inténtelo de nuevo."
-      );
-    } finally {
-      setIsConfirmingRequest(false);
-    }
-
-    setModalOpen(false);
-  };
-
-  const openResourceModal = (index: number) => {
-    setSelectedRequest(index);
-    setModalOpen(true);
-  };
+  //const openResourceModal = (index: number) => {
+  //  setSelectedRequest(index);
+  //  setModalOpen(true);
+  //};
 
   /**
    * Abre el modal de confirmación para aceptar una solicitud
@@ -557,7 +557,7 @@ export const RequestsTable = ({
         ))}
       </div>
 
-      {/** Modal para ver y cargar archivos */}
+      {/** Modal para ver y cargar archivos 
       <Modal
         isOpen={modalOpen}
         title={
@@ -711,7 +711,7 @@ export const RequestsTable = ({
             </div>
           )}
         </div>
-      </Modal>
+      </Modal>*/}
 
       {/* Modal de confirmación para aceptar solicitud */}
       <Modal

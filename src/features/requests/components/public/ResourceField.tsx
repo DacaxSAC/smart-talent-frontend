@@ -1,14 +1,15 @@
 import { useState, useRef } from 'react';
-import { FaTrash } from 'react-icons/fa';
 import { apiClient } from "@/lib/axios/client";
 import { Notify } from "notiflix";
+import { TrashIcon } from '@/shared/icons';
 
 interface ResourceFieldProps {
     name: string;
-    allowedFileTypes: string[];
+    allowedFileTypes: string[] ;
     value?: string | File[] | null;
     onChange?: (value: File[] | string | null) => void;
     isEditable?: boolean;
+    isResult?: boolean;
 }
 
 export const ResourceField = (props: ResourceFieldProps) => {
@@ -90,27 +91,22 @@ export const ResourceField = (props: ResourceFieldProps) => {
         const displayValue = props.value as string || '';
         
         return (
-            <div className="flex py-[14px] items-start gap-4">
-                <div className="text-[16px] text-black-2 dark:text-white w-48">
+            <div className="flex py-2 items-start gap-4">
+                <div className="text-[12px] text-medium w-48">
                     {props.name}
                 </div>
-                <div className="flex items-start gap-2 flex-1">
+                <div className="text-[12px] flex items-start gap-2 flex-1">
                     {isFileReference(displayValue) ? (
                         <button 
                             onClick={handleDownload}
-                            className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
-                            rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white 
-                            hover:bg-gray-100 dark:hover:bg-gray-700
-                            transition-all duration-200 text-left"
+                            className={`flex-1 px-3 py-0.5 border  ${props.isResult ? 'border-black text-black hover:bg-white-2' : 'border-white-1 text-medium hover:bg-white-1'}  rounded-[4px] cursor-pointer`}
                         >
-                            Descargar CV
+                            {textValue}
                         </button>
                     ) : (
-                        <div className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
-                        rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white 
-                        transition-all duration-200"
+                        <div className={`flex-1 px-3 py-0.5 border  ${props.isResult ? 'border-black text-black hover:bg-white-2' : 'border-white-1 text-medium'}  rounded-[4px] `}
                         >
-                            {displayValue || 'Sin información'}
+                            {displayValue || 'Pendiente'}
                         </div>
                     )}
                 </div>
@@ -120,35 +116,33 @@ export const ResourceField = (props: ResourceFieldProps) => {
 
     // Modo de edición (Input)
     return (
-        <div className="flex py-[14px] items-start gap-4">
-            <div className="text-[16px] text-black-2 dark:text-white w-48">
+        <div className="flex py-2 items-start gap-4">
+            <div className="text-[12px] text-medium w-48">
                 {props.name}
             </div>
-            <div className="flex items-start gap-2 flex-1">
+            <div className="text-[12px] flex items-start gap-2 flex-1">
                 {props.allowedFileTypes.length === 0 ? (
                     <textarea
                         placeholder=""
                         value={textValue}
                         onChange={handleTextChange}
-                        rows={3}
-                        className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
-                        rounded-md focus:outline-none focus:ring-2 focus:ring-main focus:border-transparent 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
+                        rows={2}
+                        className="flex-1 px-3 py-0.5 border border-gray-300 dark:border-gray-600 
+                        rounded-[4px] focus:outline-none focus:ring-2 focus:ring-table-head focus:border-transparent 
+                        bg-white dark:bg-gray-700  
                         placeholder-gray-400 dark:placeholder-gray-300
                         transition-all duration-200 resize-vertical"
                     />
                 ) : (
-                    <>
+                    <div className='w-full flex gap-2'>
                         <input
+                            onClick={handleDownload}
                             type="text"
                             placeholder="No hay archivo importado"
                             value={textValue}
                             readOnly
                             title={getTooltipContent()}
-                            className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 
-                            rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white 
-                            placeholder-gray-400 dark:placeholder-gray-300
-                            cursor-default"
+                            className="flex-1 px-3 py-0.5 border border-white-1 rounded-[4px] hover:bg-white-1 text-medium cursor-pointer"
                         />
                         <input
                             ref={fileInputRef}
@@ -161,9 +155,7 @@ export const ResourceField = (props: ResourceFieldProps) => {
                         <button
                             type="button"
                             onClick={handleUploadClick}
-                            className="px-4 py-2 text-sm bg-gray-800 dark:bg-gray-700 text-white rounded-md 
-                                hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200
-                                border border-gray-300 dark:border-gray-600"
+                            className="px-3 py-0.5 border border-black hover:bg-black hover:text-white rounded-[4px] cursor-pointer"
                         >
                             Subir archivo
                         </button>
@@ -171,14 +163,14 @@ export const ResourceField = (props: ResourceFieldProps) => {
                             <button
                                 type="button"
                                 onClick={handleRemove}
-                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 
-                                    rounded-md transition-colors duration-200"
+                                className=" text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 
+                                    rounded-[4px] transition-colors duration-200 cursor-pointer"
                                 title="Eliminar archivo"
                             >
-                                <FaTrash className="w-4 h-4" />
+                                <TrashIcon className="w-5 h-5" />
                             </button>
                         )}
-                    </>
+                    </div>
                 )}
             </div>
         </div>

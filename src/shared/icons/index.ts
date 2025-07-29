@@ -10,3 +10,4 @@ export { DocPendingIcon } from './DocPendingIcon';
 export { DocOnProcessIcon } from './DocOnProcessIcon';
 export { DocTerminatedIcon } from './DocTerminatedIcon';
 export { NoDataIcon } from './NoDataIcon';
+export { TrashIcon } from './TrashIcon';
