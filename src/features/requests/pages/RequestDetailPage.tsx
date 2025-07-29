@@ -349,7 +349,7 @@ export const RequestDetailPage = () => {
                           ]}
                           isResult={true}
                           value={document.filename as string}
-                          isEditable={request.status !== 'COMPLETED'}
+                          isEditable={document.status === "Pendiente"}
                           onChange={(value) =>
                             handleFileChange(docIndex, value as File[])
                           }
@@ -359,7 +359,7 @@ export const RequestDetailPage = () => {
                           name="Resultado"
                           allowedFileTypes={[]}
                           value={document.result as string}
-                          isEditable={request.status !== 'COMPLETED'}
+                          isEditable={document.status === "Pendiente"}
                           onChange={(value) =>
                             handleResultChange(docIndex, value as string)
                           }
