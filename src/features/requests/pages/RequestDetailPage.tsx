@@ -142,6 +142,9 @@ export const RequestDetailPage = () => {
 
       await RequestsService.updateDocuments(updates);
       Notify.success("Cambios guardados exitosamente");
+      
+      // Refetch de los datos para obtener la información actualizada
+      await loadRequestData();
     } catch (err) {
       Notify.failure("Error al guardar los cambios");
     } finally {
@@ -216,14 +219,6 @@ export const RequestDetailPage = () => {
             handleClick={handleGoBack}
             description="Regresar a la lista de solicitudes"
           />
-          {(isAdmin || isRecruiter) && (
-            <Button
-              type="primary"
-              handleClick={handleSave}
-              disabled={saving}
-              description={saving ? "Guardando..." : "Guardar cambios"}
-            />
-          )}
         </div>
       </div>
 
@@ -334,9 +329,25 @@ export const RequestDetailPage = () => {
                     {/* Campos específicos para ADMIN/RECRUITER */}
                     {(isAdmin || isRecruiter) && (
                       <div className="p-3 border border-white-1 rounded-[12px]">
-                         <p className="mb-2 font-medium text-gray-900 dark:text-white">
+                        <div className="flex justify-between items-start">
+                          <p className="mb-2 font-medium text-gray-900 dark:text-white">
                             Resultados obtenidos para el informe correspondiente:
                         </p>
+                          {(isAdmin || isRecruiter) && (document.status === "Pendiente") &&(
+                            <button
+                              onClick={handleSave}
+                              disabled={saving || !document.filename || !document.result}
+                              className={`px-3 py-0.5 border rounded-[4px] text-[12px] ${
+                                saving || !document.filename || !document.result
+                                  ? "border-gray-300 text-gray-400 cursor-not-allowed"
+                                  : "border-success hover:border-medium hover:bg-success text-success hover:text-white cursor-pointer"
+                              }`}
+                            >
+                              {saving ? "Guardando..." : "Guardar cambios"}
+                            </button>
+                          )}
+                        </div>
+                         
                         <ResourceField
                           name="Documento"
                           allowedFileTypes={[

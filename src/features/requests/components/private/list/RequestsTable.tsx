@@ -125,6 +125,11 @@ export const RequestsTable = ({
   // Estados para expansión de secciones
   const [isRequestDataExpanded, setIsRequestDataExpanded] = useState(true);
   const [expandedDocuments, setExpandedDocuments] = useState<{[key: number]: boolean}>({});
+  
+  // Estados para eliminación de solicitudes
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [requestToDelete, setRequestToDelete] = useState<number | null>(null);
+  const [isDeletingRequest, setIsDeletingRequest] = useState(false);
 
   useEffect(() => {
     setRequests(data);
@@ -245,6 +250,53 @@ export const RequestsTable = ({
         );
       } finally {
         setIsAcceptingRequest(false);
+      }
+    }
+  };
+
+  /**
+   * Abre el modal de confirmación para eliminar una solicitud
+   * @param index - Índice de la solicitud a eliminar
+   */
+  const handleOpenDeleteModal = (index: number) => {
+    setRequestToDelete(index);
+    setDeleteModalOpen(true);
+  };
+
+  /**
+   * Cierra el modal de confirmación de eliminación
+   */
+  const handleCancelDelete = () => {
+    setRequestToDelete(null);
+    setDeleteModalOpen(false);
+  };
+
+  /**
+   * Maneja la confirmación de eliminar una solicitud
+   */
+  const handleConfirmDelete = async () => {
+    if (requestToDelete !== null) {
+      try {
+        setIsDeletingRequest(true);
+        const requestId = parseInt(requests[requestToDelete].id);
+
+        await RequestsService.deleteRequest(requestId);
+
+        // Refetch de las solicitudes para actualizar el estado
+        await onRefresh();
+
+        // Cerrar el modal
+        setRequestToDelete(null);
+        setDeleteModalOpen(false);
+
+        Notify.success("Solicitud eliminada exitosamente");
+      } catch (error) {
+        console.error("Error al eliminar la solicitud:", error);
+        Notify.failure(
+          "Error al eliminar la solicitud. Por favor, inténtelo de nuevo."
+        );
+      } finally {
+        setIsDeletingRequest(false);
       }
     }
   };
@@ -535,16 +587,24 @@ export const RequestsTable = ({
                   (isRecruiter &&
                     (request.status !== "PENDING"))) && (
                   <button
-                    title="Ver detalles de solicitud"
-                    className="cursor-pointer text-center hover:text-table-head border border-white-1 px-1 rounded-[5px]"
+                    className="cursor-pointer text-center hover:text-table-head border border-white-1 py-0.5 px-2 rounded-[5px]"
                     onClick={() => handleViewDetails(request)}
                   >
                     <p>Ver detalles</p>
                   </button>
                 )}
+                {isUser &&
+                  (request.status === "PENDING" || request.status === "REJECTED") && (
+                    <button
+                      className="cursor-pointer border border-white-1 hover:text-error py-0.5 px-2 rounded-[5px]"
+                      onClick={() => handleOpenDeleteModal(index)}
+                    >
+                      Eliminar solicitud
+                    </button>
+                  )}
                 {isRecruiter && request.status === "PENDING" && (
                   <button
-                    className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-1 rounded-[5px]"
+                    className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-2 rounded-[5px]"
                     onClick={() => handleOpenAcceptModal(index)}
                   >
                     Aceptar solicitud
@@ -552,7 +612,7 @@ export const RequestsTable = ({
                 )}
                 {isRecruiter && request.status === "IN_PROGRESS" && (
                   <button
-                    className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-1 rounded-[5px]"
+                    className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-2 rounded-[5px]"
                     onClick={() => handleOpenObservationModal(index)}
                   >
                     Agregar observación
@@ -562,7 +622,7 @@ export const RequestsTable = ({
                   request.status === "OBSERVED" &&
                   request.observations && (
                     <button
-                      className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-1 rounded-[5px]"
+                      className="cursor-pointer border border-white-1 hover:text-success py-0.5 px-2 rounded-[5px]"
                       onClick={() => handleOpenViewObservationsModal(index)}
                     >
                       Ver observaciones
@@ -759,6 +819,41 @@ export const RequestsTable = ({
             <>
               <div className="flex flex-col gap-2 text-[12px] text-medium">
                 Al aceptar esta solicitud, usted es responsable del proceso completo de la misma.
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
+
+      {/* Modal de confirmación para eliminar solicitud */}
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={isDeletingRequest ? () => {} : handleCancelDelete}
+        position="center"
+        width="400px"
+        title="¿Está seguro que desea eliminar esta solicitud?"
+        footer={
+          <div className="flex gap-4">
+                <Button
+                  type="secondary"
+                  handleClick={handleCancelDelete}
+                  description="Cancelar"
+                />
+                <Button
+                  type="primary"
+                  handleClick={handleConfirmDelete}
+                  description="Confirmar"
+                />
+              </div>
+        }
+      >
+        <div className="">
+          {isDeletingRequest ? (
+            <Loader isLoading={true} />
+          ) : (
+            <>
+              <div className="flex flex-col gap-2 text-[12px] text-medium">
+                Esta acción no se puede deshacer. La solicitud será eliminada permanentemente del sistema.
               </div>
             </>
           )}

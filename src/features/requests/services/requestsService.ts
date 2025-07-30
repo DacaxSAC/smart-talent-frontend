@@ -104,6 +104,14 @@ export const RequestsService = {
             throw error;
         }
     },
+    deleteRequest: async (requestId: number): Promise<void> => {
+        try {
+             await apiClient.delete(REQUEST_ENDPOINTS.DELETE_REQUEST(requestId));
+        } catch (error) {
+            console.error('Error al eliminar la solicitud:', error);
+            throw error;
+        }
+    },
     updateDocuments: async (updates: { id: number; result: string; filename: string }[]): Promise<void> => {
         try {
             await apiClient.put(REQUEST_ENDPOINTS.UPDATE_DOCUMENTS, { updates });
