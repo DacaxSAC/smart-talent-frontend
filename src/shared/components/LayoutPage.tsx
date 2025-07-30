@@ -8,7 +8,7 @@ interface LayoutPageProps {
 
 export function LayoutPage({ title, description, buttonsHeader, footer, children }: LayoutPageProps) {
     return (
-        <div className="h-screen flex flex-col px-5 md:px-8 py-15 gap-11 font-light">
+        <div className="h-screen flex flex-col px-5 md:px-8 py-8 gap-11 font-light">
             <div
                 className="
                     flex flex-row justify-between items-center
