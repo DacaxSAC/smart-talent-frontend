@@ -8,6 +8,7 @@ export const REQUEST_ENDPOINTS = {
     GET_REQUEST_DETAIL: (requestId: number) => `/requests/person/${requestId}`,
     UPDATE_DOCUMENTS: '/documents/bulk-update',
     POST_REQUESTS: '/requests',
+    DELETE_REQUEST: (requestId: number) => `/requests/${requestId}`,
     POST_ASSIGN_RECRUITER: '/requests/assign-recruiter',
     POST_OBSERVATIONS: '/requests/give-observations',
     PATCH_RESOURCES_UPDATE_MULTIPLE:'/resources/update-multiple',
