@@ -20,6 +20,7 @@ interface RequestsListBaseProps {
   description: string;
   statusFilter?: string;
   showAddButton?: boolean;
+  isOnlyUser?: boolean;
 }
 
 /**
@@ -33,6 +34,7 @@ export function RequestsListBase({
   title, 
   description, 
   statusFilter, 
+  isOnlyUser = false,
   showAddButton = false 
 }: RequestsListBaseProps) {
   // Hooks
@@ -55,7 +57,7 @@ export function RequestsListBase({
       setLoading(true);
 
       const data = isAdmin || isRecruiter
-        ? await RequestsService.getAllPeople(statusFilter)
+        ? await RequestsService.getAllPeople(statusFilter, isOnlyUser ? user?.id : undefined) 
         : await RequestsService.getAllPeopleByEntityId(user?.entityId as number);
       setRequests(data.people);
 

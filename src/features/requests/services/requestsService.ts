@@ -65,11 +65,13 @@ export const RequestsService = {
      * Obtiene todas las personas/solicitudes con filtros de estado opcionales
      * @param status - Estados a filtrar separados por coma (ej: 'PENDING,IN_PROGRESS')
      */
-    getAllPeople: async (status?: string): Promise<GetAllPeopleResponse> => {
+    getAllPeople: async (status?: string, recruiterId?: number): Promise<GetAllPeopleResponse> => {
         try {
-            const url = status 
-                ? `${REQUEST_ENDPOINTS.GET_REQUEST_PEOPLE}?status=${status}`
-                : REQUEST_ENDPOINTS.GET_REQUEST_PEOPLE;
+            let url = REQUEST_ENDPOINTS.GET_REQUEST_PEOPLE
+            
+            if (status) url += `?status=${status}`
+            if (recruiterId) url += `&recruiterId=${recruiterId}`
+                
             const response = await apiClient.get(url);
             return response.data;
         } catch (error) {
