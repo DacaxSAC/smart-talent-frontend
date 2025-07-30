@@ -587,7 +587,6 @@ export const RequestsTable = ({
                   (isRecruiter &&
                     (request.status !== "PENDING"))) && (
                   <button
-                    title="Ver detalles de solicitud"
                     className="cursor-pointer text-center hover:text-table-head border border-white-1 py-0.5 px-2 rounded-[5px]"
                     onClick={() => handleViewDetails(request)}
                   >
