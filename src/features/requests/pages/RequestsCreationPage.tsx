@@ -60,8 +60,22 @@ export function RequestsCreationPage() {
     setRequests(newRequests);
   };
 
+  // Nueva función para navegar a requests
+  const navigateToRequests = () => {
+    navigate("/requests");
+  };
+  
+  // Nueva función para verificar si solo hay una solicitud vacía
+  const hasOnlyEmptyRequest = (): boolean => {
+    return requests.length === 1 && 
+      requests[0].fullname === "" && 
+      requests[0].dni === "" && 
+      requests[0].phone === "" && 
+      requests[0].documents.length === 0;
+  };
+  
   const handleBackToList = () => {
-    requests.length > 0 ? setShowConfirmModal(true) : navigate("/requests")
+    hasOnlyEmptyRequest() ? navigateToRequests() : setShowConfirmModal(true);
   };
 
   const handleDocCheckbox = (rowIndex: number, docType: IDocumentType, checked: boolean) => {
@@ -174,7 +188,7 @@ export function RequestsCreationPage() {
         <ConfirmBackModal
           isOpen={showConfirmModal}
           onCancel={() => setShowConfirmModal(false)}
-          onConfirm={handleBackToList}
+          onConfirm={navigateToRequests}
         />
       </Fragment>
     </LayoutPage>
@@ -187,6 +201,7 @@ interface propsConfirmBackModal {
   onConfirm: () => void;
 }
 
+// En el modal de confirmación, usar la función navigateToRequests
 const ConfirmBackModal = ({ isOpen, onCancel, onConfirm }: propsConfirmBackModal) => {
   return (
     <Modal isOpen={isOpen} onClose={onCancel} position="center" width="400px">
