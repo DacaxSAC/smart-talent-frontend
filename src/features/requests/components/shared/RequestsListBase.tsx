@@ -49,6 +49,9 @@ export function RequestsListBase({
   const [error, setError] = useState(false);
   const [statusFilterLocal, setStatusFilterLocal] = useState<string>("all");
   const [searchFilter, setSearchFilter] = useState<string>("");
+  const [ownerFilter, setOwnerFilter] = useState<string>("");
+  const [showOwnerDropdown, setShowOwnerDropdown] = useState<boolean>(false);
+  const [availableOwners, setAvailableOwners] = useState<string[]>([]);
 
   /**
    * Obtiene las solicitudes con el filtro de estado especificado
@@ -61,6 +64,12 @@ export function RequestsListBase({
         ? await RequestsService.getAllPeople(statusFilter)
         : await RequestsService.getAllPeopleByEntityId(user?.entityId as number);
       setRequests(data.people);
+      
+      // Extraer owners únicos para el filtro
+      if (isAdmin) {
+        const uniqueOwners = [...new Set(data.people.map(request => request.owner).filter(Boolean))] as string[];
+        setAvailableOwners(uniqueOwners);
+      }
 
       setLoading(false);
     } catch (err) {
@@ -110,10 +119,41 @@ export function RequestsListBase({
       );
     }
 
+    // Filtro por propietario (solo para admins)
+    if (ownerFilter.trim() && isAdmin) {
+      filtered = filtered.filter(request => request.owner === ownerFilter);
+    }
+
     // Ordenar las solicitudes filtradas
     filtered = sortRequests(filtered);
     
     setFilteredRequests(filtered);
+  };
+
+  /**
+   * Maneja la selección de un owner del dropdown
+   */
+  const handleOwnerSelect = (owner: string) => {
+    setOwnerFilter(owner);
+    setShowOwnerDropdown(false);
+  };
+
+  /**
+   * Maneja el cambio en el input de owner
+   */
+  const handleOwnerInputChange = (value: string) => {
+    setOwnerFilter(value);
+    setShowOwnerDropdown(value.length > 0);
+  };
+
+  /**
+   * Filtra los owners disponibles basado en el input
+   */
+  const getFilteredOwners = () => {
+    if (!ownerFilter.trim()) return availableOwners;
+    return availableOwners.filter(owner => 
+      owner.toLowerCase().includes(ownerFilter.toLowerCase())
+    );
   };
 
   /**
@@ -122,10 +162,12 @@ export function RequestsListBase({
   const handleResetFilters = () => {
     setStatusFilterLocal("all");
     setSearchFilter("");
+    setOwnerFilter("");
+    setShowOwnerDropdown(false);
   };
 
   useEffect(() => { handleGetRequests(); }, [statusFilter]);
-  useEffect(() => { applyFilters(); }, [requests, statusFilterLocal, searchFilter]);
+  useEffect(() => { applyFilters(); }, [requests, statusFilterLocal, searchFilter, ownerFilter]);
 
   return (
     <LayoutPage
@@ -146,7 +188,7 @@ export function RequestsListBase({
       sectionFilters={
         <div className="flex flex-wrap justify-start gap-6 p-4 rounded text-[14px]">
           {/* Filtro por estado */}
-          <div className="flex flex-col gap-2">
+          {isUser && <div className="flex flex-col gap-2">
             <label htmlFor="status-filter" className="text-medium">Filtrar por estado:</label>
             <div className="px-2 py-1 border border-white-1 rounded-[8px] text-medium">
               <select
@@ -162,7 +204,37 @@ export function RequestsListBase({
                 <option value="REJECTED">Rechazado</option>
               </select>
             </div>
-          </div>
+          </div>}
+
+          {/* Filtro por propietario (solo para admins) */}
+          {isAdmin && <div className="flex flex-col gap-2 relative">
+            <label htmlFor="owner-filter" className="text-medium">Filtrar por propietario:</label>
+            <div className="px-2 py-1 border border-white-1 rounded-[8px] text-medium">
+              <input
+                id="owner-filter"
+                type="text"
+                value={ownerFilter}
+                onChange={(e) => handleOwnerInputChange(e.target.value)}
+                onFocus={() => setShowOwnerDropdown(ownerFilter.length > 0)}
+                onBlur={() => setTimeout(() => setShowOwnerDropdown(false), 200)}
+                placeholder="Seleccione un propietario"
+                className="w-full"
+              />
+            </div>
+            {showOwnerDropdown && getFilteredOwners().length > 0 && (
+              <div className="absolute top-full left-0 right-0 z-10 bg-white border border-white-1 rounded-[8px] shadow-lg max-h-40 overflow-y-auto">
+                {getFilteredOwners().map((owner, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleOwnerSelect(owner)}
+                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-[14px] text-medium"
+                  >
+                    {owner}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>}
 
           {/* Búsqueda por nombre o DNI */}
           <div className="flex flex-col gap-2">
