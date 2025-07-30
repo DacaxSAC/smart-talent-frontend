@@ -9,6 +9,7 @@ export interface Request {
     status: string;
     phone: string;
     observations:string;
+    createdAt?: string;
     documents: {
         id: number;
         name: string;
