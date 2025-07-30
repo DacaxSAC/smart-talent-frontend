@@ -4,11 +4,12 @@ interface LayoutPageProps {
     buttonsHeader?: React.ReactNode;
     footer?: React.ReactNode;
     children: React.ReactNode;
+    sectionFilters?: React.ReactNode;
 }
 
-export function LayoutPage({ title, description, buttonsHeader, footer, children }: LayoutPageProps) {
+export function LayoutPage({ title, description, buttonsHeader, footer, children, sectionFilters }: LayoutPageProps) {
     return (
-        <div className="h-screen flex flex-col px-5 md:px-8 py-8 gap-11 font-light">
+        <div className="h-screen flex flex-col px-5 md:px-8 py-8 gap-6 font-light">
             <div
                 className="
                     flex flex-row justify-between items-center
@@ -30,6 +31,8 @@ export function LayoutPage({ title, description, buttonsHeader, footer, children
                     </div>
                 )}
             </div>
+
+            {sectionFilters}
 
             <div className="w-full flex-1 p-3 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">
                 {children}
