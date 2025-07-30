@@ -104,7 +104,7 @@ export const ResourceField = (props: ResourceFieldProps) => {
                             {textValue}
                         </button>
                     ) : (
-                        <div className={`flex-1 px-3 py-0.5 border  ${props.isResult ? 'border-black text-black hover:bg-white-2' : 'border-white-1 text-medium'}  rounded-[4px] `}
+                        <div className={`flex-1 px-3 py-0.5 border ${props.isResult ? 'border-black text-black' : 'border-white-1 text-medium'} rounded-[4px]`}
                         >
                             {displayValue || 'Pendiente'}
                         </div>
