@@ -340,16 +340,16 @@ export const RequestDetailPage = () => {
               <div className="px-2 grid grid-cols-25 gap-0 bg-table-head dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4">
                 <div className="col-span-5 p-2">DNI</div>
                 <div className="col-span-10 p-2">Nombre Completo</div>
-                <div className="col-span-5 p-2">Estado</div>
                 <div className="col-span-5 p-2">Telefono</div>
+                <div className="col-span-5 p-2">Estado</div>
               </div>
               <div className="grid grid-cols-25 border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10">
                 <div className="col-span-5 p-2 ">{request.dni}</div>
                 <div className="col-span-10 p-2 ">{request.fullname}</div>
+                <div className="col-span-5 p-2 ">{request.phone}</div>
                 <div className="col-span-5 p-2 ">
                   <span>{STATUS[request.status as keyof typeof STATUS]}</span>
                 </div>
-                <div className="col-span-5 p-2 ">{request.phone}</div>
               </div>
             </div>
           )}
