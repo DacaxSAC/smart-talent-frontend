@@ -99,7 +99,7 @@ export const ResourceField = (props: ResourceFieldProps) => {
                     {isFileReference(displayValue) ? (
                         <button 
                             onClick={handleDownload}
-                            className={`flex-1 px-3 py-0.5 border  ${props.isResult ? 'border-black text-black hover:bg-white-2' : 'border-white-1 text-medium hover:bg-white-1'}  rounded-[4px] cursor-pointer`}
+                            className={`flex-1 px-3 py-0.5 border ${props.isResult ? 'border-black text-black hover:bg-white-2' : 'border-white-1 text-medium hover:bg-white-1'}  rounded-[4px] cursor-pointer`}
                         >
                             {textValue}
                         </button>
@@ -136,13 +136,13 @@ export const ResourceField = (props: ResourceFieldProps) => {
                 ) : (
                     <div className='w-full flex gap-2'>
                         <input
-                            onClick={handleDownload}
+                            // onClick={handleDownload}
                             type="text"
                             placeholder="No hay archivo importado"
                             value={textValue}
                             readOnly
                             title={getTooltipContent()}
-                            className="flex-1 px-3 py-0.5 border border-white-1 rounded-[4px] hover:bg-white-1 text-medium cursor-pointer"
+                            className="flex-1 px-3 py-0.5 border border-white-1 rounded-[4px] text-medium cursor-default focus:outline-none focus:ring-0 focus:border-white-1"
                         />
                         <input
                             ref={fileInputRef}
