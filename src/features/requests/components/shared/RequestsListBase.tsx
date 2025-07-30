@@ -84,7 +84,7 @@ export function RequestsListBase({
    * Ordena las solicitudes por estado y fecha de creación
    */
   const sortRequests = (requestsToSort: Request[]) => {
-    const statusOrder = { 'OBSERVED': 0, 'PENDING': 1, 'COMPLETED': 2, 'REJECTED': 3 };
+    const statusOrder = { 'OBSERVED': 0, 'PENDING': 1, 'IN_PROGRESS': 2, 'COMPLETED': 3, 'REJECTED': 4 };
     
     return requestsToSort.sort((a, b) => {
       const statusA = statusOrder[a.status as keyof typeof statusOrder] ?? 999;
@@ -202,6 +202,7 @@ export function RequestsListBase({
                 <option value="all">Todos</option>
                 <option value="OBSERVED">Observado</option>
                 <option value="PENDING">Pendiente</option>
+                <option value="IN_PROGRESS">En proceso</option>
                 <option value="COMPLETED">Completado</option>
                 <option value="REJECTED">Rechazado</option>
               </select>
