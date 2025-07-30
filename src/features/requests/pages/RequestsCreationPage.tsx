@@ -38,6 +38,17 @@ export function RequestsCreationPage() {
   const [loading, setLoading] = useState(false);
 
   /**
+   * Efecto para limpiar el estado al montar el componente
+   */
+  useEffect(() => {
+    // Resetear el estado solo si no hay datos de CSV
+    if (!location.state?.csvData) {
+      setRequests([emptyRequest]);
+      setOpenOptionsIndex(null);
+    }
+  }, []); // Solo se ejecuta al montar el componente
+
+  /**
    * Efecto para cargar datos del CSV si vienen desde la navegación
    */
   useEffect(() => {
