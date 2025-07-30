@@ -214,7 +214,7 @@ export const OptionsDrawer = ({ isActive, handleActive }: OptionsModalProps) => 
           
           <button 
             onClick={handleLoadTemplate} 
-            className='border border-medium-1 rounded-[4px] text-medium hover:bg-white-1 py-2'
+            className='border border-medium-1 rounded-[4px] text-medium hover:bg-white-1 py-0.5'
           >
             Descargar plantilla
           </button> 

@@ -3,6 +3,7 @@ import { AddButton } from "./AddButton";
 import { DocsChecklist } from "./DocsChecklist";
 import { IDocumentType } from "@/features/requests/interfaces/IDocumentTypeResponse";
 import { Modal } from "@/shared/components/Modal";
+import { Button } from "@/shared/components/Button";
 import { Notify } from 'notiflix';
 import { RequestsType } from "@/features/requests/types/RequestsListType";
 import { ResourceField } from "../../public/ResourceField";
@@ -231,27 +232,30 @@ export const CreationTable = ({
               onClose={() => setDeleteConfirmModal(false)}
               position="center"
               width="400px"
-            >
-              <div className="py-2 px-8 text-lg text-center">
-                <p>¿Estás seguro que deseas eliminar este registro?</p>
-                <div className="flex justify-center gap-6 pt-4">
-                  <button
-                    onClick={() => setDeleteConfirmModal(false)}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={() => {
+              title="¿Está seguro que desea eliminar este registro?"
+              footer={
+                <div className="flex gap-4">
+                  <Button
+                    type="secondary"
+                    handleClick={() => setDeleteConfirmModal(false)}
+                    description="Cancelar"
+                  />
+                  <Button
+                    type="primary"
+                    handleClick={() => {
                       setDeleteConfirmModal(false);
                       const newRequests = [...requests];
                       newRequests.splice(index, 1);
                       handleRequests(newRequests);
                     }}
-                    className="px-4 py-2 bg-main-1plus hover:bg-main text-white rounded-md"
-                  >
-                    Confirmar
-                  </button>
+                    description="Confirmar"
+                  />
+                </div>
+              }
+            >
+              <div className="">
+                <div className="flex flex-col gap-2 text-[12px] text-medium">
+                  Esta acción no se puede deshacer. El registro será eliminado.
                 </div>
               </div>
             </Modal>
