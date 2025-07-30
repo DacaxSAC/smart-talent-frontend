@@ -6,10 +6,12 @@ import { PageLayout } from "@/features/users/components/shared/PageLayout";
 import { PageTitle } from "@/features/users/components/shared/PageTitle";
 import { Button } from "@/shared/components/Button";
 import { Loader } from "@/shared/components/Loader";
+
 import { useHasRole } from "@/features/auth/hooks/useUser";
 import { ROLES } from "@/features/auth/constants/roles";
 import { Notify } from "notiflix";
-//import { useUpload } from "@/shared/hooks/useUpload";
+import { useUpload } from "@/shared/hooks/useUpload";
+import { apiClient } from "@/lib/axios/client";
 import { MdExpandMore } from "react-icons/md";
 import { STATUS } from "@/features/auth/constants/status";
 
@@ -24,9 +26,10 @@ export const RequestDetailPage = () => {
   const isAdmin = useHasRole(ROLES.ADMIN);
   const isRecruiter = useHasRole(ROLES.RECRUITER);
   const isUser = useHasRole(ROLES.USER);
-  //const { uploadFile } = useUpload();
+  const { uploadFile } = useUpload();
 
   const [request, setRequest] = useState<Request | null>(null);
+  const [originalRequest, setOriginalRequest] = useState<Request | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +37,99 @@ export const RequestDetailPage = () => {
   const [expandedDocuments, setExpandedDocuments] = useState<{
     [key: number]: boolean;
   }>({});
+
+
+  /**
+   * Verifica si hay modificaciones en los recursos de un documento específico
+   */
+  const hasResourceModifications = (documentIndex: number) => {
+    if (!request || !originalRequest) return false;
+    
+    const doc = request.documents[documentIndex];
+    const originalDoc = originalRequest.documents[documentIndex];
+    
+    if (!doc || !originalDoc) return false;
+    
+    return doc.resources.some((resource, resourceIndex) => {
+      const originalResource = originalDoc.resources[resourceIndex];
+      if (!originalResource) return true;
+      
+      return resource.value !== originalResource.value;
+    });
+  };
+
+  /**
+   * Obtiene una URL firmada para subir archivos
+   */
+  const getSignedUrl = async (file: File) => {
+    const response = await apiClient.post('/upload/write-signed-url', {
+      fileName: file.name,
+      contentType: file.type
+    });
+    return response.data.signedUrl;
+  };
+
+  /**
+   * Procesa los recursos y maneja la subida de archivos
+   */
+  const processResources = async (resources: any[]) => {
+    const processedResources = [];
+
+    for (const resource of resources) {
+      if (Array.isArray(resource.value)) {
+        // Si es un array de archivos, subir cada archivo
+        await Promise.all(
+          resource.value.map(async (file: File) => {
+            if (file instanceof File) {
+              try {
+                const signedUrl = await getSignedUrl(file);
+                await uploadFile(file, signedUrl);
+                processedResources.push({
+                  resourceId: resource.id,
+                  value: file.name
+                });
+              } catch (error) {
+                console.error('Error al subir archivo:', error);
+                throw new Error(`Error al subir el archivo ${file.name}`);
+              }
+            }
+          })
+        );
+      } else {
+        // Si no es un archivo, usar el valor directamente
+        processedResources.push({
+          resourceId: resource.id,
+          value: resource.value
+        });
+      }
+    }
+
+    return processedResources;
+  };
+
+
+
+  /**
+   * Envía las correcciones de recursos al backend
+   */
+  const handleSaveResourceCorrections = async (index: number) => {
+    if (!request) return;
+
+    try {
+      const document = request.documents[index];
+      const resourceCorrections = await processResources(document.resources);
+
+      await RequestsService.sendCorrections(resourceCorrections);
+      
+      Notify.success('Correcciones enviadas correctamente');
+      
+      // Recargar los datos para reflejar los cambios
+      await loadRequestData();
+    } catch (error) {
+      console.error('Error al enviar correcciones:', error);
+      Notify.failure('Error al enviar las correcciones');
+    }
+  };
 
   /**
    * Carga los datos del request desde el servicio API
@@ -63,6 +159,7 @@ export const RequestDetailPage = () => {
       if (response && response.person) {
         console.log("Setting request data:", response.person);
         setRequest(response.person);
+        setOriginalRequest(JSON.parse(JSON.stringify(response.person))); // Deep copy
       } else {
         console.log("No person data found in response:", response);
         throw new Error("No se encontró la solicitud");
@@ -303,10 +400,19 @@ export const RequestDetailPage = () => {
                   <div className="flex flex-col gap-3">
                     {/* Recursos del documento */}
                     <div className="p-3 border border-white-1 rounded-[12px]">
-
-                      <p className="mb-2 font-[500] text-gray-900 dark:text-white">
-                        Recursos requeridos para el informe correspondiente:
-                      </p>
+                      <div className="flex justify-between items-start">
+                        <p className="mb-2 font-[500] text-gray-900 dark:text-white">
+                          Recursos requeridos para el informe correspondiente:
+                        </p>
+                        {isUser && request.status === "PENDING" && hasResourceModifications(docIndex) && (
+                           <button
+                             onClick={() => handleSaveResourceCorrections(docIndex)}
+                             className="px-3 py-0.5 border rounded-[4px] text-[12px] border-blue-500 hover:border-blue-600 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
+                           >
+                             Guardar recursos
+                           </button>
+                         )}
+                      </div>
                       {document.resources.map((resource, resourceIndex) => (
                           <ResourceField
                             key={resourceIndex}
@@ -409,6 +515,8 @@ export const RequestDetailPage = () => {
           })}
         </div>
       </div>
+
+
     </PageLayout>
   );
 };
