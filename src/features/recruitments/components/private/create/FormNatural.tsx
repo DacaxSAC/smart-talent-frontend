@@ -26,7 +26,7 @@ export const FormNatural = ({userEdit, isUpdate}:Readonly<{userEdit?:UsersListRe
     firstName: userEdit?.firstName || '',
     paternalSurname: userEdit?.paternalSurname || '',
     maternalSurname: userEdit?.maternalSurname || '',
-    email:userEdit?.user.email || '',
+    email:userEdit?.users?.[0]?.email || '',
     address:userEdit?.address || '',
     phone: userEdit?.phone || '',
   });

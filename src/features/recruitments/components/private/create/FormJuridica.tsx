@@ -30,7 +30,7 @@ export const FormJuridica = ({ userEdit, isUpdate }: Readonly<{ userEdit?: Users
   const [user, setUser] = useState<UserProps>({
     documentNumber: userEdit?.documentNumber || "",
     businessName: userEdit?.businessName || "",
-    email: userEdit?.user.email || "",
+    email: userEdit?.users?.[0]?.email || "",
     address: userEdit?.address || "",
     phone: userEdit?.phone || "",
   });

@@ -11,12 +11,15 @@ export interface UsersListResponse {
     phone: string;
     createdAt: string;
     updatedAt: string;
-    user: {
+    users: {
         id: number;
+        entityId:number;
         username: string;
         email: string;
+        isActive: boolean;
+        isPrimary: boolean;
         Roles: Role[];
-    };
+    }[];
 }
 
 interface Role {
