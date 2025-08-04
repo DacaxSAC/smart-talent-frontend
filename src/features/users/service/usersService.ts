@@ -46,6 +46,18 @@ export const UsersService = {
     }
   },
 
+  async getUser(id: number): Promise<UsersListResponse> {
+    try {
+      const { data } = await UsersApi.getUser(id);
+      return data;
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 401) {
+        throw new Error("Unauthorized");
+      }
+      throw new Error("Error getting user");
+    }
+  },
+
   async deleteUser(id: number): Promise<void> {
     try {
       await UsersApi.deleteUser(id);
@@ -66,6 +78,17 @@ export const UsersService = {
        }
        throw new Error("Error reactivating user");
      }
+  },
+
+  async addUserToJuridica(id: number, payload: UserProps): Promise<void> {
+    try {
+      await UsersApi.addUserToJuridica(id, payload);
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 401) {
+        throw new Error("Unauthorized");
+      }
+      throw new Error("Error adding user to juridica");
+    }
   },
 
 };

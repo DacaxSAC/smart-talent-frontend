@@ -54,8 +54,13 @@ export interface UserResponse {
         updatedAt: string;
         createdAt: string;
     };
-    user?: {
-        email: string;
+    users: {
+        id: number;
+        entityId:number;
         username: string;
-    };
+        email: string;
+        isActive: boolean;
+        isPrimary: boolean;
+        Roles: Role[];
+    }[];
 }

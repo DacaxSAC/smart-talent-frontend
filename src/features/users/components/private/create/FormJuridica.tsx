@@ -223,6 +223,50 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
         />
         
       </div>
+
+      {/* Sección de usuarios - Solo en detail y edit */}
+      {(isUpdate || isReadOnly) && userEdit?.users && userEdit.users.length > 0 && (
+        <div className="p-6 flex flex-col gap-4 text-black dark:text-white border border-[#C3C3C3] rounded-[12px]">
+          <h3 className="text-[16px] font-semibold mb-2">Usuarios asociados</h3>
+          <div className="space-y-3">
+            {userEdit.users.map((user) => (
+              <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-[8px] border border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[14px] font-medium">{user.username}</span>
+                  <span className="text-[12px] text-gray-600 dark:text-gray-400">{user.email}</span>
+                </div>
+                {!isReadOnly && (
+                  <ReusableButton
+                    handleClick={() => {
+                      // TODO: Implementar lógica para deshabilitar usuario
+                      console.log('Deshabilitar usuario:', user.id);
+                    }}
+                    text={user.isActive ? "Deshabilitar" : "Habilitado"}
+                    variant={user.isActive ? "tertiary" : "secondary"}
+                    justify="center"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Botón agregar usuario - Solo en create */}
+      {!isUpdate && !isReadOnly && (
+        <div className="flex justify-end">
+          <ReusableButton
+            handleClick={() => {
+              // TODO: Implementar lógica para agregar usuario
+              console.log('Agregar usuario');
+            }}
+            text="Agregar user"
+            variant="secondary"
+            justify="center"
+          />
+        </div>
+      )}
+
       {!isReadOnly && (
         <div className="flex gap-4 justify-end">
           {isUpdate && onCancelEdit && (
