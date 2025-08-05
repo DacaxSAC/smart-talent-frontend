@@ -19,7 +19,7 @@ export const UsersList = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEdit = (user:UsersListResponse) => {
-    navigate(`/users/detail/${user.id}`, { state: { user } });
+    navigate(`/users/detail/${user.id}`);
   };
 
   const handleOpenModal = (user: UsersListResponse) => {

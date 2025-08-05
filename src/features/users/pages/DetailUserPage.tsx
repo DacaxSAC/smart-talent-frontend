@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router";
 import { UserTypeButton } from "../components/private/create/UserTypeButton";
 import { FormNatural } from "../components/private/create/FormNatural";
 import { FormJuridica } from "../components/private/create/FormJuridica";
@@ -7,15 +7,60 @@ import { ReusableButton } from "../components/shared/ReusableButton";
 import { PageTitle } from "../components/shared/PageTitle";
 import { UsersListResponse } from "../types/UserListResponse";
 import { PageLayout } from "../components/shared/PageLayout";
+import { UsersService } from "../service/usersService";
+import { Loader } from "@/shared/components/Loader";
 
 export function DetailUserPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const user:UsersListResponse = location.state?.user;
+  const { id } = useParams<{ id: string }>();
+  const [user, setUser] = useState<UsersListResponse | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!user) {
-    return <div>No se encontró información del usuario</div>;
+  /**
+   * Obtiene los datos del usuario por ID
+   */
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!id) {
+        setError("ID de usuario no válido");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const userData = await UsersService.getUser(parseInt(id));
+        setUser(userData);
+        setError(null);
+      } catch (err) {
+        console.error("Error al obtener usuario:", err);
+        setError("Error al cargar los datos del usuario");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [id]);
+
+  if (isLoading) {
+     return (
+       <PageLayout>
+         <Loader isLoading={isLoading} />
+       </PageLayout>
+     );
+   }
+
+  if (error || !user) {
+    return (
+      <PageLayout>
+        <div className="text-center text-red-500">
+          {error || "No se encontró información del usuario"}
+        </div>
+      </PageLayout>
+    );
   }
 
   return (
