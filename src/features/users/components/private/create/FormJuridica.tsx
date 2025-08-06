@@ -4,6 +4,7 @@ import { FormInput } from "../../shared/FormInput";
 import { ReusableButton } from "../../shared/ReusableButton";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { Loader } from "@/shared/components/Loader";
+import { Modal } from "@/shared/components/modal";
 import { useNavigate } from "react-router-dom";
 import { UsersListResponse } from "@/features/users/types/UserListResponse";
 
@@ -32,6 +33,10 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserUsername, setNewUserUsername] = useState("");
+  const [isAddingUser, setIsAddingUser] = useState(false);
 
   const [user, setUser] = useState<UserProps>({
     documentNumber: userEdit?.documentNumber || "",
@@ -139,6 +144,54 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
     setLoading(false);
     navigate('/users');
     console.log(response);
+  };
+
+  const handleDisableUser = (userId: string) => {
+    // TODO: Implement disable user logic
+    console.log('Disable user:', userId);
+  };
+
+  const handleAddUser = async () => {
+    if (!newUserEmail.trim() || !newUserUsername.trim()) {
+      alert('Por favor, complete todos los campos');
+      return;
+    }
+
+    if (!userEdit?.id) {
+      alert('No se puede agregar usuario: ID de entidad no encontrado');
+      return;
+    }
+
+    setIsAddingUser(true);
+    try {
+      await UsersService.addUserToJuridica(userEdit.id, {
+        email: newUserEmail,
+        username: newUserUsername
+      });
+      
+      // Create new user object to add to the list
+      const newUser = {
+        id: Date.now(), // Temporary ID until refresh
+        email: newUserEmail,
+        username: newUserUsername,
+        isActive: true
+      };
+      
+      // Update userEdit state to include the new user
+      if (userEdit && userEdit.users) {
+        userEdit.users.push(newUser);
+      }
+      
+      // Reset form and close modal
+      setNewUserEmail('');
+      setNewUserUsername('');
+      setShowAddUserModal(false);
+    } catch (error) {
+      console.error('Error adding user:', error);
+      alert('Error al agregar usuario');
+    } finally {
+      setIsAddingUser(false);
+    }
   };
 
   const handleClick = () => {
@@ -252,14 +305,11 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
         </div>
       )}
 
-      {/* Botón agregar usuario - Solo en create */}
-      {!isUpdate && !isReadOnly && (
+      {/* Botón agregar usuario - Solo en edit */}
+      {isUpdate && !isReadOnly && (
         <div className="flex justify-end">
           <ReusableButton
-            handleClick={() => {
-              // TODO: Implementar lógica para agregar usuario
-              console.log('Agregar usuario');
-            }}
+            handleClick={() => setShowAddUserModal(true)}
             text="Agregar user"
             variant="secondary"
             justify="center"
@@ -296,6 +346,72 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
           { label: "Correo", value: user.email }
         ]}
       />
+
+      {/* Modal para agregar usuario */}
+      <Modal
+        isOpen={showAddUserModal}
+        onClose={() => {
+          setShowAddUserModal(false);
+          setNewUserEmail('');
+          setNewUserUsername('');
+        }}
+        title="Agregar Usuario"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={newUserEmail}
+              onChange={(e) => setNewUserEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="Ingrese el email del usuario"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              value={newUserUsername}
+              onChange={(e) => setNewUserUsername(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="Ingrese el username del usuario"
+            />
+          </div>
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddUserModal(false);
+                setNewUserEmail('');
+                setNewUserUsername('');
+              }}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={isAddingUser}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleAddUser}
+              disabled={isAddingUser || !newUserEmail.trim() || !newUserUsername.trim()}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isAddingUser && (
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              )}
+              {isAddingUser ? 'Agregando...' : 'Agregar Usuario'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

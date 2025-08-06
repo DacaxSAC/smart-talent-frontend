@@ -80,7 +80,7 @@ export const UsersService = {
      }
   },
 
-  async addUserToJuridica(id: number, payload: UserProps): Promise<void> {
+  async addUserToJuridica(id: number, payload: { email: string, username: string }): Promise<void> {
     try {
       await UsersApi.addUserToJuridica(id, payload);
     } catch (error: unknown) {
