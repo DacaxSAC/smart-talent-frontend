@@ -17,7 +17,7 @@ export const HomePage = () => {
   const [allRequests, setAllRequests] = useState<Request[]>([]); // Guardar todas las solicitudes
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [filterType, setFilterType] = useState<"manual" | "monthly">("monthly"); // Tipo de filtro - Por defecto mensual
@@ -27,7 +27,7 @@ export const HomePage = () => {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     return `${year}-${month}`;
   }); // Formato: "2025-01" - Inicializado con el mes actual
-  const [isOnlyUser, setIsOnlyUser] = useState(false);
+  const [isOnlyUser] = useState(false);
 
   /**
    * Obtiene las solicitudes del servidor
@@ -160,12 +160,12 @@ export const HomePage = () => {
   /**
    * Limpia todos los filtros
    */
-  const clearFilters = () => {
-    setStartDate("");
-    setEndDate("");
-    setSelectedMonth("");
-    setRequests(allRequests);
-  };
+  //const clearFilters = () => {
+  //  setStartDate("");
+  //  setEndDate("");
+  //  setSelectedMonth("");
+  //  setRequests(allRequests);
+  //};
 
   /**
    * Procesa los datos de estados de solicitudes para el gráfico de dona
