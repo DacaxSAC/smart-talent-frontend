@@ -2,31 +2,59 @@ import { apiClient } from '@/lib/axios/client';
 import { REQUEST_ENDPOINTS } from '../api/endpoints';
 
 export interface Request {
-    id: string;
+    id: number; // Cambió de string a number
     owner?: string;
     dni: string;
     fullname: string;
     status: string;
     phone: string;
-    observations:string;
-    createdAt?: string;
+    observations: string | null; // Puede ser null
+    createdAt: string; // Ya no es opcional, siempre viene del backend
+    updatedAt: string; // Nuevo campo
+    request?: { // Nuevo campo anidado
+        id: number;
+        entityId: number;
+        status: string;
+        active: boolean;
+        createdAt: string;
+        updatedAt: string;
+        entity: {
+            id: number;
+            type: string;
+            documentNumber: string;
+            firstName: string;
+            maternalSurname: string;
+            paternalSurname: string;
+            businessName: string | null;
+            active: boolean;
+            address: string;
+            phone: string;
+            createdAt: string;
+            updatedAt: string;
+        };
+    };
     documents: {
         id: number;
         name: string;
         filename: File | string | null;
         result: string | null;
         status: string;
+        createdAt: string; // Nuevo campo
+        updatedAt: string; // Nuevo campo
         resources: {
             id: number;
             name: string;
             value: string;
-            allowedFileTypes?: string[];
+            documentId: number; // Nuevo campo
+            createdAt: string; // Nuevo campo
+            updatedAt: string; // Nuevo campo
+            allowedFileTypes: string[];
         }[]
     }[];
     Users: {
         id: number;
         username: string;
-        email:string;
+        email: string;
         Roles: {
             name: string;
         }[];
