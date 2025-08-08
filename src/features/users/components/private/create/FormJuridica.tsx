@@ -4,7 +4,7 @@ import { FormInput } from "../../shared/FormInput";
 import { ReusableButton } from "../../shared/ReusableButton";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { Loader } from "@/shared/components/Loader";
-import { Modal } from "@/shared/components/modal";
+import { Modal } from "@/shared/components/Modal";
 import { useNavigate } from "react-router-dom";
 import { UsersListResponse } from "@/features/users/types/UserListResponse";
 
@@ -24,11 +24,16 @@ interface FormErrors {
   phone: { error: boolean; message: string };
 }
 
-export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: Readonly<{ 
-  userEdit?: UsersListResponse, 
-  isUpdate?: boolean,
-  isReadOnly?: boolean,
-  onCancelEdit?: () => void 
+export const FormJuridica = ({
+  userEdit,
+  isUpdate,
+  isReadOnly,
+  onCancelEdit,
+}: Readonly<{
+  userEdit?: UsersListResponse;
+  isUpdate?: boolean;
+  isReadOnly?: boolean;
+  onCancelEdit?: () => void;
 }>) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -37,6 +42,7 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserUsername, setNewUserUsername] = useState("");
   const [isAddingUser, setIsAddingUser] = useState(false);
+  const [localUsers, setLocalUsers] = useState(userEdit?.users || []);
 
   const [user, setUser] = useState<UserProps>({
     documentNumber: userEdit?.documentNumber || "",
@@ -47,81 +53,87 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
   });
 
   const [errors, setErrors] = useState<FormErrors>({
-    documentNumber: { error: false, message: '' },
-    businessName: { error: false, message: '' },
-    email: { error: false, message: '' },
-    address: { error: false, message: '' },
-    phone: { error: false, message: '' },
+    documentNumber: { error: false, message: "" },
+    businessName: { error: false, message: "" },
+    email: { error: false, message: "" },
+    address: { error: false, message: "" },
+    phone: { error: false, message: "" },
   });
 
   const validateRUC = (value: string) => {
     const isValid = /^\d{11}$/.test(value);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       documentNumber: {
         error: !isValid,
-        message: isValid ? '' : 'El RUC debe tener 11 dígitos numéricos'
-      }
+        message: isValid ? "" : "El RUC debe tener 11 dígitos numéricos",
+      },
     }));
     return isValid;
   };
 
   const validateBusinessName = (value: string) => {
     const isValid = value.trim().length > 0;
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       businessName: {
         error: !isValid,
-        message: isValid ? '' : 'La razón social no puede estar vacía'
-      }
+        message: isValid ? "" : "La razón social no puede estar vacía",
+      },
     }));
     return isValid;
   };
 
   const validateEmail = (value: string) => {
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       email: {
         error: !isValid && value.length > 0,
-        message: isValid ? '' : 'Formato de correo electrónico inválido'
-      }
+        message: isValid ? "" : "Formato de correo electrónico inválido",
+      },
     }));
     return isValid;
   };
 
   const validateAddress = (value: string) => {
     const isValid = value.trim().length > 0;
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       address: {
         error: !isValid && value.length > 0,
-        message: isValid ? '' : 'La dirección no puede estar vacía'
-      }
+        message: isValid ? "" : "La dirección no puede estar vacía",
+      },
     }));
     return isValid;
   };
 
   const validatePhone = (value: string) => {
     const isValid = /^\d{9}$/.test(value);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       phone: {
         error: !isValid && value.length > 0,
-        message: isValid ? '' : 'El teléfono debe tener 9 dígitos numéricos'
-      }
+        message: isValid ? "" : "El teléfono debe tener 9 dígitos numéricos",
+      },
     }));
     return isValid;
   };
 
   const validateForm = () => {
     const isDocumentValid = validateRUC(user.documentNumber);
-    const isBusinessNameValid = validateBusinessName(user.businessName || '');
+    const isBusinessNameValid = validateBusinessName(user.businessName || "");
     const isEmailValid = validateEmail(user.email);
     const isAddressValid = validateAddress(user.address);
     const isPhoneValid = validatePhone(user.phone);
 
-    return isDocumentValid && isBusinessNameValid && isEmailValid && isAddressValid && isPhoneValid;
+    return (
+      isDocumentValid &&
+      isBusinessNameValid &&
+      isEmailValid &&
+      isAddressValid &&
+      isPhoneValid
+    );
   };
 
   const handleCreateUser = async () => {
@@ -131,7 +143,7 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
     setLoading(true);
     const response = await UsersService.createUser(payload);
     setLoading(false);
-    navigate('/users');
+    navigate("/users");
     console.log(response);
   };
 
@@ -142,23 +154,23 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
     setLoading(true);
     const response = await UsersService.updateUser(userEdit?.id || 0, payload);
     setLoading(false);
-    navigate('/users');
+    navigate("/users");
     console.log(response);
   };
 
   const handleDisableUser = (userId: string) => {
     // TODO: Implement disable user logic
-    console.log('Disable user:', userId);
+    console.log("Disable user:", userId);
   };
 
   const handleAddUser = async () => {
     if (!newUserEmail.trim() || !newUserUsername.trim()) {
-      alert('Por favor, complete todos los campos');
+      alert("Por favor, complete todos los campos");
       return;
     }
 
     if (!userEdit?.id) {
-      alert('No se puede agregar usuario: ID de entidad no encontrado');
+      alert("No se puede agregar usuario: ID de entidad no encontrado");
       return;
     }
 
@@ -166,29 +178,35 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
     try {
       await UsersService.addUserToJuridica(userEdit.id, {
         email: newUserEmail,
-        username: newUserUsername
+        username: newUserUsername,
       });
-      
+
       // Create new user object to add to the list
       const newUser = {
         id: Date.now(), // Temporary ID until refresh
+        entityId: 0, // Default value
         email: newUserEmail,
         username: newUserUsername,
-        isActive: true
+        active: true,
+        isPrimary: false,
+        Roles: [] // Empty roles array
       };
-      
+
       // Update userEdit state to include the new user
       if (userEdit && userEdit.users) {
         userEdit.users.push(newUser);
       }
       
+      // Update local users state
+      setLocalUsers(prevUsers => [...prevUsers, newUser]);
+
       // Reset form and close modal
-      setNewUserEmail('');
-      setNewUserUsername('');
+      setNewUserEmail("");
+      setNewUserUsername("");
       setShowAddUserModal(false);
     } catch (error) {
-      console.error('Error adding user:', error);
-      alert('Error al agregar usuario');
+      console.error("Error adding user:", error);
+      alert("Error al agregar usuario");
     } finally {
       setIsAddingUser(false);
     }
@@ -209,11 +227,11 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
   return (
     <>
       <Loader isLoading={loading} />
-       <div className="p-6 flex-1 flex flex-col gap-4 text-black dark:text-white border border-[#C3C3C3] rounded-[12px]">
+      <div className="p-6 flex-1 flex flex-col gap-4 text-black dark:text-white border border-[#C3C3C3] rounded-[12px]">
         <p className="text-[14px] text-black dark:text-white mb-4">
           Ingresa los datos en los campos correspondientes:
         </p>
-      
+
         <FormInput
           fieldName="RUC"
           value={user.documentNumber}
@@ -228,7 +246,7 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
         />
         <FormInput
           fieldName="Razón social"
-          value={user.businessName || ''}
+          value={user.businessName || ""}
           handleOnChange={(e) => {
             const value = e.target.value;
             setUser({ ...user, businessName: value });
@@ -262,60 +280,69 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
           errorMessage={errors.phone.message}
           disabled={isReadOnly}
         />
-        <FormInput
-          fieldName="Correo"
-          value={user.email}
-          handleOnChange={(e) => {
-            const value = e.target.value;
-            setUser({ ...user, email: value });
-            validateEmail(value);
-          }}
-          error={errors.email.error}
-          errorMessage={errors.email.message}
-          disabled={isReadOnly}
-        />
-        
       </div>
 
       {/* Sección de usuarios - Solo en detail y edit */}
-      {(isUpdate || isReadOnly) && userEdit?.users && userEdit.users.length > 0 && (
-        <div className="p-6 flex flex-col gap-4 text-black dark:text-white border border-[#C3C3C3] rounded-[12px]">
-          <h3 className="text-[16px] font-semibold mb-2">Usuarios asociados</h3>
-          <div className="space-y-3">
-            {userEdit.users.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-[8px] border border-gray-200 dark:border-gray-700">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[14px] font-medium">{user.username}</span>
-                  <span className="text-[12px] text-gray-600 dark:text-gray-400">{user.email}</span>
-                </div>
-                {!isReadOnly && (
+      {(isReadOnly) &&
+        userEdit?.users &&
+        userEdit.users.length > 0 && (
+          <div className="p-6 flex flex-col gap-4 text-black dark:text-white border border-[#C3C3C3] rounded-[12px]">
+            <div className="flex justify-between">
+              <h3 className="text-[16px] font-semibold mb-2">
+                Usuarios asociados
+              </h3>
+              {/* Botón agregar usuario - Solo en edit */}
+              {isReadOnly && (
+                <div className="flex justify-end">
                   <ReusableButton
-                    handleClick={() => {
-                      // TODO: Implementar lógica para deshabilitar usuario
-                      console.log('Deshabilitar usuario:', user.id);
-                    }}
-                    text={user.isActive ? "Deshabilitar" : "Habilitado"}
-                    variant={user.isActive ? "tertiary" : "secondary"}
+                    handleClick={() => setShowAddUserModal(true)}
+                    text="Agregar user"
+                    variant="secondary"
                     justify="center"
                   />
-                )}
-              </div>
-            ))}
+                </div>
+              )}
+            </div>
+            <div className="space-y-3">
+              {localUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-[8px] border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[14px] font-medium">
+                      {user.username}
+                    </span>
+                    <span className="text-[12px] text-gray-600 dark:text-gray-400">
+                      {user.email}
+                    </span>
+                  </div>
+                  {isReadOnly && (
+                    <button
+                      className="text-[12px] hover:text-blue-600 transition-colors"
+                      onClick={async () => {
+                         try {
+                           await UsersService.updateStatusUser(user.id);
+                           // Actualizar el estado local del usuario
+                           setLocalUsers(prevUsers => 
+                             prevUsers.map(u => 
+                               u.id === user.id ? { ...u, active: !u.active } : u
+                             )
+                           );
+                         } catch (error) {
+                           console.error("Error al actualizar estado del usuario:", error);
+                           alert("Error al actualizar el estado del usuario");
+                         }
+                       }}
+                    >
+                      {user.active ? "Deshabilitar" : "Habilitar"}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-
-      {/* Botón agregar usuario - Solo en edit */}
-      {isUpdate && !isReadOnly && (
-        <div className="flex justify-end">
-          <ReusableButton
-            handleClick={() => setShowAddUserModal(true)}
-            text="Agregar user"
-            variant="secondary"
-            justify="center"
-          />
-        </div>
-      )}
+        )}
 
       {!isReadOnly && (
         <div className="flex gap-4 justify-end">
@@ -327,10 +354,7 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
               justify="start"
             />
           )}
-          <ReusableButton 
-            handleClick={handleClick}
-            text="Confirmar registro"
-          />
+          <ReusableButton handleClick={handleClick} text="Confirmar registro" />
         </div>
       )}
       <ConfirmationModal
@@ -343,7 +367,6 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
           { label: "Razón social", value: user.businessName },
           { label: "Dirección", value: user.address },
           { label: "Teléfono", value: user.phone },
-          { label: "Correo", value: user.email }
         ]}
       />
 
@@ -352,8 +375,8 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
         isOpen={showAddUserModal}
         onClose={() => {
           setShowAddUserModal(false);
-          setNewUserEmail('');
-          setNewUserUsername('');
+          setNewUserEmail("");
+          setNewUserUsername("");
         }}
         title="Agregar Usuario"
       >
@@ -383,32 +406,22 @@ export const FormJuridica = ({ userEdit, isUpdate, isReadOnly, onCancelEdit }: R
             />
           </div>
           <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={() => {
+            <ReusableButton
+              handleClick={() => {
                 setShowAddUserModal(false);
-                setNewUserEmail('');
-                setNewUserUsername('');
+                setNewUserEmail("");
+                setNewUserUsername("");
               }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              text="Cancelar"
+              variant="tertiary"
               disabled={isAddingUser}
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              onClick={handleAddUser}
+            />
+            <ReusableButton
+              handleClick={handleAddUser}
+              text={isAddingUser ? "Agregando..." : "Agregar Usuario"}
+              variant="primary"
               disabled={isAddingUser || !newUserEmail.trim() || !newUserUsername.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {isAddingUser && (
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
-              {isAddingUser ? 'Agregando...' : 'Agregar Usuario'}
-            </button>
+            />
           </div>
         </div>
       </Modal>

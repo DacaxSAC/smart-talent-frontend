@@ -91,4 +91,15 @@ export const UsersService = {
     }
   },
 
+  async updateStatusUser(id: number): Promise<void> {
+    try {
+      await UsersApi.updateStatusUser(id);
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 401) {
+        throw new Error("Unauthorized");
+      }
+      throw new Error("Error updating status user");
+    }
+  },
+
 };
