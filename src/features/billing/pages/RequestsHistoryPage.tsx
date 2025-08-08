@@ -53,13 +53,7 @@ export function ResquestsHistoryPage() {
         <Fragment>
           <button 
             onClick={() => exportToExcel(requestsHistory, "reporte_solicitudes")} 
-            style={{ 
-              padding: "8px 12px", 
-              backgroundColor: "#4CAF50", 
-              color: "#fff", 
-              border: "none", 
-              borderRadius: "4px" 
-            }} 
+            className="px-2 py-1 border border-success rounded-[8px] hover:bg-white-1 text-[12px] text-success"
           > 
             Exportar a Excel 
           </button>
@@ -74,30 +68,41 @@ export function ResquestsHistoryPage() {
       <Fragment>
         <Loader isLoading={false} />
         {/* aqui agregar dos filtros de fecha desde hasta */}
-        <div className="flex items-center gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor="dateFrom">Desde:</label>
+        <div className="flex items-end gap-4 mb-4">
+          <div className="flex flex-col gap-1 w-full md:w-auto scheme-light dark:scheme-dark">
+            <label
+              htmlFor="dateFrom"
+              className="text-neutral-7 dark:text-neutral-3"
+            >
+              Fecha de inicio
+            </label>
             <input
               type="date"
               id="dateFrom"
-              className="border border-gray-300 rounded-md p-2"
+              className="px-2 py-1 border border-white-1 rounded-[8px] hover:bg-white-1 text-medium"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="dateTo">Hasta:</label>
+
+          <div className="flex flex-col gap-1 w-full md:w-auto scheme-light dark:scheme-dark">
+            <label
+              htmlFor="dateTo"
+              className="text-neutral-7 dark:text-neutral-3"
+            >
+              Fecha de fin
+            </label>
             <input
               type="date"
               id="dateTo"
-              className="border border-gray-300 rounded-md p-2"
+              className="px-2 py-1 border border-white-1 rounded-[8px] hover:bg-white-1 text-medium"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
             />
           </div>
           <button
             onClick={handleFilter}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            className="px-2 py-1 border border-white-1 rounded-[8px] hover:bg-white-1 text-medium"
           >
             Filtrar
           </button>
