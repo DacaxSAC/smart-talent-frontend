@@ -32,6 +32,7 @@ export function DetailUserPage() {
       try {
         setIsLoading(true);
         const userData = await UsersService.getUser(parseInt(id));
+        console.log(userData);
         setUser(userData);
         setError(null);
       } catch (err) {

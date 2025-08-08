@@ -16,7 +16,7 @@ export interface UsersListResponse {
         entityId:number;
         username: string;
         email: string;
-        isActive: boolean;
+        active: boolean;
         isPrimary: boolean;
         Roles: Role[];
     }[];

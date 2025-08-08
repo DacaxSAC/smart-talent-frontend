@@ -20,4 +20,5 @@ export const UsersApi = {
     deleteUser: (id: number) => apiClient.delete(USERS_ENDPOINTS.DELETE_USER.replace(':id',`${id}`)),
     reactivateUser: (id: number) => apiClient.put(USERS_ENDPOINTS.REACTIVATE_USER.replace(':id',`${id}`)),
     addUserToJuridica: (id: number, payload: { email: string, username:string }) => apiClient.post(USERS_ENDPOINTS.ADD_USER_TO_JURIDICA.replace(':id',`${id}`), payload),
+    updateStatusUser: (id: number) => apiClient.patch(USERS_ENDPOINTS.UPDATE_STATUS_USER.replace(':id',`${id}`)),
 } as const;
