@@ -1,5 +1,4 @@
-export const USERS_ENDPOINTS = {
-    CREATE_USER: '/entities',
-    LIST_USERS: '/entities',
-    UPDATE_USER:'/entities/:id'
+export const BILLING_ENDPOINTS = {
+    LIST_REQUESTS_HISTORY: '/billing/requests-history',
+    LIST_RECRUITMENTS_HISTORY: '/billing/recruitments-history',
 } as const;
