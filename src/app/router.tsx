@@ -10,6 +10,7 @@ import { NotFoundPage } from "../errors/pages/NotFoundPage";
 import { ROLES } from "@/features/auth/constants/roles";
 import { recruitmentsRoutes } from "@/features/recruitments/router/recruitmentsRoutes";
 import { billingRoutes } from "@/features/billing/router/billingRoutes";
+import { HomePage } from "@/shared/pages/HomePage";
 
 /**
  * Configuración del router principal de la aplicación
@@ -73,7 +74,7 @@ export const router = createBrowserRouter([
         path: "/",
         element: (
           <ProtectedRoute roles={[ROLES.ADMIN, ROLES.USER, ROLES.RECRUITER]}>
-            <></>
+            <HomePage />
           </ProtectedRoute>
         ),
       },
