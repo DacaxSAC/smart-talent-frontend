@@ -406,134 +406,171 @@ export const RequestDetailPage = () => {
             Listado de documentos solicitados
           </h2>
 
-          {request.documents.map((document, docIndex) => {
-            const isExpanded = expandedDocuments[docIndex];
+          {Object.entries(
+            request.documents.reduce((acc, doc) => {
+              const key = doc.documentTypeName;
+              if (!acc[key]) {
+                acc[key] = [];
+              }
+              acc[key].push(doc);
+              return acc;
+            }, {} as Record<string, typeof request.documents>)
+          ).map(([documentTypeName, documents]) => {
             return (
-              <div
-                key={docIndex}
+            <div
+                key={documentTypeName}
                 className="px-3 flex flex-col gap-4 text-[14px]"
               >
-                {/* Header del documento */}
-                <div
-                  className="p-2 flex justify-between items-center border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10 cursor-pointer"
-                  onClick={() => toggleDocumentExpansion(docIndex)}
-                >
-                  <div className="flex items-center gap-3">
-                    <h3 className="">{document.name}</h3>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <span
-                      className={`text-[12px] px-3 py-1 rounded-full  ${
-                        document.status === "Pendiente"
-                          ? "bg-warning"
-                          : document.status === "Realizado"
-                          ? "bg-success"
-                          : "bg-medium"
-                      }`}
-                    >
-                      {document.status}
-                    </span>
-                    <div
-                      className={`transition-all duration-300 transform ${
-                        isExpanded ? "rotate-180" : "rotate-0"
-                      }`}
-                    >
-                      <MdExpandMore className="w-[20px] h-[20px] text-black-2 dark:text-white-1" />
-                    </div>
-                  </div>
-                </div>
+                <h3 className="text-[16px] font-semibold">
+                  {documentTypeName}
+                </h3>
+                {documents.map((document) => {
+                  const docIndex = request.documents.findIndex(
+                    (d) => d.id === document.id
+                  );
+                  const isExpanded = expandedDocuments[docIndex] ?? false;
+
+                  return (
+                    <div key={docIndex}>
+                      {/* Header del documento */}
+                      <div
+                        className="p-2 flex justify-between items-center border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10 cursor-pointer"
+                        onClick={() => toggleDocumentExpansion(docIndex)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <h3 className="">{document.name}</h3>
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          <span
+                            className={`text-[12px] px-3 py-1 rounded-full  ${
+                              document.status === "Pendiente"
+                                ? "bg-warning"
+                                : document.status === "Realizado"
+                                ? "bg-success"
+                                : "bg-medium"
+                            }`}
+                          >
+                            {document.status}
+                          </span>
+                          <div
+                            className={`transition-all duration-300 transform ${
+                              isExpanded ? "rotate-180" : "rotate-0"
+                            }`}
+                          >
+                            <MdExpandMore className="w-[20px] h-[20px] text-black-2 dark:text-white-1" />
+                          </div>
+                        </div>
+                      </div>
 
                 {isExpanded && (
-                  <div className="flex flex-col gap-3">
-                    {/* Recursos del documento */}
-                    <div className="p-3 border border-white-1 rounded-[12px]">
-                      <div className="flex justify-between items-start">
-                        <p className="mb-2 font-[500] text-gray-900 dark:text-white">
-                          Recursos requeridos para el informe correspondiente:
-                        </p>
-                        {isUser &&
-                          request.status === "PENDING" &&
-                          hasResourceModifications(docIndex) && (
-                            <button
-                              onClick={() =>
-                                handleSaveResourceCorrections(docIndex)
-                              }
-                              className="px-3 py-0.5 border rounded-[4px] text-[12px] border-blue-500 hover:border-blue-600 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
-                            >
-                              Guardar recursos
-                            </button>
-                          )}
-                      </div>
-                      {document.resources.map((resource, resourceIndex) => (
-                        <ResourceField
-                          key={resourceIndex}
-                          name={resource.name}
-                          value={resource.value}
-                          allowedFileTypes={resource.allowedFileTypes || []}
-                          isEditable={isUser && request.status === "PENDING"}
-                          onChange={(value) =>
-                            handleResourceChange(docIndex, resourceIndex, value)
-                          }
-                        />
-                      ))}
+                        <div className="flex flex-col gap-3">
+                          {/* Recursos del documento */}
+                          <div className="p-3 border border-white-1 rounded-[12px]">
+                            <div className="flex justify-between items-start">
+                              <p className="mb-2 font-[500] text-gray-900 dark:text-white">
+                                Recursos requeridos para el informe
+                                correspondiente:
+                              </p>
+                              {isUser &&
+                                request.status === "PENDING" &&
+                                hasResourceModifications(docIndex) && (
+                                  <button
+                                    onClick={() =>
+                                      handleSaveResourceCorrections(docIndex)
+                                    }
+                                    className="px-3 py-0.5 border rounded-[4px] text-[12px] border-blue-500 hover:border-blue-600 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
+                                  >
+                                    Guardar recursos
+                                  </button>
+                                )}
+                            </div>
+                            {document.resources.map(
+                              (resource, resourceIndex) => (
+                                <ResourceField
+                                  key={resourceIndex}
+                                  name={resource.name}
+                                  value={resource.value}
+                                  allowedFileTypes={
+                                    resource.allowedFileTypes || []
+                                  }
+                                  isEditable={
+                                    isUser && request.status === "PENDING"
+                                  }
+                                  onChange={(value) =>
+                                    handleResourceChange(
+                                      docIndex,
+                                      resourceIndex,
+                                      value
+                                    )
+                                  }
+                                />
+                              ))}
                     </div>
                     {/* Campos específicos para ADMIN/RECRUITER */}
-                    {(isAdmin || isRecruiter) && (
-                      <div className="p-3 border border-white-1 rounded-[12px]">
-                        <div className="flex justify-between items-start">
-                          <p className="mb-2 font-medium text-gray-900 dark:text-white">
-                            Resultados obtenidos para el informe
-                            correspondiente:
-                          </p>
-                          {(isAdmin || isRecruiter) &&
-                            document.status === "Pendiente" && (
-                              <button
-                                onClick={handleSave}
-                                disabled={
-                                  saving ||
-                                  !document.filename ||
-                                  !document.result
-                                }
-                                className={`px-3 py-0.5 border rounded-[4px] text-[12px] ${
-                                  saving ||
-                                  !document.filename ||
-                                  !document.result
-                                    ? "border-gray-300 text-gray-400 cursor-not-allowed"
-                                    : "border-success hover:border-medium hover:bg-success text-success hover:text-white cursor-pointer"
-                                }`}
-                              >
-                                {saving ? "Guardando..." : "Guardar cambios"}
-                              </button>
-                            )}
-                        </div>
+                          {(isAdmin || isRecruiter) && (
+                            <div className="p-3 border border-white-1 rounded-[12px]">
+                              <div className="flex justify-between items-start">
+                                <p className="mb-2 font-medium text-gray-900 dark:text-white">
+                                  Resultados obtenidos para el informe
+                                  correspondiente:
+                                </p>
+                                {((isAdmin || isRecruiter) &&
+                                  document.status === "Pendiente") && (
+                                  <button
+                                    onClick={handleSave}
+                                    disabled={
+                                      saving ||
+                                      !document.filename ||
+                                      !document.result
+                                    }
+                                    className={`px-3 py-0.5 border rounded-[4px] text-[12px] ${
+                                      saving ||
+                                      !document.filename ||
+                                      !document.result
+                                        ? "border-gray-300 text-gray-400 cursor-not-allowed"
+                                        : "border-success hover:border-medium hover:bg-success text-success hover:text-white cursor-pointer"
+                                    }`}
+                                  >
+                                    {saving
+                                      ? "Guardando..."
+                                      : "Guardar cambios"}
+                                  </button>
+                                )}
+                              </div>
 
-                        <ResourceField
-                          name="Documento"
-                          allowedFileTypes={[
-                            ".pdf",
-                            ".doc",
-                            ".docx",
-                            ".jpg",
-                            ".jpeg",
-                            ".png",
-                          ]}
-                          isResult={true}
-                          value={document.filename as string}
-                          isEditable={document.status === "Pendiente"}
-                          onChange={(value) =>
-                            handleFileChange(docIndex, value as File[])
-                          }
-                        />
-                        <ResourceField
-                          isResult={true}
-                          name="Resultado"
-                          allowedFileTypes={[]}
-                          value={document.result as string}
-                          isEditable={document.status === "Pendiente"}
-                          onChange={(value) =>
-                            handleResultChange(docIndex, value as string)
-                          }
-                        />
+                              <ResourceField
+                                name="Documento"
+                                allowedFileTypes={[
+                                  ".pdf",
+                                  ".doc",
+                                  ".docx",
+                                  ".jpg",
+                                  ".jpeg",
+                                  ".png",
+                                ]}
+                                isResult={true}
+                                value={document.filename as string}
+                                isEditable={document.status === "Pendiente"}
+                                onChange={(value) =>
+                                  handleFileChange(
+                                    docIndex,
+                                    value as File[]
+                                  )
+                                }
+                              />
+                              <ResourceField
+                                isResult={true}
+                                name="Resultado"
+                                allowedFileTypes={[]}
+                                value={document.result as string}
+                                isEditable={document.status === "Pendiente"}
+                                onChange={(value) =>
+                                  handleResultChange(
+                                    docIndex,
+                                    value as string
+                                  )
+                                }
+                              />
 
                         {/* Campo de semáforo */}
                         <div className="mt-4 flex gap-4">
@@ -558,26 +595,27 @@ export const RequestDetailPage = () => {
                       </div>
                     )}
 
-                    {/* Campos específicos para USER */}
-                    {isUser && (
-                      <div className="p-3 border border-white-1 rounded-[12px]">
-                        <p className="mb-2 font-medium text-gray-900 dark:text-white">
-                          Resultados obtenidos para el informe correspondiente:
-                        </p>
-                        <ResourceField
-                          isResult={true}
-                          name="Informe"
-                          value={document.filename as string}
-                          isEditable={false}
-                          allowedFileTypes={[]}
-                        />
-                        <ResourceField
-                          isResult={true}
-                          name="Comentarios adicionales"
-                          value={document.result as string}
-                          isEditable={false}
-                          allowedFileTypes={[]}
-                        />
+                     {/* Campos específicos para USER */}
+                          {isUser && (
+                            <div className="p-3 border border-white-1 rounded-[12px]">
+                              <p className="mb-2 font-medium text-gray-900 dark:text-white">
+                                Resultados obtenidos para el informe
+                                correspondiente:
+                              </p>
+                              <ResourceField
+                                isResult={true}
+                                name="Informe"
+                                value={document.filename as string}
+                                isEditable={false}
+                                allowedFileTypes={[]}
+                              />
+                              <ResourceField
+                                isResult={true}
+                                name="Comentarios adicionales"
+                                value={document.result as string}
+                                isEditable={false}
+                                allowedFileTypes={[]}
+                              />
 
                         {/* Visualización del semáforo para usuarios */}
                         <div className="mt-4 flex gap-8 items-center">
@@ -615,7 +653,10 @@ export const RequestDetailPage = () => {
                       </div>
                     )}
                   </div>
-                )}
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
