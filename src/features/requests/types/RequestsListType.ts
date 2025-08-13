@@ -6,9 +6,11 @@ export type RequestsType = {
     fullname: string;
     phone: string;
     documents: {
-      documentTypeId: number;
       name: string;
       state: boolean;
+      isHeader: boolean;
+      documentTypeId: number;
+      documentTypeName: string;
       resourceTypes: IResourceType[];
       resources: {
         resourceTypeId: number;

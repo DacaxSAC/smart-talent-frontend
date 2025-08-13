@@ -97,7 +97,9 @@ export function RequestsCreationPage() {
       if (!docs.some((doc) => doc.name === docType.name)) {
         docs.push({
           documentTypeId: docType.id,
-          name: docType.name,
+          documentTypeName: docType.name,
+          isHeader: true,
+          name: 'Informe 1',
           state: true,
           resourceTypes: docType.resourceTypes,
           resources: [],

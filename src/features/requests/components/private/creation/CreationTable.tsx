@@ -182,12 +182,12 @@ export const CreationTable = ({
               <div className="col-span-16 p-2 relative">
                 <div className="flex justify-between items-start w-full">
                   <div className="flex flex-wrap gap-1 flex-1">
-                    {request.documents.map((doc, docIndex) => (
+                    {request.documents.filter(doc => doc.isHeader).map((doc, docIndex) => (
                       <span
                         key={docIndex}
                         className="border border-white-1 dark:border-black-2 py-0.5 px-2 rounded-[5px]"
                       >
-                        {doc.name}
+                        {doc.documentTypeName}
                       </span>
                     ))}
                   </div>
@@ -376,42 +376,75 @@ interface ResourceModalProps {
   handleRequests: (newRequests: RequestsType[]) => void;
 }
 
-const ResourceModalContent = ({ selectedRequest, requests, handleRequests }: ResourceModalProps) => (
-  <div className="flex flex-col gap-2 text-[14px]">
-    <>
-      {requests[selectedRequest]?.documents.map((doc, i) => (
-        <div key={i} className="px-4 py-2 gap-2 border border-white-1 rounded-[4px]">
-          <h2 className="text-[14px] mb-2">{doc.name}</h2>
-          {doc.resourceTypes.map((resourceType, j) => (
-            <ResourceField
-              key={j}
-              {...resourceType}
-              isEditable={true}
-              onChange={(value) => {
-                const newRequests = [...requests];
-                const currentDoc = newRequests[selectedRequest].documents[i];
-                const existingResourceIndex = currentDoc.resources.findIndex(
-                  r => r.resourceTypeId === resourceType.id
-                );
+const ResourceModalContent = ({ selectedRequest, requests, handleRequests }: ResourceModalProps) => {
+  return (
+    <div className="flex flex-col gap-2 text-[14px]">
+      {requests[selectedRequest]?.documents.sort((a, b) => a.name.localeCompare(b.name)).map((doc, i) => (
+        <Fragment key={i}>
+          {doc.isHeader && <div className="flex items-center gap-2">
+            <div className="text-[14px] font-medium">{doc.documentTypeName}</div>
+            <AddButton
+              type="document"
+              onClick={() => {
+                if (selectedRequest === null) return;
 
-                if (existingResourceIndex >= 0) {
-                  currentDoc.resources[existingResourceIndex].value = value;
-                } else {
-                  currentDoc.resources.push({
-                    resourceTypeId: resourceType.id,
-                    name: resourceType.name,
-                    value: value,
-                  });
-                }
+                const newRequests = [...requests];
+                const requestToUpdate = { ...newRequests[selectedRequest] };
+                const newDocuments = [...requestToUpdate.documents];
+                const originalDoc = newDocuments[i];
+
+                const copies = newDocuments.filter(
+                  (d) => d.documentTypeId === originalDoc.documentTypeId
+                ).length;
+
+                const newDoc = {
+                  ...originalDoc,
+                  name: `Informe ${copies + 1}`,
+                  resources: [],
+                  state: false,
+                  isHeader: false
+                };
+
+                newDocuments.splice(i + 1, 0, newDoc);
+                requestToUpdate.documents = newDocuments;
+                newRequests[selectedRequest] = requestToUpdate;
                 handleRequests(newRequests);
               }}
-            />
-          ))}
-        </div>
+            >Añadir</AddButton>
+          </div>}
+          <div className="px-4 py-2 gap-2 border border-white-1 rounded-[4px]">
+            <h2 className="text-[14px] mb-2">{doc.name}</h2>
+            {doc.resourceTypes.map((resourceType, j) => (
+              <ResourceField
+                key={j}
+                {...resourceType}
+                isEditable={true}
+                onChange={(value) => {
+                  const newRequests = [...requests];
+                  const currentDoc = newRequests[selectedRequest].documents[i];
+                  const existingResourceIndex = currentDoc.resources.findIndex(
+                    r => r.resourceTypeId === resourceType.id
+                  );
+
+                  if (existingResourceIndex >= 0) {
+                    currentDoc.resources[existingResourceIndex].value = value;
+                  } else {
+                    currentDoc.resources.push({
+                      resourceTypeId: resourceType.id,
+                      name: resourceType.name,
+                      value: value,
+                    });
+                  }
+                  handleRequests(newRequests);
+                }}
+              />
+            ))}
+          </div>
+        </Fragment>
       ))}
-    </>
-  </div>
-);
+    </div>
+  );
+};
 
 // Constants
 const HEADERS = ["DNI", "Nombres completos", "Teléfono", "Informes", "Acciones"];
