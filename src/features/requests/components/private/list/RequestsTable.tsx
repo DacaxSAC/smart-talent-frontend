@@ -230,7 +230,7 @@ export const RequestsTable = ({
     if (requestToAccept !== null && user) {
       try {
         setIsAcceptingRequest(true);
-        const personId = parseInt(requests[requestToAccept].id); // Convertir string a number
+        const personId = requests[requestToAccept].id; // Convertir string a number
         const userId = user.id; // Convertir number a string
 
         await RequestsService.assignRecruiter(personId, userId);
@@ -278,7 +278,7 @@ export const RequestsTable = ({
     if (requestToDelete !== null) {
       try {
         setIsDeletingRequest(true);
-        const requestId = parseInt(requests[requestToDelete].id);
+        const requestId = requests[requestToDelete].id;
 
         await RequestsService.deleteRequest(requestId);
 
@@ -326,7 +326,7 @@ export const RequestsTable = ({
     if (requestToObserve !== null && observation.trim()) {
       try {
         setIsAddingObservation(true);
-        const personId = parseInt(requests[requestToObserve].id); // Convertir string a number
+        const personId = requests[requestToObserve].id; // Convertir string a number
 
         // TODO: Implementar el servicio real
         console.log("personId:", personId);
@@ -376,7 +376,7 @@ export const RequestsTable = ({
     if (requestToViewObservations !== null) {
       try {
         setIsProcessingObservation(true);
-        const personId = parseInt(requests[requestToViewObservations].id);
+        const personId = requests[requestToViewObservations].id;
 
         // Usar el servicio putStatusPerson para rechazar la solicitud
         await RequestsService.putStatusPerson(personId, "REJECTED");
@@ -493,7 +493,7 @@ export const RequestsTable = ({
         // Enviar las correcciones usando el servicio
         await RequestsService.sendCorrections(resources);
         await RequestsService.putStatusPerson(
-          parseInt(currentRequest.id),
+          currentRequest.id,
           "IN_PROGRESS"
         );
 
@@ -566,18 +566,31 @@ export const RequestsTable = ({
               {/** Lista de documentos */}
               <div className="col-span-16 p-2">
                 <div className="flex flex-wrap gap-1">
-                  {request.documents.map((doc, docIndex: number) => (
-                    <span
-                      key={docIndex}
-                      className={`${
-                        doc.filename
-                          ? "bg-success text-white"
-                          : "border border-white-1 dark:border-black-1 text-black dark:text-white"
-                      } py-0.5 px-2 rounded-[5px]`}
-                    >
-                      {doc.name}
-                    </span>
-                  ))}
+                  {Object.values(
+                    request.documents.reduce((acc, doc) => {
+                      acc[doc.documentTypeId] = acc[doc.documentTypeId] || {
+                        docs: [],
+                        name: doc.documentTypeName,
+                      };
+                      acc[doc.documentTypeId].docs.push(doc);
+                      return acc;
+                    }, {} as Record<string, { docs: typeof request.documents; name: string }>)
+                  ).map((group, groupIndex) => {
+                    const total = group.docs.length;
+                    const completed = group.docs.filter((d) => d.filename).length;
+                    return (
+                      <span
+                        key={groupIndex}
+                        className={`${ 
+                          completed === total
+                            ? "bg-success text-white"
+                            : "border border-white-1 dark:border-black-1 text-black dark:text-white"
+                        } py-0.5 px-2 rounded-[5px]`}
+                      >
+                        {group.name} ({completed}/{total})
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
               {/** Acciones */}
@@ -633,162 +646,6 @@ export const RequestsTable = ({
           </div>
         ))}
       </div>
-
-      {/** Modal para ver y cargar archivos 
-      <Modal
-        isOpen={modalOpen}
-        title={
-          isUser
-            ? "Visualización y descarga de archivos"
-            : "Carga de informes solicitados"
-        }
-        onClose={
-          isConfirmingRequest
-            ? () => {}
-            : () => {
-                setModalOpen(false);
-                if (
-                  selectedRequest !== null &&
-                  requests[selectedRequest]?.documents
-                ) {
-                  const newRequests = [...requests];
-                  newRequests[selectedRequest].documents = newRequests[
-                    selectedRequest
-                  ].documents.filter(
-                    (doc: any) => doc.resources && doc.resources.length > 0
-                  );
-                  handleRequests(newRequests);
-                }
-              }
-        }
-        position="center"
-        width="800px"
-        className="dark:text-white"
-        footer={
-          <>
-            {isUser ? null : selectedRequest !== null &&
-              requests[selectedRequest]?.documents.some(
-                (doc: any) => doc.status === "Pendiente"
-              ) ? (
-              isConfirmingRequest ? (
-                <div className="flex items-center gap-2">
-                  <Loader isLoading={true} />
-                  <span className="text-sm text-gray-600">
-                    Procesando informes...
-                  </span>
-                </div>
-              ) : (
-                <button
-                  className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
-                  onClick={handleConfirmRequest}
-                >
-                  Confirmar
-                </button>
-              )
-            ) : (
-              <button
-                className="px-4 py-2 text-sm bg-main text-white rounded-md hover:bg-opacity-90"
-                onClick={() => setModalOpen(false)}
-              >
-                OK
-              </button>
-            )}
-          </>
-        }
-      >
-        <div className="flex flex-col">
-          {selectedRequest !== null && requests[selectedRequest] && (
-            <div className="text-sm">
-              {requests[selectedRequest]?.documents.map((doc: any, i: any) => (
-                <div
-                  key={i}
-                  className="gap-2 border-b border-gray-300 px-[32px] py-[15px]"
-                >
-                  <div className="flex w-full justify-between">
-                    <h2 className="text-[24px]">{doc.name}</h2>
-                    <span
-                      className={
-                        doc.status == "Pendiente"
-                          ? "text-yellow-500 text-[16px]"
-                          : "text-green-500 text-[16px]"
-                      }
-                    >
-                      {doc.status}
-                    </span>
-                  </div>
-                  {isAdmin || isRecruiter ? (
-                    <div className="flex flex-col">
-                      <ResourceField
-                        name="Resultado"
-                        allowedFileTypes={[]}
-                        value={doc.result as string}
-                        isEditable={doc.status === "Pendiente"}
-                        onChange={(value) => {
-                          if (selectedRequest !== null) {
-                            const newRequests = [...requests];
-                            newRequests[selectedRequest].documents[i].result =
-                              value as string;
-                            handleRequests(newRequests);
-                          }
-                        }}
-                      />
-                      <ResourceField
-                        name="Documento"
-                        allowedFileTypes={[
-                          ".pdf",
-                          ".doc",
-                          ".docx",
-                          ".jpg",
-                          ".jpeg",
-                          ".png",
-                        ]}
-                        value={doc.filename as string}
-                        isEditable={doc.status === "Pendiente"}
-                        onChange={(value) => {
-                          if (value && selectedRequest !== null) {
-                            const newRequests = [...requests];
-                            if (Array.isArray(value) && value.length > 0) {
-                              newRequests[selectedRequest].documents[
-                                i
-                              ].filename = value[0];
-                            }
-                            handleRequests(newRequests);
-                          }
-                        }}
-                      />
-
-                      {doc.resources.map((resource: any, j: any) => (
-                        <ResourceField
-                          key={j}
-                          {...resource}
-                          isEditable={false}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div>
-                      <ResourceField
-                        key={Date.now() - 1}
-                        name="Comentarios"
-                        value={doc.result as string}
-                        isEditable={false}
-                        allowedFileTypes={[]}
-                      />
-                      <ResourceField
-                        key={Date.now() - 2}
-                        name="Documento"
-                        value={doc.filename as string}
-                        isEditable={false}
-                        allowedFileTypes={[]}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </Modal>*/}
 
       {/* Modal de confirmación para aceptar solicitud */}
       <Modal

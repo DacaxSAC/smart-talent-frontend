@@ -406,9 +406,16 @@ export const RequestDetailPage = () => {
             Listado de documentos solicitados
           </h2>
 
-          {request.documents.map((document, docIndex) => {
-            const isExpanded = expandedDocuments[docIndex] ?? false;
-
+          {Object.entries(
+            request.documents.reduce((acc, doc) => {
+              const key = doc.documentTypeName;
+              if (!acc[key]) {
+                acc[key] = [];
+              }
+              acc[key].push(doc);
+              return acc;
+            }, {} as Record<string, typeof request.documents>)
+          ).map(([documentTypeName, documents]) => {
             return (
               <div
                 key={docIndex}

@@ -36,6 +36,8 @@ export interface Request {
     documents: {
         id: number;
         name: string;
+        documentTypeId: number;
+        documentTypeName: string;
         filename: File | string | null;
         result: string | null;
         status: string;
