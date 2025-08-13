@@ -24,7 +24,7 @@ export const DocsChecklist = ({ request, index, open, handleDocCheckbox, handleO
             key={optIdx}
             index={optIdx}
             item={option}
-            checked={request.documents.some(doc => doc.name === option.name)}
+            checked={request.documents.some(doc => doc.documentTypeId === option.id)}
             handleCheck={(checked: boolean) => handleDocCheckbox(index, option, checked)}
           />
         ))}

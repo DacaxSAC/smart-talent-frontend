@@ -379,7 +379,21 @@ interface ResourceModalProps {
 const ResourceModalContent = ({ selectedRequest, requests, handleRequests }: ResourceModalProps) => {
   return (
     <div className="flex flex-col gap-2 text-[14px]">
-      {requests[selectedRequest]?.documents.sort((a, b) => a.name.localeCompare(b.name)).map((doc, i) => (
+      {requests[selectedRequest]?.documents.sort((a, b) => {
+        // Primero ordenar por documentTypeId
+        if (a.documentTypeId !== b.documentTypeId) {
+          return a.documentTypeId - b.documentTypeId;
+        }
+        // Dentro del mismo tipo, los isHeader: true van primero
+        if (a.isHeader !== b.isHeader) {
+          return b.isHeader ? 1 : -1;
+        }
+        // Para los que tienen isHeader: false, ordenar por nombre
+        if (!a.isHeader && !b.isHeader) {
+          return a.name.localeCompare(b.name);
+        }
+        return 0;
+      }).map((doc, i) => (
         <Fragment key={i}>
           {doc.isHeader && <div className="flex items-center gap-2">
             <div className="text-[14px] font-medium">{doc.documentTypeName}</div>

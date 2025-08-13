@@ -94,7 +94,7 @@ export function RequestsCreationPage() {
     const docs = requests[rowIndex].documents;
 
     if (checked) {
-      if (!docs.some((doc) => doc.name === docType.name)) {
+      if (!docs.some((doc) => doc.documentTypeId === docType.id)) {
         docs.push({
           documentTypeId: docType.id,
           documentTypeName: docType.name,
@@ -107,7 +107,7 @@ export function RequestsCreationPage() {
       }
     } else {
       newRequests[rowIndex].documents = docs.filter(
-        (doc) => doc.name !== docType.name
+        (doc) => doc.documentTypeId !== docType.id
       );
     }
     setRequests(newRequests);
