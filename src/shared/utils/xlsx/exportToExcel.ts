@@ -2,7 +2,7 @@ import * as XLSX from "xlsx-js-style";
 
 interface DocumentStatus {
   name: string;
-  status: string;
+  numberDocsCompleted: number;
 }
 
 export interface DataItem {
@@ -54,7 +54,7 @@ export function exportToExcel(
     const docStatuses: Record<string, number> = {};
     allDocumentNames.forEach(docName => {
       const doc = item.documents?.find(d => d.name === docName);
-      docStatuses[docName] = doc && doc.status.toLowerCase() === "realizado" ? 1 : 0;
+      docStatuses[docName] = doc && doc.numberDocsCompleted !== undefined ? doc.numberDocsCompleted : 0;
     });
 
     return {

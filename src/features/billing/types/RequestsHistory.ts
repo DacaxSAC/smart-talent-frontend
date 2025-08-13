@@ -23,6 +23,6 @@ export interface RequestsHistory {
     status: string;
     documents: {
         name: string;
-        status: string;
+        numberDocsCompleted: number;
     }[];
 }

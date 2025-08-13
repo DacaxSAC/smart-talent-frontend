@@ -66,12 +66,12 @@ export const RequestsHistoryList = ({
                 <div key={docIndex} className="col-span-1 p-1">
                   <span
                     className={`px-1 py-0.5 rounded ${
-                      doc.status === "Realizado"
+                      doc.numberDocsCompleted
                         ? "bg-green-100 text-green-800"
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {doc.status === "Realizado" ? "Realizado" : "No realizado"}
+                    {doc.numberDocsCompleted}
                   </span>
                 </div>
               ))}
