@@ -16,6 +16,42 @@ import { MdExpandMore } from "react-icons/md";
 import { STATUS } from "@/features/auth/constants/status";
 
 /**
+ * Enum para los estados del semáforo de documentos
+ */
+enum SemaforoStatus {
+  PENDING = "PENDING",
+  CLEAR = "CLEAR",
+  WARNING = "WARNING",
+  CRITICAL = "CRITICAL",
+}
+
+/**
+ * Configuración de colores y etiquetas para cada estado del semáforo
+ */
+const semaforoConfig = {
+  [SemaforoStatus.PENDING]: {
+    color: "bg-gray-500",
+    label: "Pendiente",
+    textColor: "text-gray-700",
+  },
+  [SemaforoStatus.CLEAR]: {
+    color: "bg-green-500",
+    label: "Verde",
+    textColor: "text-green-700",
+  },
+  [SemaforoStatus.WARNING]: {
+    color: "bg-yellow-500",
+    label: "Ambar",
+    textColor: "text-yellow-700",
+  },
+  [SemaforoStatus.CRITICAL]: {
+    color: "bg-red-500",
+    label: "Rojo",
+    textColor: "text-red-700",
+  },
+};
+
+/**
  * Página de detalles de una solicitud específica
  * Muestra toda la información del request sin restricciones de rol
  * Permite edición según el tipo de usuario (USER vs ADMIN/RECRUITER)
@@ -38,22 +74,21 @@ export const RequestDetailPage = () => {
     [key: number]: boolean;
   }>({});
 
-
   /**
    * Verifica si hay modificaciones en los recursos de un documento específico
    */
   const hasResourceModifications = (documentIndex: number) => {
     if (!request || !originalRequest) return false;
-    
+
     const doc = request.documents[documentIndex];
     const originalDoc = originalRequest.documents[documentIndex];
-    
+
     if (!doc || !originalDoc) return false;
-    
+
     return doc.resources.some((resource, resourceIndex) => {
       const originalResource = originalDoc.resources[resourceIndex];
       if (!originalResource) return true;
-      
+
       return resource.value !== originalResource.value;
     });
   };
@@ -62,9 +97,9 @@ export const RequestDetailPage = () => {
    * Obtiene una URL firmada para subir archivos
    */
   const getSignedUrl = async (file: File) => {
-    const response = await apiClient.post('/upload/write-signed-url', {
+    const response = await apiClient.post("/upload/write-signed-url", {
       fileName: file.name,
-      contentType: file.type
+      contentType: file.type,
     });
     return response.data.signedUrl;
   };
@@ -86,10 +121,10 @@ export const RequestDetailPage = () => {
                 await uploadFile(file, signedUrl);
                 processedResources.push({
                   resourceId: resource.id,
-                  value: file.name
+                  value: file.name,
                 });
               } catch (error) {
-                console.error('Error al subir archivo:', error);
+                console.error("Error al subir archivo:", error);
                 throw new Error(`Error al subir el archivo ${file.name}`);
               }
             }
@@ -99,15 +134,13 @@ export const RequestDetailPage = () => {
         // Si no es un archivo, usar el valor directamente
         processedResources.push({
           resourceId: resource.id,
-          value: resource.value
+          value: resource.value,
         });
       }
     }
 
     return processedResources;
   };
-
-
 
   /**
    * Envía las correcciones de recursos al backend
@@ -120,14 +153,14 @@ export const RequestDetailPage = () => {
       const resourceCorrections = await processResources(document.resources);
 
       await RequestsService.sendCorrections(resourceCorrections);
-      
-      Notify.success('Correcciones enviadas correctamente');
-      
+
+      Notify.success("Correcciones enviadas correctamente");
+
       // Recargar los datos para reflejar los cambios
       await loadRequestData();
     } catch (error) {
-      console.error('Error al enviar correcciones:', error);
-      Notify.failure('Error al enviar las correcciones');
+      console.error("Error al enviar correcciones:", error);
+      Notify.failure("Error al enviar las correcciones");
     }
   };
 
@@ -219,6 +252,17 @@ export const RequestDetailPage = () => {
   };
 
   /**
+   * Maneja los cambios en el estado del semáforo del documento (solo ADMIN/RECRUITER)
+   */
+  const handleSemaforoChange = (documentIndex: number, value: string) => {
+    if (!request) return;
+
+    const updatedRequest = { ...request };
+    updatedRequest.documents[documentIndex].semaforo = value;
+    setRequest(updatedRequest);
+  };
+
+  /**
    * Guarda los cambios realizados en el request
    * Utiliza el método updateDocuments disponible en el servicio
    */
@@ -235,11 +279,12 @@ export const RequestDetailPage = () => {
           typeof doc.filename === "string"
             ? doc.filename
             : doc.filename?.name || "",
+        semaforo: doc.semaforo || "",
       }));
 
       await RequestsService.updateDocuments(updates);
       Notify.success("Cambios guardados exitosamente");
-      
+
       // Refetch de los datos para obtener la información actualizada
       await loadRequestData();
     } catch (err) {
@@ -365,7 +410,10 @@ export const RequestDetailPage = () => {
             const isExpanded = expandedDocuments[docIndex] ?? false;
 
             return (
-              <div key={docIndex} className="px-3 flex flex-col gap-4 text-[14px]">
+              <div
+                key={docIndex}
+                className="px-3 flex flex-col gap-4 text-[14px]"
+              >
                 {/* Header del documento */}
                 <div
                   className="p-2 flex justify-between items-center border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10 cursor-pointer"
@@ -404,32 +452,30 @@ export const RequestDetailPage = () => {
                         <p className="mb-2 font-[500] text-gray-900 dark:text-white">
                           Recursos requeridos para el informe correspondiente:
                         </p>
-                        {isUser && request.status === "PENDING" && hasResourceModifications(docIndex) && (
-                           <button
-                             onClick={() => handleSaveResourceCorrections(docIndex)}
-                             className="px-3 py-0.5 border rounded-[4px] text-[12px] border-blue-500 hover:border-blue-600 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
-                           >
-                             Guardar recursos
-                           </button>
-                         )}
+                        {isUser &&
+                          request.status === "PENDING" &&
+                          hasResourceModifications(docIndex) && (
+                            <button
+                              onClick={() =>
+                                handleSaveResourceCorrections(docIndex)
+                              }
+                              className="px-3 py-0.5 border rounded-[4px] text-[12px] border-blue-500 hover:border-blue-600 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
+                            >
+                              Guardar recursos
+                            </button>
+                          )}
                       </div>
                       {document.resources.map((resource, resourceIndex) => (
-                          <ResourceField
-                            key={resourceIndex}
-                            name={resource.name}
-                            value={resource.value}
-                            allowedFileTypes={resource.allowedFileTypes || []}
-                            isEditable={
-                              isUser && request.status === "PENDING"
-                            }
-                            onChange={(value) =>
-                              handleResourceChange(
-                                docIndex,
-                                resourceIndex,
-                                value
-                              )
-                            }
-                          />
+                        <ResourceField
+                          key={resourceIndex}
+                          name={resource.name}
+                          value={resource.value}
+                          allowedFileTypes={resource.allowedFileTypes || []}
+                          isEditable={isUser && request.status === "PENDING"}
+                          onChange={(value) =>
+                            handleResourceChange(docIndex, resourceIndex, value)
+                          }
+                        />
                       ))}
                     </div>
                     {/* Campos específicos para ADMIN/RECRUITER */}
@@ -437,23 +483,31 @@ export const RequestDetailPage = () => {
                       <div className="p-3 border border-white-1 rounded-[12px]">
                         <div className="flex justify-between items-start">
                           <p className="mb-2 font-medium text-gray-900 dark:text-white">
-                            Resultados obtenidos para el informe correspondiente:
-                        </p>
-                          {(isAdmin || isRecruiter) && (document.status === "Pendiente") &&(
-                            <button
-                              onClick={handleSave}
-                              disabled={saving || !document.filename || !document.result}
-                              className={`px-3 py-0.5 border rounded-[4px] text-[12px] ${
-                                saving || !document.filename || !document.result
-                                  ? "border-gray-300 text-gray-400 cursor-not-allowed"
-                                  : "border-success hover:border-medium hover:bg-success text-success hover:text-white cursor-pointer"
-                              }`}
-                            >
-                              {saving ? "Guardando..." : "Guardar cambios"}
-                            </button>
-                          )}
+                            Resultados obtenidos para el informe
+                            correspondiente:
+                          </p>
+                          {(isAdmin || isRecruiter) &&
+                            document.status === "Pendiente" && (
+                              <button
+                                onClick={handleSave}
+                                disabled={
+                                  saving ||
+                                  !document.filename ||
+                                  !document.result
+                                }
+                                className={`px-3 py-0.5 border rounded-[4px] text-[12px] ${
+                                  saving ||
+                                  !document.filename ||
+                                  !document.result
+                                    ? "border-gray-300 text-gray-400 cursor-not-allowed"
+                                    : "border-success hover:border-medium hover:bg-success text-success hover:text-white cursor-pointer"
+                                }`}
+                              >
+                                {saving ? "Guardando..." : "Guardar cambios"}
+                              </button>
+                            )}
                         </div>
-                         
+
                         <ResourceField
                           name="Documento"
                           allowedFileTypes={[
@@ -481,6 +535,27 @@ export const RequestDetailPage = () => {
                             handleResultChange(docIndex, value as string)
                           }
                         />
+
+                        {/* Campo de semáforo */}
+                        <div className="mt-4 flex gap-4">
+                          <label className="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Estado del Semáforo
+                          </label>
+                          <select
+                            value={document.semaforo || SemaforoStatus.PENDING}
+                            onChange={(e) =>
+                              handleSemaforoChange(docIndex, e.target.value)
+                            }
+                            disabled={document.status !== "Pendiente"}
+                            className=" border border-white-1 dark:border-white rounded-[8px]  disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          >
+                            {Object.values(SemaforoStatus).map((status) => (
+                              <option key={status} value={status}>
+                                {semaforoConfig[status].label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                     )}
 
@@ -488,7 +563,7 @@ export const RequestDetailPage = () => {
                     {isUser && (
                       <div className="p-3 border border-white-1 rounded-[12px]">
                         <p className="mb-2 font-medium text-gray-900 dark:text-white">
-                            Resultados obtenidos para el informe correspondiente:
+                          Resultados obtenidos para el informe correspondiente:
                         </p>
                         <ResourceField
                           isResult={true}
@@ -504,10 +579,42 @@ export const RequestDetailPage = () => {
                           isEditable={false}
                           allowedFileTypes={[]}
                         />
+
+                        {/* Visualización del semáforo para usuarios */}
+                        <div className="mt-4 flex gap-8 items-center">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Estado del semáforo relacionado al informe
+                            </label>
+                            <div className="flex justify-around gap-3 w-[200px] px-4 py-1 border border-black dark:border-white rounded-[8px]">
+                              {/* Círculo Verde - CLEAR */}
+                              <div
+                                className={`w-3 h-3 rounded-full ${
+                                  (document.semaforo as SemaforoStatus) === SemaforoStatus.CLEAR
+                                    ? 'bg-success'
+                                    : 'bg-gray-300'
+                                }`}
+                              ></div>
+                              {/* Círculo Amarillo - WARNING */}
+                              <div
+                                className={`w-3 h-3 rounded-full ${
+                                  (document.semaforo as SemaforoStatus) === SemaforoStatus.WARNING
+                                    ? 'bg-warning'
+                                    : 'bg-gray-300'
+                                }`}
+                              ></div>
+                              {/* Círculo Rojo - CRITICAL */}
+                              <div
+                                className={`w-3 h-3 rounded-full ${
+                                  (document.semaforo as SemaforoStatus) === SemaforoStatus.CRITICAL
+                                    ? 'bg-error'
+                                    : 'bg-gray-300'
+                                }`}
+                              ></div>
+                            </div>
+                          </div>
+
                       </div>
                     )}
-
-                    
                   </div>
                 )}
               </div>
@@ -515,8 +622,6 @@ export const RequestDetailPage = () => {
           })}
         </div>
       </div>
-
-
     </PageLayout>
   );
 };

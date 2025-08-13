@@ -39,6 +39,7 @@ export interface Request {
         filename: File | string | null;
         result: string | null;
         status: string;
+        semaforo: string;
         createdAt: string; // Nuevo campo
         updatedAt: string; // Nuevo campo
         resources: {
@@ -143,7 +144,7 @@ export const RequestsService = {
             throw error;
         }
     },
-    updateDocuments: async (updates: { id: number; result: string; filename: string }[]): Promise<void> => {
+    updateDocuments: async (updates: { id: number; result: string; filename: string; semaforo: string }[]): Promise<void> => {
         try {
             await apiClient.put(REQUEST_ENDPOINTS.UPDATE_DOCUMENTS, { updates });
         } catch (error) {
