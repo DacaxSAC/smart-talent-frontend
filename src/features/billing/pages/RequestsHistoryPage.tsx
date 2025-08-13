@@ -2,8 +2,8 @@ import { Fragment } from "react/jsx-runtime";
 
 import { LayoutPage } from "@/shared/components/LayoutPage";
 import { Loader } from "@/shared/components/Loader";
-// import { useHasRole } from "@/features/auth/hooks/useUser";
-// import { ROLES } from "@/features/auth/constants/roles";
+import { useHasRole, useUser } from "@/features/auth/hooks/useUser";
+import { ROLES } from "@/features/auth/constants/roles";
 import { RequestsHistory } from "../types/RequestsHistory";
 import { useEffect, useState } from "react";
 import { BillingService } from "../service/billingService";
@@ -13,8 +13,10 @@ import { exportToExcel } from "@/shared/utils/xlsx/exportToExcel";
 
 export function ResquestsHistoryPage() {
   // Hooks
-  // const isAdmin = useHasRole([ROLES.ADMIN]);
-  // const isUser = useHasRole([ROLES.USER]);
+  //const isAdmin = useHasRole([ROLES.ADMIN]);
+  const isUser = useHasRole([ROLES.USER]);
+  const { user } = useUser();
+
 
   // States
   const [requestsHistory, setRequestsHistory] = useState<RequestsHistory[]>([]);
@@ -24,6 +26,7 @@ export function ResquestsHistoryPage() {
 
   async function getRequestsHistory(params?: { dateFrom?: string; dateTo?: string }) {
     const response = await BillingService.getRequestsHistory({
+      ...(isUser ? { entityId: user?.entityId } : {}),
       page: 1,
       limit: 10,
       dateFrom: params?.dateFrom,
