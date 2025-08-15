@@ -263,7 +263,9 @@ const processResources = async (resources: any[], uploadFile: (file: File, signe
         resource.value.map(async (file: File) => {
           if (file instanceof File) {
             try {
-              const modifiedFileName = `${file.name}-${Date.now()}`;
+              const fileExtension = file.name.split('.').pop();
+              const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
+              const modifiedFileName = `${fileExtension}-${Date.now()}-${fileNameWithoutExt}.${fileExtension}`;
               const modifiedFile = new File([file], modifiedFileName, { type: file.type });
               const signedUrl = await getSignedUrl(modifiedFile);
               await uploadFile(modifiedFile, signedUrl);
