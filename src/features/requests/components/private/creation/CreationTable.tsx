@@ -60,15 +60,30 @@ export const CreationTable = ({
     if (selectedRequest === null) return;
 
     const allResourcesHaveValues = requests[selectedRequest].documents.every(doc => {
-      const totalRequiredResources = doc.resourceTypes.length;
-      const resourcesWithValues = doc.resources.filter(resource =>
-        resource.value && resource.value !== ''
-      ).length;
-      return resourcesWithValues >= totalRequiredResources;
+      // Solo contar recursos que requieren archivos (allowedFileTypes.length > 0)
+      const requiredFileResources = doc.resourceTypes.filter(resourceType => 
+        resourceType.allowedFileTypes.length > 0
+      );
+      
+      const fileResourcesWithValues = doc.resources.filter(resource => {
+        // Buscar el resourceType correspondiente
+        const resourceType = doc.resourceTypes.find(rt => rt.id === resource.resourceTypeId);
+        if (!resourceType) return false;
+        
+        // Si es un recurso de archivo (allowedFileTypes.length > 0), debe tener valor
+        if (resourceType.allowedFileTypes.length > 0) {
+          return Array.isArray(resource.value) ? resource.value.length > 0 : (resource.value && resource.value !== '');
+        }
+        
+        // Si es un recurso de texto (allowedFileTypes.length === 0), es opcional
+        return true;
+      }).length;
+      
+      return fileResourcesWithValues >= requiredFileResources.length;
     });
 
     if (!allResourcesHaveValues) {
-      Notify.warning("Debe completar todos los recursos requeridos");
+      Notify.warning("Debe completar todos los recursos de archivo requeridos");
       return;
     }
 
