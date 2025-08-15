@@ -368,10 +368,10 @@ export const RequestDetailPage = () => {
         {/* Información del solicitante */}
         <div className="text-[12px] flex flex-col gap-4">
           <div
-            className="p-2 flex items-center justify-between cursor-pointer bg-white-2 border border-medium rounded-[12px]"
+            className="p-2 flex items-center justify-between cursor-pointer bg-white-2 dark:bg-black-2 border border-medium rounded-[12px]"
             onClick={toggleRequestDataExpansion}
           >
-            <h2 className="text-[16px]">Información principal</h2>
+            <h2 className="text-[16px] text-black dark:text-white">Información principal</h2>
             <div
               className={`transition-all duration-300 transform ${
                 isRequestDataExpanded ? "rotate-180" : "rotate-0"
@@ -381,7 +381,7 @@ export const RequestDetailPage = () => {
             </div>
           </div>
           {isRequestDataExpanded && (
-            <div className="flex flex-col px-3">
+            <div className="flex flex-col px-3 text-black dark:text-white">
               <div className="px-2 grid grid-cols-25 gap-0 bg-table-head dark:bg-main-1plus text-black dark:text-white rounded-sidebar mb-4">
                 <div className="col-span-5 p-2">DNI</div>
                 <div className="col-span-10 p-2">Nombre Completo</div>
@@ -402,7 +402,7 @@ export const RequestDetailPage = () => {
 
         {/* Documentos y Recursos */}
         <div className="flex flex-col gap-4">
-          <h2 className="p-2 flex items-center justify-between bg-white-2 border border-medium rounded-[12px]">
+          <h2 className="p-2 flex items-center justify-between bg-white-2 dark:bg-black-2 border border-medium rounded-[12px] text-black dark:text-white">
             Listado de documentos solicitados
           </h2>
 
@@ -419,7 +419,7 @@ export const RequestDetailPage = () => {
             return (
             <div
                 key={documentTypeName}
-                className="px-3 flex flex-col gap-4 text-[14px]"
+                className="px-3 flex flex-col gap-4 text-[14px] text-black dark:text-white"
               >
                 <h3 className="text-[16px] font-semibold">
                   {documentTypeName}
@@ -431,7 +431,7 @@ export const RequestDetailPage = () => {
                   const isExpanded = expandedDocuments[docIndex] ?? false;
 
                   return (
-                    <div key={docIndex}>
+                    <div key={docIndex} className="flex flex-col gap-4">
                       {/* Header del documento */}
                       <div
                         className="p-2 flex justify-between items-center border border-white-1 dark:border-black-1 rounded-sidebar hover:bg-black-05 dark:hover:bg-white-10 cursor-pointer"
@@ -442,7 +442,7 @@ export const RequestDetailPage = () => {
                         </div>
                         <div className="flex gap-2 items-center">
                           <span
-                            className={`text-[12px] px-3 py-1 rounded-full  ${
+                            className={`text-[12px] text-black  px-3 py-1 rounded-full  ${
                               document.status === "Pendiente"
                                 ? "bg-warning"
                                 : document.status === "Realizado"
@@ -465,7 +465,7 @@ export const RequestDetailPage = () => {
                 {isExpanded && (
                         <div className="flex flex-col gap-3">
                           {/* Recursos del documento */}
-                          <div className="p-3 border border-white-1 rounded-[12px]">
+                          <div className="p-3 border border-white-1 dark:border-medium rounded-[12px]">
                             <div className="flex justify-between items-start">
                               <p className="mb-2 font-[500] text-gray-900 dark:text-white">
                                 Recursos requeridos para el informe
@@ -508,7 +508,7 @@ export const RequestDetailPage = () => {
                     </div>
                     {/* Campos específicos para ADMIN/RECRUITER */}
                           {(isAdmin || isRecruiter) && (
-                            <div className="p-3 border border-white-1 rounded-[12px]">
+                            <div className="p-3 border border-white-1 dark:border-medium rounded-[12px]">
                               <div className="flex justify-between items-start">
                                 <p className="mb-2 font-medium text-gray-900 dark:text-white">
                                   Resultados obtenidos para el informe
@@ -521,12 +521,14 @@ export const RequestDetailPage = () => {
                                     disabled={
                                       saving ||
                                       !document.filename ||
-                                      !document.result
+                                      !document.result ||
+                                      (document.semaforo || SemaforoStatus.PENDING) === SemaforoStatus.PENDING
                                     }
                                     className={`px-3 py-0.5 border rounded-[4px] text-[12px] ${
                                       saving ||
                                       !document.filename ||
-                                      !document.result
+                                      !document.result ||
+                                      (document.semaforo || SemaforoStatus.PENDING) === SemaforoStatus.PENDING
                                         ? "border-gray-300 text-gray-400 cursor-not-allowed"
                                         : "border-success hover:border-medium hover:bg-success text-success hover:text-white cursor-pointer"
                                     }`}
@@ -574,8 +576,8 @@ export const RequestDetailPage = () => {
 
                         {/* Campo de semáforo */}
                         <div className="mt-4 flex gap-4">
-                          <label className="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Estado del Semáforo
+                          <label className="block text-[12px] text-black dark:text-medium mb-2">
+                            Semaforización
                           </label>
                           <select
                             value={document.semaforo || SemaforoStatus.PENDING}
@@ -583,7 +585,7 @@ export const RequestDetailPage = () => {
                               handleSemaforoChange(docIndex, e.target.value)
                             }
                             disabled={document.status !== "Pendiente"}
-                            className=" border border-white-1 dark:border-white rounded-[8px]  disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className=" border border-white-1 dark:bg-black dark:border-white rounded-[8px]  disabled:bg-gray-100 dark:disabled:bg-black-2 disabled:cursor-not-allowed"
                           >
                             {Object.values(SemaforoStatus).map((status) => (
                               <option key={status} value={status}>
@@ -597,7 +599,7 @@ export const RequestDetailPage = () => {
 
                      {/* Campos específicos para USER */}
                           {isUser && (
-                            <div className="p-3 border border-white-1 rounded-[12px]">
+                            <div className="p-3 border border-white-1 dark:border-medium rounded-[12px]">
                               <p className="mb-2 font-medium text-gray-900 dark:text-white">
                                 Resultados obtenidos para el informe
                                 correspondiente:

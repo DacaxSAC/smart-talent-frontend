@@ -86,6 +86,7 @@ export const Sidebar = () => {
         },
       ]
     },
+    /*
     {
       icon: <RecruitmentIcon width={30} height={30} className='text-black-2 dark:text-white-1' />,
       label: 'Reclutamientos',
@@ -123,6 +124,7 @@ export const Sidebar = () => {
         },
       ]
     },
+    */
     {
       icon: <PayIcon className='w-[30px] h-[30px] text-black-2 dark:text-white-1' />,
       label: 'Historial de facturación',
@@ -134,12 +136,12 @@ export const Sidebar = () => {
           onClick: () => navigate('/requests-history'),
           showCondition: isUser || isAdmin
         },
-        {
-          icon: <ListIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
-          label: 'Historial de reclutamientos',
-          onClick: () => navigate('/recruitments-history'),
-          showCondition: isUser || isAdmin
-        },
+        //{
+        //  icon: <ListIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
+        //  label: 'Historial de reclutamientos',
+        //  onClick: () => navigate('/recruitments-history'),
+        //  showCondition: isUser || isAdmin
+        //},
       ]
     },
     {

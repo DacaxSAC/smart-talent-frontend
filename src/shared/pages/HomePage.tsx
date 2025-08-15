@@ -361,7 +361,7 @@ export const HomePage = () => {
       </div>
 
       {/* Lista de solicitudes */}
-      <div className="w-full flex-1 p-4 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-black-1 text-[12px] overflow-x-auto relative">
+      <div className="w-full flex-1 p-4 rounded-sidebar shadow-doc-options bg-white dark:bg-black dark:border dark:border-medium text-[12px] overflow-x-auto relative">
         <div className="flex justify-between">
           <h3 className="text-[14px] font-[500] mb-4 text-neutral-7 dark:text-neutral-3">
             Estadísticas de solicitudes
@@ -419,7 +419,7 @@ export const HomePage = () => {
               color: 'text-red-500'
             }
           ].map((card, index) => (
-            <div key={index} className="border border-white-1 rounded-sidebar shadow-doc-options hover:bg-white-1 text-medium px-4 py-2 flex justify-between">
+            <div key={index} className="border border-white-1 dark:border-medium rounded-sidebar shadow-doc-options hover:bg-white-1 dark:hover:bg-gray-700 text-medium px-4 py-2 flex justify-between">
               <h3 className="text-[16px] font-[500] text-black dark:text-white">
                 {card.title}
               </h3>
@@ -433,8 +433,8 @@ export const HomePage = () => {
         {requests.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Gráfico de Estados de Solicitudes */}
-            <div className="bg-white dark:bg-neutral-8 p-4 rounded-lg shadow">
-              <h4 className="text-lg font-semibold mb-4 text-neutral-7 dark:text-neutral-3">
+            <div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:border dark:border-medium">
+              <h4 className="text-lg font-semibold mb-4 text-black dark:text-white">
                 Estados de Solicitudes
               </h4>
               <ResponsiveContainer width="100%" height={200}>
@@ -462,7 +462,7 @@ export const HomePage = () => {
                       className="w-3 h-3 rounded-full mr-2" 
                       style={{ backgroundColor: item.color }}
                     ></div>
-                    <span className="text-neutral-6 dark:text-neutral-4">
+                    <span className="text-black dark:text-white">
                       {item.name}: {item.value}
                     </span>
                   </div>
@@ -471,8 +471,8 @@ export const HomePage = () => {
             </div>
 
             {/* Gráfico de Tipos de Documentos */}
-            <div className="bg-white dark:bg-neutral-8 p-4 rounded-lg shadow">
-              <h4 className="text-lg font-semibold mb-4 text-neutral-7 dark:text-neutral-3">
+            <div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:border dark:border-medium">
+              <h4 className="text-lg font-semibold mb-4 text-black dark:text-white">
                 Tipos de Documentos
               </h4>
               <ResponsiveContainer width="100%" height={200}>
@@ -493,8 +493,8 @@ export const HomePage = () => {
             </div>
 
             {/* Gráfico de Progreso de Documentos */}
-            <div className="bg-white dark:bg-neutral-8 p-4 rounded-lg shadow">
-              <h4 className="text-lg font-semibold mb-4 text-neutral-7 dark:text-neutral-3">
+            <div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:border dark:border-medium">
+              <h4 className="text-lg font-semibold mb-4 text-black dark:text-white">
                 Progreso de Documentos
               </h4>
               <ResponsiveContainer width="100%" height={200}>

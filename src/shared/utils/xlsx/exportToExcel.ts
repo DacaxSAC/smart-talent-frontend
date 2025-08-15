@@ -114,10 +114,10 @@ export function exportToExcel(
           }
         }
 
-        // Columnas después de Estado (documentos: 1 verde, 0 gris)
+        // Columnas después de Estado (documentos: >0 verde, 0 gris)
         const estadoIndex = headers.indexOf("Estado");
         if (colIndex > estadoIndex && typeof value === "number") {
-          if (value === 1) {
+          if (value > 0) {
             cellStyle.fill = { fgColor: { rgb: "C6EFCE" } };
             cellStyle.font = { color: { rgb: "006100" }, bold: true };
           } else if (value === 0) {
