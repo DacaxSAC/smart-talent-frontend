@@ -117,15 +117,13 @@ export const RequestDetailPage = () => {
           resource.value.map(async (file: File) => {
             if (file instanceof File) {
               try {
-                const fileExtension = file.name.split('.').pop();
-                const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
-                const modifiedFileName = `${fileExtension}-${Date.now()}-${fileNameWithoutExt}.${fileExtension}`;
+                const modifiedFileName = `${Date.now()}-${file.name}`;
                 const modifiedFile = new File([file], modifiedFileName, { type: file.type });
                 const signedUrl = await getSignedUrl(modifiedFile);
                 await uploadFile(modifiedFile, signedUrl);
                 processedResources.push({
-                  resourceId: resource.id,
-                  value: modifiedFileName,
+                  ...resource,
+                  value: modifiedFile.name
                 });
               } catch (error) {
                 console.error("Error al subir archivo:", error);
@@ -377,9 +375,8 @@ export const RequestDetailPage = () => {
           >
             <h2 className="text-[16px]">Información principal</h2>
             <div
-              className={`transition-all duration-300 transform ${
-                isRequestDataExpanded ? "rotate-180" : "rotate-0"
-              }`}
+              className={`transition-all duration-300 transform ${isRequestDataExpanded ? "rotate-180" : "rotate-0"
+                }`}
             >
               <MdExpandMore className="w-[25px] h-[25px] text-black-2 dark:text-white-1" />
             </div>
@@ -421,7 +418,7 @@ export const RequestDetailPage = () => {
             }, {} as Record<string, typeof request.documents>)
           ).map(([documentTypeName, documents]) => {
             return (
-            <div
+              <div
                 key={documentTypeName}
                 className="px-3 flex flex-col gap-4 text-[14px]"
               >
@@ -446,27 +443,25 @@ export const RequestDetailPage = () => {
                         </div>
                         <div className="flex gap-2 items-center">
                           <span
-                            className={`text-[12px] px-3 py-1 rounded-full  ${
-                              document.status === "Pendiente"
+                            className={`text-[12px] px-3 py-1 rounded-full  ${document.status === "Pendiente"
                                 ? "bg-warning"
                                 : document.status === "Realizado"
-                                ? "bg-success"
-                                : "bg-medium"
-                            }`}
+                                  ? "bg-success"
+                                  : "bg-medium"
+                              }`}
                           >
                             {document.status}
                           </span>
                           <div
-                            className={`transition-all duration-300 transform ${
-                              isExpanded ? "rotate-180" : "rotate-0"
-                            }`}
+                            className={`transition-all duration-300 transform ${isExpanded ? "rotate-180" : "rotate-0"
+                              }`}
                           >
                             <MdExpandMore className="w-[20px] h-[20px] text-black-2 dark:text-white-1" />
                           </div>
                         </div>
                       </div>
 
-                {isExpanded && (
+                      {isExpanded && (
                         <div className="flex flex-col gap-3">
                           {/* Recursos del documento */}
                           <div className="p-3 border border-white-1 rounded-[12px]">
@@ -509,8 +504,8 @@ export const RequestDetailPage = () => {
                                   }
                                 />
                               ))}
-                    </div>
-                    {/* Campos específicos para ADMIN/RECRUITER */}
+                          </div>
+                          {/* Campos específicos para ADMIN/RECRUITER */}
                           {(isAdmin || isRecruiter) && (
                             <div className="p-3 border border-white-1 rounded-[12px]">
                               <div className="flex justify-between items-start">
@@ -520,26 +515,25 @@ export const RequestDetailPage = () => {
                                 </p>
                                 {((isAdmin || isRecruiter) &&
                                   document.status === "Pendiente") && (
-                                  <button
-                                    onClick={handleSave}
-                                    disabled={
-                                      saving ||
-                                      !document.filename ||
-                                      !document.result
-                                    }
-                                    className={`px-3 py-0.5 border rounded-[4px] text-[12px] ${
-                                      saving ||
-                                      !document.filename ||
-                                      !document.result
-                                        ? "border-gray-300 text-gray-400 cursor-not-allowed"
-                                        : "border-success hover:border-medium hover:bg-success text-success hover:text-white cursor-pointer"
-                                    }`}
-                                  >
-                                    {saving
-                                      ? "Guardando..."
-                                      : "Guardar cambios"}
-                                  </button>
-                                )}
+                                    <button
+                                      onClick={handleSave}
+                                      disabled={
+                                        saving ||
+                                        !document.filename ||
+                                        !document.result
+                                      }
+                                      className={`px-3 py-0.5 border rounded-[4px] text-[12px] ${saving ||
+                                          !document.filename ||
+                                          !document.result
+                                          ? "border-gray-300 text-gray-400 cursor-not-allowed"
+                                          : "border-success hover:border-medium hover:bg-success text-success hover:text-white cursor-pointer"
+                                        }`}
+                                    >
+                                      {saving
+                                        ? "Guardando..."
+                                        : "Guardar cambios"}
+                                    </button>
+                                  )}
                               </div>
 
                               <ResourceField
@@ -576,30 +570,30 @@ export const RequestDetailPage = () => {
                                 }
                               />
 
-                        {/* Campo de semáforo */}
-                        <div className="mt-4 flex gap-4">
-                          <label className="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Estado del Semáforo
-                          </label>
-                          <select
-                            value={document.semaforo || SemaforoStatus.PENDING}
-                            onChange={(e) =>
-                              handleSemaforoChange(docIndex, e.target.value)
-                            }
-                            disabled={document.status !== "Pendiente"}
-                            className=" border border-white-1 dark:border-white rounded-[8px]  disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          >
-                            {Object.values(SemaforoStatus).map((status) => (
-                              <option key={status} value={status}>
-                                {semaforoConfig[status].label}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    )}
+                              {/* Campo de semáforo */}
+                              <div className="mt-4 flex gap-4">
+                                <label className="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                  Estado del Semáforo
+                                </label>
+                                <select
+                                  value={document.semaforo || SemaforoStatus.PENDING}
+                                  onChange={(e) =>
+                                    handleSemaforoChange(docIndex, e.target.value)
+                                  }
+                                  disabled={document.status !== "Pendiente"}
+                                  className=" border border-white-1 dark:border-white rounded-[8px]  disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                >
+                                  {Object.values(SemaforoStatus).map((status) => (
+                                    <option key={status} value={status}>
+                                      {semaforoConfig[status].label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          )}
 
-                     {/* Campos específicos para USER */}
+                          {/* Campos específicos para USER */}
                           {isUser && (
                             <div className="p-3 border border-white-1 rounded-[12px]">
                               <p className="mb-2 font-medium text-gray-900 dark:text-white">
@@ -621,42 +615,39 @@ export const RequestDetailPage = () => {
                                 allowedFileTypes={[]}
                               />
 
-                        {/* Visualización del semáforo para usuarios */}
-                        <div className="mt-4 flex gap-8 items-center">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Semaforización
-                            </label>
-                            <div className="flex justify-around gap-3 w-[200px] px-4 py-1 border border-black dark:border-white rounded-[8px]">
-                              {/* Círculo Verde - CLEAR */}
-                              <div
-                                className={`w-3 h-3 rounded-full ${
-                                  (document.semaforo as SemaforoStatus) === SemaforoStatus.CLEAR
-                                    ? 'bg-success'
-                                    : 'bg-gray-300'
-                                }`}
-                              ></div>
-                              {/* Círculo Amarillo - WARNING */}
-                              <div
-                                className={`w-3 h-3 rounded-full ${
-                                  (document.semaforo as SemaforoStatus) === SemaforoStatus.WARNING
-                                    ? 'bg-warning'
-                                    : 'bg-gray-300'
-                                }`}
-                              ></div>
-                              {/* Círculo Rojo - CRITICAL */}
-                              <div
-                                className={`w-3 h-3 rounded-full ${
-                                  (document.semaforo as SemaforoStatus) === SemaforoStatus.CRITICAL
-                                    ? 'bg-error'
-                                    : 'bg-gray-300'
-                                }`}
-                              ></div>
-                            </div>
-                          </div>
+                              {/* Visualización del semáforo para usuarios */}
+                              <div className="mt-4 flex gap-8 items-center">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                  Semaforización
+                                </label>
+                                <div className="flex justify-around gap-3 w-[200px] px-4 py-1 border border-black dark:border-white rounded-[8px]">
+                                  {/* Círculo Verde - CLEAR */}
+                                  <div
+                                    className={`w-3 h-3 rounded-full ${(document.semaforo as SemaforoStatus) === SemaforoStatus.CLEAR
+                                        ? 'bg-success'
+                                        : 'bg-gray-300'
+                                      }`}
+                                  ></div>
+                                  {/* Círculo Amarillo - WARNING */}
+                                  <div
+                                    className={`w-3 h-3 rounded-full ${(document.semaforo as SemaforoStatus) === SemaforoStatus.WARNING
+                                        ? 'bg-warning'
+                                        : 'bg-gray-300'
+                                      }`}
+                                  ></div>
+                                  {/* Círculo Rojo - CRITICAL */}
+                                  <div
+                                    className={`w-3 h-3 rounded-full ${(document.semaforo as SemaforoStatus) === SemaforoStatus.CRITICAL
+                                        ? 'bg-error'
+                                        : 'bg-gray-300'
+                                      }`}
+                                  ></div>
+                                </div>
+                              </div>
 
-                      </div>
-                    )}
-                  </div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   );
