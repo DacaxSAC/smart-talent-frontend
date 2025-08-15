@@ -62,6 +62,7 @@ const handleFileUpload = async (
     }
 
     const { signedUrl, key } = response.data;
+    debugger
     await uploadFile(file, signedUrl);
     return key;
   } catch (error) {

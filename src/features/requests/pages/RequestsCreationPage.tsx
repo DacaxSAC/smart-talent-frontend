@@ -263,11 +263,13 @@ const processResources = async (resources: any[], uploadFile: (file: File, signe
         resource.value.map(async (file: File) => {
           if (file instanceof File) {
             try {
-              const signedUrl = await getSignedUrl(file);
-              await uploadFile(file, signedUrl);
+              const modifiedFileName = `${file.name}-${Date.now()}`;
+              const modifiedFile = new File([file], modifiedFileName, { type: file.type });
+              const signedUrl = await getSignedUrl(modifiedFile);
+              await uploadFile(modifiedFile, signedUrl);
               processedResources.push({
                 ...resource,
-                value: file.name
+                value: modifiedFile.name
               });
             } catch (error) {
               console.error("Error al procesar archivo:", error);
