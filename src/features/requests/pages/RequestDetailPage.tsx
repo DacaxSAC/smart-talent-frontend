@@ -620,7 +620,7 @@ export const RequestDetailPage = () => {
                         {/* Visualización del semáforo para usuarios */}
                         <div className="mt-4 flex gap-8 items-center">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Estado del semáforo relacionado al informe
+                              Semaforización
                             </label>
                             <div className="flex justify-around gap-3 w-[200px] px-4 py-1 border border-black dark:border-white rounded-[8px]">
                               {/* Círculo Verde - CLEAR */}
