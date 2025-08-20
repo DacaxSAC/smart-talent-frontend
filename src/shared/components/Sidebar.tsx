@@ -7,7 +7,7 @@ import { useModalStore } from '@/shared/store/modalStore';
 import { Logotipo } from './Logotipo';
 import { ThemeSwitch } from './ThemeSwitch';
 import { SidebarToggle } from './SidebarToggle';
-import { PaperIcon, RecruitmentIcon, PayIcon, AddIcon, ListIcon, ExitIcon, DocPendingIcon, DocOnProcessIcon, DocTerminatedIcon } from '@/shared/icons';
+import { PaperIcon, PayIcon, AddIcon, ListIcon, ExitIcon, DocPendingIcon, DocOnProcessIcon, DocTerminatedIcon } from '@/shared/icons';
 import { ROLES } from '@/features/auth/constants/roles';
 import { MdExpandMore } from 'react-icons/md';
 

@@ -3,7 +3,7 @@ import { UserTypeButton } from "../components/private/create/UserTypeButton";
 import { FormNatural } from "../components/private/create/FormNatural";
 import { FormJuridica } from "../components/private/create/FormJuridica";
 import { motion } from "framer-motion";
-import { UsersListResponse } from "../types/UserListResponse";
+import { UsersListResponse } from "@/features/users/types/UserListResponse";
 
 export function UpdateUserPage() {
   const navigate = useNavigate();
