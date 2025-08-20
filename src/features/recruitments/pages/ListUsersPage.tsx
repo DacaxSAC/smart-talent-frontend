@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { UsersService } from "../service/usersService";
 import { UsersList } from "../components/private/list/UsersList";
-import { UsersListResponse } from "../types/UserListResponse";
+import { UsersListResponse } from "@/features/users/types/UserListResponse";
 import { motion } from "framer-motion";
 
 export function ListUsersPage() {

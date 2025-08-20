@@ -2,13 +2,8 @@ import { Fragment } from "react/jsx-runtime";
 
 import { LayoutPage } from "@/shared/components/LayoutPage";
 import { Loader } from "@/shared/components/Loader";
-import { useUser } from "@/features/auth/hooks/useUser";
 
 export function RecruitmentsHistoryPage() {
-  // Hooks
-  const { user } = useUser();
-
-  // States
   
 
   return (
