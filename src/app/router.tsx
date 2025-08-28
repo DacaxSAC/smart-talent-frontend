@@ -1,5 +1,5 @@
 import App from "./App";
-import { createBrowserRouter, Outlet } from "react-router-dom";
+import { createHashRouter, Outlet } from "react-router-dom";
 import { authRoutes } from "../features/auth/router/authRoutes";
 import { usersRoutes } from "@/features/users/router/usersRoutes";
 import { requestsRoutes } from "@/features/requests/router/requestsRoutes";
@@ -20,7 +20,7 @@ import { HomePage } from "@/shared/pages/HomePage";
  * 2. Rutas protegidas (requieren autenticación) - todas las demás rutas
  * 3. Ruta 404 para páginas no encontradas
  * 
- * Nota: Se usa createBrowserRouter para URLs limpias sin hash (#)
+ * Nota: Se usa createHashRouter para URLs limpias sin hash (#)
  */
 
 // Define proper types for route and roles
@@ -48,7 +48,7 @@ const protectedRequestsRoutes = applyRouteProtection(requestsRoutes);
 const protectedRecruitmentsRoutes = applyRouteProtection(recruitmentsRoutes);
 const protectedBillingRoutes = applyRouteProtection(billingRoutes);
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     element: (
       <ProtectedAuthRoutes>
