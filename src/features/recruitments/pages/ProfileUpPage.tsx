@@ -4,6 +4,7 @@ import { UsersService } from "../service/usersService";
 import { UsersList } from "../components/private/list/UsersList";
 import { UsersListResponse } from "@/features/users/types/UserListResponse";
 import { motion } from "framer-motion";
+import { ObservationModal } from "../components/shared/ObservationModal";
 
 export function ProfileUpPage() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -24,6 +25,8 @@ export function ProfileUpPage() {
 
   return (
     <div className="flex flex-col mx-5 md:mx-8 my-15 gap-11 font-karla font-light">
+      <ObservationModal isOpen={true} onClose={() => {}} />
+
       <div className="flex flex-col md:flex-row justify-center md:justify-between">
         <div className="flex flex-col text-black dark:text-white">
           <p className="text-[32px] md:text-[36px] xl:text-[36px]">
