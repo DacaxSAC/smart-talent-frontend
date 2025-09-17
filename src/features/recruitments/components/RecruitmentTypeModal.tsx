@@ -22,7 +22,7 @@ export const RecruitmentTypeModal: React.FC<RecruitmentTypeModalProps> = ({ onSe
     if (selectedType) {
       onSelectType?.(selectedType);
       closeRecruitmentTypeModal();
-      navigate('/profile-up');
+      navigate(`/profile-up?type=${selectedType}`);
       setSelectedType(null);
     }
   };

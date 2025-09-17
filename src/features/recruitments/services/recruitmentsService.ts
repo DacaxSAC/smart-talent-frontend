@@ -85,6 +85,19 @@ export class RecruitmentsService {
   }
 
   /**
+   * Crea un reclutamiento con profileUp
+   */
+  static async createRecruitmentWithProfile(data: { type: string; profileUp: any }): Promise<any> {
+    try {
+      const response = await apiClient.post('/recruitments', data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating recruitment with profile:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Actualiza un reclutamiento
    */
   static async updateRecruitment(id: number, recruitmentData: Partial<Recruitment>): Promise<Recruitment> {
