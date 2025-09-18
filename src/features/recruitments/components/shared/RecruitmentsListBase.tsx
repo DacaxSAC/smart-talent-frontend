@@ -63,7 +63,7 @@ export function RecruitmentsListBase({
       const data = isAdmin || isRecruiter
         ? await RecruitmentsService.getAllRecruitments(statusFilter) 
         : await RecruitmentsService.getRecruitmentsByEntityId(user?.entityId as number);
-      
+
       setRecruitments(data.recruitments);
       setLoading(false);
     } catch (err) {

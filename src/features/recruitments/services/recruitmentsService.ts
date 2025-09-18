@@ -3,7 +3,9 @@ import { apiClient } from "@/lib/axios/client";
 export interface Recruitment {
   id: number;
   type: string;
+  recruitmentType: string;
   state: string;
+  status: string;
   description: string;
   date: string;
   options: string;
@@ -53,7 +55,7 @@ export class RecruitmentsService {
   }
 
   /**
-   * Obtiene reclutamientos por entidad
+   * Obtiene reclutamientos por ID de entidad
    */
   static async getRecruitmentsByEntityId(entityId: number): Promise<RecruitmentsResponse> {
     try {
@@ -68,6 +70,19 @@ export class RecruitmentsService {
         page: 1,
         limit: 10
       };
+    }
+  }
+
+  /**
+   * Obtiene un reclutamiento por ID
+   */
+  static async getRecruitmentById(id: number): Promise<{ data: any }> {
+    try {
+      const response = await apiClient.get(`/recruitments/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching recruitment by id:', error);
+      throw error;
     }
   }
 
@@ -111,7 +126,7 @@ export class RecruitmentsService {
   }
 
   /**
-   * Elimina un reclutamiento
+   * Elimina un reclutamiento por ID
    */
   static async deleteRecruitment(id: number): Promise<void> {
     try {

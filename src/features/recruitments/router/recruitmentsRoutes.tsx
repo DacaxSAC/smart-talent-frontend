@@ -1,6 +1,7 @@
 import { ROLES } from "@/features/auth/constants/roles";
 import { RecruitmentsListPage } from "../pages/RecruitmentsListPage";
 import { ProfileUpPage } from "../pages/ProfileUpPage";
+import { RecruitmentDetailPage } from "../pages/RecruitmentDetailPage";
 import { RecruitmentsListBase } from "../components/shared/RecruitmentsListBase";
 
 export const recruitmentsRoutes = [
@@ -44,6 +45,11 @@ export const recruitmentsRoutes = [
   {
     path: '/profile-up',
     element: <ProfileUpPage />,
+    roles: [ROLES.ADMIN, ROLES.RECRUITER, ROLES.USER]
+  },
+  {
+    path: '/recruitments/:id',
+    element: <RecruitmentDetailPage />,
     roles: [ROLES.ADMIN, ROLES.RECRUITER, ROLES.USER]
   },
 ];

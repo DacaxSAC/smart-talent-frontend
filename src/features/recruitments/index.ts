@@ -1,6 +1,7 @@
 // Pages
 export { RecruitmentsListPage } from './pages/RecruitmentsListPage';
 export { ProfileUpPage } from './pages/ProfileUpPage';
+export { RecruitmentDetailPage } from './pages/RecruitmentDetailPage';
 
 // Components
 export { RecruitmentsListBase } from './components/shared/RecruitmentsListBase';
