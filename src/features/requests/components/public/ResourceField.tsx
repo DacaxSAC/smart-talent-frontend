@@ -99,14 +99,14 @@ export const ResourceField = (props: ResourceFieldProps) => {
                     {isFileReference(displayValue) ? (
                         <button 
                             onClick={handleDownload}
-                            className={`flex-1 px-3 py-0.5 border ${props.isResult ? 'border-black text-black hover:bg-white-2' : 'border-white-1 text-medium hover:bg-white-1'}  rounded-[4px] cursor-pointer`}
+                            className={`flex-1 px-3 py-0.5 border ${props.isResult ? 'border-black dark:border-medium text-black hover:bg-white-2 dark:text-medium dark:hover:bg-black-2' : 'border-white-1 text-medium hover:bg-white-1 dark:border-medium dark:text-medium dark:hover:bg-black-2'}  rounded-[4px] cursor-pointer`}
                         >
                             {textValue}
                         </button>
                     ) : (
-                        <div className={`flex-1 px-3 py-0.5 border ${props.isResult ? 'border-black text-black' : 'border-white-1 text-medium'} rounded-[4px]`}
+                        <div className={`flex-1 px-3 py-0.5 border ${props.isResult ? 'border-black dark:border-medium text-black dark:text-medium' : 'border-white-1 text-medium dark:border-medium dark:text-medium'} rounded-[4px]`}
                         >
-                            {displayValue || 'Pendiente'}
+                            {displayValue || 'Pendiente'}   
                         </div>
                     )}
                 </div>
@@ -127,11 +127,11 @@ export const ResourceField = (props: ResourceFieldProps) => {
                         value={textValue}
                         onChange={handleTextChange}
                         rows={2}
-                        className="flex-1 px-3 py-0.5 border border-gray-300 dark:border-gray-600 
+                        className="flex-1 px-3 py-0.5 border border-white-1 dark:border-medium 
                         rounded-[4px] focus:outline-none focus:ring-2 focus:ring-table-head focus:border-transparent 
-                        bg-white dark:bg-gray-700  
-                        placeholder-gray-400 dark:placeholder-gray-300
-                        transition-all duration-200 resize-vertical"
+                        bg-white dark:bg-black  
+                        placeholder-black dark:placeholder-white
+                        transition-all duration-200 resize-vertical text-medium"
                     />
                 ) : (
                     <div className='w-full flex gap-2'>
@@ -142,7 +142,7 @@ export const ResourceField = (props: ResourceFieldProps) => {
                             value={textValue}
                             readOnly
                             title={getTooltipContent()}
-                            className="flex-1 px-3 py-0.5 border border-white-1 rounded-[4px] text-medium cursor-default focus:outline-none focus:ring-0 focus:border-white-1"
+                            className="flex-1 px-3 py-0.5 border border-white-1 dark:border-medium rounded-[4px] text-medium cursor-default focus:outline-none focus:ring-0 focus:border-white-1"
                         />
                         <input
                             ref={fileInputRef}
@@ -155,7 +155,7 @@ export const ResourceField = (props: ResourceFieldProps) => {
                         <button
                             type="button"
                             onClick={handleUploadClick}
-                            className="px-3 py-0.5 border border-black hover:bg-black hover:text-white rounded-[4px] cursor-pointer"
+                            className="px-3 py-0.5 border border-black dark:border-medium hover:bg-black hover:text-white rounded-[4px] cursor-pointer"
                         >
                             Subir archivo
                         </button>

@@ -158,10 +158,7 @@ export const FormJuridica = ({
     console.log(response);
   };
 
-  const handleDisableUser = (userId: string) => {
-    // TODO: Implement disable user logic
-    console.log("Disable user:", userId);
-  };
+
 
   const handleAddUser = async () => {
     if (!newUserEmail.trim() || !newUserUsername.trim()) {

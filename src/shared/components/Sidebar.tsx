@@ -7,7 +7,7 @@ import { useModalStore } from '@/shared/store/modalStore';
 import { Logotipo } from './Logotipo';
 import { ThemeSwitch } from './ThemeSwitch';
 import { SidebarToggle } from './SidebarToggle';
-import { PaperIcon, RecruitmentIcon, PayIcon, AddIcon, ListIcon, ExitIcon, DocPendingIcon, DocOnProcessIcon, DocTerminatedIcon } from '@/shared/icons';
+import { PaperIcon, PayIcon, AddIcon, ListIcon, ExitIcon, DocPendingIcon, DocOnProcessIcon, DocTerminatedIcon, RecruitmentIcon } from '@/shared/icons';
 import { ROLES } from '@/features/auth/constants/roles';
 import { MdExpandMore } from 'react-icons/md';
 
@@ -16,7 +16,7 @@ export const Sidebar = () => {
   const { user, logout } = useUser();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const { setIsActiveDrawerRegisterRequests } = useModalStore();
+  const { setIsActiveDrawerRegisterRequests, openRecruitmentTypeModal } = useModalStore();
 
   const isAdmin = user?.roles.includes(ROLES.ADMIN);
   const isUser = user?.roles.includes(ROLES.USER);
@@ -94,7 +94,10 @@ export const Sidebar = () => {
         {
           icon: <AddIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
           label: 'Agregar nuevo reclutamiento',
-          onClick: () => navigate('/recruitments'),
+          onClick: () => {
+            navigate('/recruitments');
+            openRecruitmentTypeModal();
+          },
           showCondition: isUser
         },
         {
@@ -134,12 +137,12 @@ export const Sidebar = () => {
           onClick: () => navigate('/requests-history'),
           showCondition: isUser || isAdmin
         },
-        {
-          icon: <ListIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
-          label: 'Historial de reclutamientos',
-          onClick: () => navigate('/recruitments-history'),
-          showCondition: isUser || isAdmin
-        },
+        //{
+        //  icon: <ListIcon className="w-[30px] h-[30px] text-black-2 dark:text-white-1" />,
+        //  label: 'Historial de reclutamientos',
+        //  onClick: () => navigate('/recruitments-history'),
+        //  showCondition: isUser || isAdmin
+        //},
       ]
     },
     {
