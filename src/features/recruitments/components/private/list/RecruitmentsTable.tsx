@@ -271,7 +271,6 @@ export function RecruitmentsTable({ recruitments, loading, error, onRefresh }: R
       <ConfirmationModal
          isOpen={showDeleteModal}
          title="¿Estás seguro de eliminar?"
-         message="Esta acción no se puede deshacer."
          confirmText={isDeleting ? "Eliminando..." : "Eliminar"}
          cancelText="Cancelar"
          onConfirm={handleConfirmDelete}

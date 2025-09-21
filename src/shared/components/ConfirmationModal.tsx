@@ -42,7 +42,7 @@ export function ConfirmationModal({
     <div className="fixed inset-0 bg-[#10101080] flex items-center justify-center z-50">
       <div className="bg-white rounded-xl border border-[#C3C3C3] h-[152px] w-[266px]">
         <div className="pt-10 ">
-          <h3 className="pl-8 font-karla font-medium text-[16px] leading-[100%] tracking-[0%] text-[#101010]">
+          <h3 className="text-center font-karla font-medium text-[16px] leading-[100%] tracking-[0%] text-[#101010]">
             {title}
           </h3>
           {message && (
