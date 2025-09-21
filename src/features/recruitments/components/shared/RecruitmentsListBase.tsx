@@ -20,7 +20,7 @@ interface RecruitmentsListBaseProps {
   description: string;
   statusFilter?: string;
   showAddButton?: boolean;
-  isOnlyUser?: boolean;
+  isOnlyUser ?: boolean;
 }
 
 /**

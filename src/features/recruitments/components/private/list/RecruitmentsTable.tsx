@@ -276,7 +276,7 @@ export function RecruitmentsTable({ recruitments, loading, error, onRefresh }: R
          cancelText="Cancelar"
          onConfirm={handleConfirmDelete}
          onCancel={handleCancelDelete}
-         confirmButtonColor="red"
+         confirmButtonColor="orange"
        />
     </div>
   );

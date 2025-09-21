@@ -8,7 +8,7 @@ interface ConfirmationModalProps {
   cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
-  confirmButtonColor?: 'red' | 'blue' | 'green';
+  confirmButtonColor?: 'red' | 'blue' | 'green' | 'orange';
 }
 
 export function ConfirmationModal({
@@ -27,6 +27,8 @@ export function ConfirmationModal({
     switch (confirmButtonColor) {
       case 'red':
         return 'bg-red-500 hover:bg-red-600 text-white';
+      case 'orange':
+        return 'bg-[#FA8D28] hover:bg-[#D97C20] text-[#101010]';
       case 'blue':
         return 'bg-blue-500 hover:bg-blue-600 text-white';
       case 'green':
@@ -37,10 +39,10 @@ export function ConfirmationModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg max-w-md w-full mx-4">
-        <div className="p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+    <div className="fixed inset-0 bg-[#10101080] flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl border border-[#C3C3C3] h-[152px] w-[266px]">
+        <div className="pt-10 ">
+          <h3 className="pl-8 font-karla font-medium text-[16px] leading-[100%] tracking-[0%] text-[#101010]">
             {title}
           </h3>
           {message && (
@@ -48,16 +50,16 @@ export function ConfirmationModal({
               {message}
             </p>
           )}
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-center gap-6 mt-[33px]">
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+              className="h-5 w-16 px-2 border border-[#C3C3C3] rounded-sm text-[12px] font-karla text-[#101010] bg-[#0000000D] hover:bg-gray-300 transition-colors"
             >
               {cancelText}
             </button>
             <button
               onClick={onConfirm}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${getConfirmButtonStyles()}`}
+              className={`h-5 w-auto px-2 border border-[#C3C3C3] rounded-sm text-[12px] font-karla text-[#101010] transition-colors ${getConfirmButtonStyles()}`}
             >
               {confirmText}
             </button>
