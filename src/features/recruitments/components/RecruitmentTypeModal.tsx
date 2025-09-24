@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useModalStore } from '../../../shared/store/modalStore';
 import { Modal } from '../../../shared/components/Modal';
 import { Button } from '../../../shared/components/Button';
-import { X } from 'lucide-react';
 
 interface RecruitmentTypeModalProps {
   onSelectType?: (type: string) => void;
