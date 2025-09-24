@@ -443,8 +443,6 @@ export const RequestDetailPage = () => {
                         </div>
                         <div className="flex gap-2 items-center">
                           <span
-                            className={`text-[12px] text-black  px-3 py-1 rounded-full  ${
-                              document.status === "Pendiente"
                             className={`text-[12px] px-3 py-1 rounded-full  ${document.status === "Pendiente"
                                 ? "bg-warning"
                                 : document.status === "Realizado"

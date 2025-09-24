@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { RecruitmentsService } from '../services/recruitmentsService';
+import { ObservationModal } from '../components/shared/ObservationModal';
 
 interface ProfileUpFormData {
   solicitadoPor: string;
@@ -132,15 +133,17 @@ export function ProfileUpPage() {
 
   return (
     <div className="flex flex-col h-screen mx-5 md:mx-8 py-8 gap-6 font-karla">
-      {/* Header */}
+      <ObservationModal isOpen={true} onClose={() => {}} />
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-semibold text-gray-900 mb-2">Levantamiento de perfil</h1>
         <p className="text-gray-600">Registra fácilmente el levantamiento de perfil para tu proceso de reclutamiento.</p>
         {recruitmentType && (
           <p className="text-sm text-orange-600 mt-2">Tipo de reclutamiento: {recruitmentType}</p>
         )}
+          </div>
+      {/* End Header
       </div>
-
+        
       {/* Form Container */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 flex-1 overflow-y-auto min-h-0">
         {/* Datos generales */}
